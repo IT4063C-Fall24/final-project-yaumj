@@ -12,6 +12,7 @@ pandas = "*"
 opendatasets = "*"
 beautifulsoup4 = "*"
 lxml = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
