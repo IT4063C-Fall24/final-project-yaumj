@@ -16,6 +16,8 @@ python-dotenv = "*"
 matplotlib = "*"
 seaborn = "*"
 scikit-learn = "*"
+pyreadstat = "*"
+python-docx = "*"
 
 [dev-packages]
 
