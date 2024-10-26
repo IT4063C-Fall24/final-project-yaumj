@@ -1,0 +1,1649 @@
+BACKGROUND AND CODEBOOK
+PEW RESEARCH CENTER
+2017 STEM SURVEY
+
+Background
+This document provides background information and codebook details for those wishing to analyze the data from a 2017 Pew Research Center survey of U.S. adults about careers and education in science, technology, engineering and math (STEM). The survey had a sample size of 4,914 adults, 18 years of age or older, living in all 50 U.S. states and the District of Columbia. The survey was conducted by the GfK Group in English and Spanish using the KnowledgePanel, its nationally representative online research panel. KnowledgePanel members are recruited through probability sampling methods and include those with internet access and those who did not have internet access at the time of their recruitment (KnowledgePanel provides internet access for those who do not have it, and if needed, a device to access the internet when they join the panel).
+
+The findings from this survey are detailed in the following report:
+
+January 9, 2018 “Women and Men in STEM Often at Odds Over Workplace Equity”
+http://www.pewsocialtrends.org/2018/01/09/women-and-men-in-stem-often-at-odds-over-workplace-equity/
+Sample Design
+The sample design for the survey was comprised of three groups: a group of about 2,500 panelists who said they were employed in a STEM occupation in a prior survey, a second group of about 1,900 panelists who were employed in a non-STEM occupation according to prior records, and a third group of about 500 eligible panelists to include other members of the general public including those who are not employed. Thus, the survey design oversamples employed adults and those employed in a science, technology, engineering or math occupation. In all, 8,995 panelists were invited to take part in the survey. The completion rate for this survey, that is the share of panelists invited to participate who completed the survey, was 62.9%. The cumulative response rate, calculated following Callegaro and DiSogra (2008), was 5%.
+All respondents were asked to verify their current employment status. Updated occupation information was collected for all employed adults who indicated that their main job had changed since the time of completing their profile survey. Most respondents who said they worked in a STEM occupation were also asked an open-end question to describe their occupation in more detail. These responses were used for final classification as employed in a STEM or non-STEM job where they were available.
+STEM occupations included the following job categories: computer and mathematical; architecture and engineering; life and physical sciences; medical doctors; other health care practitioners; health care technologists and technicians; and teachers (both K-12 and postsecondary) who specialize in a STEM subject. Healthcare support occupations and all other occupational categories were classified as non-STEM jobs. 
+Note that since the survey was conducted in only English and Spanish, the sample of Asians working in STEM jobs are those with proficiency in English. There are not enough Asians working in non-STEM jobs for separate analysis in this survey. 
+Margins of error
+The margins of error table shows the unweighted sample sizes and the error attributable to sampling that would be expected at the 95% level of confidence for different groups in the survey.
+
+The survey’s margin of error is the largest 95% confidence interval for any estimated proportion based on the total sample – the one around 50%. The margin of error for the entire sample is ±2.7 percentage points. This means that in 95 out of every 100 samples drawn using the same methodology, estimated proportions based on the entire sample will be no more than 2.7 percentage points away from their true values in the population. Sampling errors and statistical tests of significance used in this report take into account the effect of weighting. In addition to sampling error, one should bear in mind that question wording and practical difficulties in conducting surveys can introduce error or bias into the findings of opinion polls.
+
+Weighting
+The data were weighted in a multistep process that begins with a base weight that accounts for differences in probability of selection into the study. Respondents were divided into four mutually exclusive subgroups 1) STEM workers, excluding STEM teachers 2) non-STEM workers, excluding non-STEM teachers 3) Teachers, both STEM and non-STEM 4) Non-workers. Each of these groups was separately weighted using an iterative technique to match population benchmarks. Next, the weighting combined all workers and aligned the combined group to population benchmarks for all workers. In a final step, workers (both STEM and non-STEM) were combined with non-workers, and the weights were further adjusted so that each group’s relative proportions and demographic profile matched estimates for all U.S. adults. At each stage, the resulting weights were trimmed and scaled to the number of completed surveys. 
+Population benchmarks included: gender by age, race/ethnicity, education, household income, region by metropolitan status, and primary language. Primary language parameters come from the Census Bureau’s 2015 American Community Survey; all other parameters come from the March 2016 Current Population Survey (CPS). 
+Protection of Respondent Confidentiality
+As a matter of policy to maintain confidentiality, the Pew Research Center does not release respondent names, contact numbers or any other identifying information. In order to maintain confidentiality, some variables may have been deleted from the dataset or collapsed into categories before being released. These changes include deleting all open-end responses, deleting some geographic data, such as state and collapsing and truncating other variables such as number of science and math courses.
+CODEBOOK
+
+This section describes the variables included in the dataset. It first includes information on variables not included in the questionnaire, which includes paradata and profile variables from respondents. The codebook also includes any variables from the questionnaire that were truncated or collapsed. It then includes a copy of the questionnaire, which provides information on variables from the questionnaire, including variable names, values and value labels. 
+
+
+VARIABLES
+
+CaseID			Unique respondent identification number
+
+weight			Post-Stratification weight – Gen Pop 18+
+
+WORK_1	[Employed full time (35 hours or more per week) for pay with an organization or company] Do any of the following currently describe you?
+
+Yes
+No
+9		Refused
+
+WORK_2	[Employed part time (less than 35 hours per week) for pay with an organization or company] Do any of the following currently describe you?
+
+Yes
+No
+9		Refused
+
+WORK_3	[Self-employed full time (35 hours or more per week)] Do any of the following describe you?
+
+Yes
+No
+9		Refused
+
+WORK_4	[Self-employed part time (less than 35 hours per week)] Do any of the following describe you?
+
+Yes
+No
+9		Refused
+
+EMPLOYED	Employment status
+
+Employed
+Not employed
+Refused 
+
+FULLPART	Full- or Part-Time Employment
+
+Full Time Employee
+Part Time Employee
+Not employed
+Refused
+
+SELFEMPLOYEED	Self-Employment
+
+Self Employed
+Not Self Employed
+Not employed
+9	Refused
+
+
+OCCUPATION_col	Occupation
+
+1	Management
+2	Business and Financial Operations
+3	Computer and Mathematical
+4	Architecture and Engineering
+5	Life, Physical and Social Sciences
+6	Community and Social Services
+7	Lawyer, judge
+8	Teacher, except college and university
+9	Teacher, college and university
+10	Other professional
+11	Medical Doctor (such as physician, surgeon, dentist, veterinarian)
+12	Other Health Care Practitioner (such as nurse, pharmacist, chiropractor, dietitian)
+13	Health Technologist or Technician (such as paramedic, lab technician)
+14	Health Care Support (such as nursing aide, orderly, dental assistant)
+15	Protective Service
+16	Food Preparation and Serving
+17	Building and Grounds Cleaning and Maintenance
+18	Personal Care and Service
+19	Sales  (Sales Representative, Retail Sales, Other Sales)
+22	Office and Administrative Support
+23	Farming, Forestry and Fishing
+24	Construction and Extraction or Installation, Maintenance and Repair or Precision Production (such as machinist, welder, baker, printer, tailor)
+27	Transportation and Material Moving
+28	Armed Services
+29	Other 
+88	Not asked
+99	Refused
+
+INDUSTRY_col	Industry (current or main job)
+
+1	Agriculture, Forestry, Fishing and Hunting or Mining, Quarrying, and Oil and Gas Extraction
+3	Utilities
+4	Construction
+5	Manufacturing
+6	Wholesale Trade
+7	Retail Trade
+8	Transportation and Warehousing
+9	Information
+10	Finance and Insurance
+11	Real Estate and Rental and Leasing
+12	Professional, Scientific and Technical Services
+15	Educational Services
+16	Health Care and Social Assistance
+17	Arts, Entertainment and Recreation
+18	Accommodation and Food Services
+19	Other Services and Community/Non-Profit Organizations (except Public Administration)
+20	Public Administration
+22	Other
+88	Not asked
+99	Refused
+
+TEACHSTEM		Teacher STEM Status
+
+STEM Teacher
+Non-STEM Teacher
+8	Not asked (occupation category other than 8 or 9 or not currently employed)
+9	Missing/Refused
+
+WORKTYPE_FINAL	STEM Status
+
+STEM Worker
+Non-STEM Worker
+Not Working
+Missing/Refused
+
+SCH10_flag	Flag for SCH10 text changes
+
+Saw original SCH10 text
+Saw SCH10A and SCH10B item 5 text changes
+
+DOV_FORM		Assignment for order of Gender/Ethnicity Questions
+
+Saw Gender questions first
+Saw Ethnicity questions first
+
+XSPANISH		Survey language
+
+English version
+Spanish version
+
+xparent			Parent of 0-17 year olds
+
+Parent of 0-17 year old
+Not a parent of 0-17 year old
+
+PPCM1301_col	Employer type
+
+Government
+Private-for-profit company or working in the family business
+Non-profit organization including tax exempt and charitable organizations
+Self-employed
+Not asked, not employed
+9	Refused
+
+DOV_PPCM0166	# of persons working for employer
+
+Under 10
+10-24
+25-49
+50-99
+100-499
+500-999
+1000 or more
+Not asked, not employed
+Refused
+
+ppagecat		Age – 7 categories
+
+18-24
+25-34
+35-44
+45-54
+55-64
+65-74
+75+
+
+ppagect4		Age – 4 categories
+
+18-29
+30-44
+45-59
+60+
+
+PPETHM		Race/Ethnicity
+
+1	White, non-Hispanic
+2	Black, non-Hispanic
+3	Other, non-Hispanic
+4	Hispanic
+5	2+ Races, Non-Hispanic
+
+PPGENDER		Gender
+
+1	Male
+2	Female
+
+PPHHHEAD		Household head
+
+0	No
+1	Yes
+
+HH_INCOME_col 	Household income
+
+1	Less than $30,000
+2_	$30,000 to $49,000
+3	             $50,000 to $74,999
+	4		$75,000 to $99,999
+	5		$100,000 or more
+
+PPMARIT		Marital status
+
+1	Married
+2	Widowed
+3	Divorced
+4	Separated
+5	Never married
+6	Living with partner
+
+PPMSACAT		MSA Status
+
+0	Non-Metro
+1	Metro
+
+PPREG4		Region 4 – Based on State of Residence
+
+1	Northeast
+2	Midwest
+3	South
+4	West
+
+SCH1_OE1_col		Open-end codes for SCH1 (first mention)
+SCH1_OE2_col		Open-end codes for SCH1 (second mention)
+SCH1_OE3_col		Open-end codes for SCH1 (third mention)
+
+
+100	Math/mathematics/arithmetic (including geometry, calculus, etc.) and Statistics
+101	Science (including chemistry, biology, physics, Earth sciences, etc.) and Engineering
+102	English/grammer/writing
+103	Reading
+104	History/social studies
+105	Computers/computer science
+106	Music
+107	Art/arts
+108	Foreign languages (including specific languages: Spanish, Chinese, etc.)
+109	Physical education/health/sex education/abstinence
+111	Economics/finances/personal finance 
+112	Manners/respect/anti-bulling/social skills
+113	Life skills/home economics 
+114	Critical thinking/logic/problem solving
+300	Other
+998	Don’t Know
+999	Refused 
+
+SCH7_OE1_col		Open-end codes for SCH7 – other 
+
+4	All of the above
+11	Lazy/don't care
+13	Not interested
+14	Just not for them; interested in other things
+16	Lack of confidence
+17	Mentality of this generation
+21	Not enough time spent on these subjects in school; no base
+22	Teaching to the test, not engaging students in classes; students can't see practical uses of subjects
+24	Cost of school
+26	Inadequate resources (teaching, funding, other resources)
+31	Don’t think these careers are important/considered prestigious and valued
+33	Think these jobs don't make much money
+35	Think there are no jobs
+36	Don't know about the opportunities presented by these degrees/career prospects
+97	Other
+98	Don't know
+99	Refused
+
+INTEREST2_OE		Open-end codes for INTEREST2
+
+10	Childhood
+20	Teenage years; High school
+30	College and 20's
+40	30+
+70	Always interested
+80	Can't classify
+96	Say already in STEM career
+97	Not interested
+98	Don't know/Don't remember
+99	Refused
+
+INTEREST3_OE1_col	Open-end codes for INTEREST3 (first mention)
+INTEREST3_OE2_col	Open-end codes for INTEREST3 (second mention)
+INTEREST3_OE3_col	Open-end codes for INTEREST3 (third mention)
+
+10	Chose to pursue something else	
+11	Found another interest/calling in life	
+14	Not encouraged to pursue/not supported	
+76	Got/already had a job in another path/field		
+21	Specific class turned them off	
+22	Didn’t do well in the subject/didn't get the grades	
+24	Lost interest/didn’t have interest in it	
+25	Seemed too difficult	
+29	Didn’t see how it was applicable		
+31	Inadequate teachers	
+33	Not enough education/no college education		
+41	Starting a family/taking care of family	
+49	Other personal circumstances		
+51	Lack of access to resources/opportunities	
+52	Expensive/money	
+53	Large time commitment/too busy	
+54 	A lot of work/classes
+71	Lack of jobs/too much competition for jobs	
+72	Didn’t pay well/other jobs paid more	
+95	Currently pursuing a STEM career/might in future	
+96	Did pursue a STEM job/pursued and changed jobs	
+97	Other	
+98	Don't know/Don't remember	
+99	Refused
+
+ETHNJOB2_OE1	Open-end codes for ETHNJOB2 (first mention)
+ETHNJOB2_OE2	Open-end codes for ETHNJOB2 (second mention)
+
+14	Work harder than others (different standards), don’t make mistakes
+40	Automatically assumed to be less competent than male/white counterparts (not turned to for things)/not taken as seriously
+41	Only female in the room/minority in workplace
+48	Associating them with negative stereotypes
+49	Not assertive enough, don’t bring up accomplishments
+51	Promoted less/after men/white
+52	Turned down for a job/less likely to get hired
+53	Passed over for opportunities/assignments
+69	General bias against women/minorities
+70	A minority in their field (when they're usually a majority)
+82	 Reverse discrimination by race
+83	 Reverse discrimination by gender and race
+97	Other
+98	Don't know/Don't remember
+99	Refused
+
+GENDJOB2_OE1_col	Open-end codes for GENDJOB2 (first mention)
+GENDJOB2_OE2_col	Open-end codes for GENDJOB2 (second mention)
+GENDJOB2_OE3_col	Open-end codes for GENDJOB2 (third mention)
+
+11	Feel need to (constantly) prove themselves/prove capability
+14	Work harder than others (different standards), don’t make mistakes
+40	Automatically assumed to be less competent than male/white counterparts (not turned to for things)/not taken as seriously
+41	Only female in the room/minority in workplace
+42	Boys club/camaraderie among male coworkers; excluded; 'good old boys’
+43	Criticized/penalized for not behaving how expected to behave (e.g., criticized for assertiveness; personality-based criticisms)
+44	Uncomfortable workplace/don’t fit in
+45	Harassment
+46	Assumed to do less important/menial tasks; patronized
+51	Promoted less/after men/white
+52	Turned down for a job/less likely to get hired
+56	Men/whites in leadership positions; fewer role models/mentors
+57	Paid less
+60	Hard to balance expected family responsibilities and work
+61	People expect they cannot have family and work successfully
+69	General bias against women/minorities
+70	A minority in their field (when they're usually a majority)
+71	A majority in their field
+72	Double jeopardy
+81	Reverse discrimination by gender
+82	Reverse discrimination by race
+83	Reverse discrimination by gender and race
+97	Other
+98	Don't know/Don't remember
+99	Refused
+
+DEGREE1_computer	What was your major field of study in college? Mention computer and information sciences
+
+Did not study computer and information services
+Studied computer and information services
+
+DEGREE1_math	What was your major field of study in college? Mention mathematics and statistics (including actuarial sciences)
+
+Did not study mathematics and statistics
+Studied mathematics and statistics 
+
+DEGREE1_life	What was your major field of study in college? Mention life science (e.g., biology, biochemical sciences zoology, plant sciences, ecology) or agriculture
+
+0		Did not study life sciences or agriculture
+      1		Studied life sciences or agriculture
+
+DEGREE1_physical	What was your major field of study in college? Mention physical sciences (e.g., chemistry, physics) or earth sciences (e.g., geology, environmental sciences)
+
+Did not study physical science or earth science
+Studied physical science or earth science 
+
+DEGREE1_engineering	  What was your major field of study in college? Mention engineering or architecture? 
+
+Did not study engineering or architecture
+Studied engineering or architecture
+
+DEGREE1_health	What was your major field of study in college? Mention health-related
+
+Did not study health-related
+Studied health related 
+
+DEGREE1_otherstem	What was your major field of study in college? Mention other STEM related
+
+Did not study other STEM related
+Studied other STEM related 
+
+DEGREE1_othernonstem  What was your major field of study in college? Mention other non-STEM
+
+Did not study other non-STEM related
+Studied other non-STEM related 
+
+DEGREE2_computer	Thinking about your most recent graduate degree, what was your degree field? Mention computer and information sciences
+
+Did not study computer and information services
+Studied computer and information services
+
+DEGREE2_math	Thinking about your most recent graduate degree, what was your degree field? Mention mathematics and statistics (including actuarial sciences) 
+
+Did not study mathematics and statistics
+Studied mathematics and statistics 
+
+DEGREE2_life  	Thinking about your most recent graduate degree, what was your degree field? Mention life sciences (e.g., biology, biochemical sciences, zoology, plant sciences, ecology) or agriculture 
+
+0		Did not study life sciences or agriculture
+      1		Studied life sciences or agriculture
+
+DEGREE2_physical	Thinking about your most recent graduate degree, what was your degree field? Mention physical sciences (e.g., chemistry, physics) or earth science (geology, environmental science)
+
+Did not study physical science or earth science
+Studied physical science or earth science 
+
+DEGREE2_engineering	 Thinking about your most recent graduate degree, what was your degree field, Mention engineering or architecture
+
+Did not study engineering or architecture
+Studied engineering or architecture
+
+DEGREE2_health	Thinking about your most recent graduate degree, what was your degree field? Mention health-related
+
+Did not study health-related
+Studied health related 
+
+DEGREE2_otherstem	Thinking about your most recent graduate degree, what was your degree field? Mention other STEM related
+
+Did not study other STEM related
+Studied other STEM related 
+
+DEGREE2_othernonstem  Thinking about your most recent graduate degree, what was your degree 
+     field?
+
+Did not study other non-STEM related
+Studied other non-STEM related 
+
+STEM_DEGREE	Respondent holds degree in STEM field or not
+
+at least one STEM degree
+no STEM degrees
+Not enough information/Don’t know/Refused
+
+SCICOUR2_t		How many college-level science courses have you taken?
+
+15	15 or more
+98	Zero or Don’t remember
+99	Refused
+
+MATHCOUR2_t		How many college-level math courses have you taken?
+
+15	15 or more
+98	Zero or Don’t remember
+99	Refused
+
+PPT017_t	Presence of Household Members – Children 0-17
+
+4		4 or more
+
+PPT18OV_t	Presence of household members – Adults 18+
+
+5 or more
+
+PPHHSIZE_t	Household size
+
+6	6 or more
+
+EDUC4CAT	Education (categorical)
+
+High school graduate or less
+Some college, including Associate degree
+Bachelors degree
+Masters, Professional or Doctorate degree
+
+RACE_col	Race (census)
+
+White
+Black
+Asian
+Other race
+
+RECONA_col	And which of the following best describes the kind of work you do?
+
+1		Computer work (such as software developer, data scientists or database administrator)
+2		Other
+
+RECONB_col 	And which of the following best describes the kind of work you do?
+
+1		Engineer
+2		Other
+3		Refused
+
+RECONC_col	And which of the following best describes the kind of work you do?
+
+Life sciences
+Physical sciences (include Earth sciences)
+Social sciences and other 
+
+PEW RESEARCH CENTER
+2017 STEM QUESTIONNAIRE
+JULY 11-AUGUST 10, 2017
+
+
+ASK ALL:
+WORK	Do any of the following currently describe you?  
+
+1. Employed full time (35 hours or more per week) for pay with an organization or company
+2. Employed part time (less than 35 hours per week) for pay with an organization or company
+3. Self-employed full time (35 hours or more per week)
+4. Self-employed part time (less than 35 hours per week)
+
+1 	Yes
+2	No
+
+
+ASK IF DOV_EMPLOYED=1 AND PPWORK=1,2 AND XPCM0160<3-
+CHANGOCCUP	Have you changed your MAIN job, that is the kind of work you do, since [insert DOV_PCMONTH] [insert DOV_PCYEAR], or not? 
+
+1	Yes, my main job has CHANGED
+2	No, my main job is the SAME
+
+
+ASK IF DOV_EMPLOYED=1 AND PPWORK<2 AND CHANGOCCUP=1 OR XPCM0160=30 OR XPCM0160=31
+OCCUPATION	In your MAIN job, what kind of work do you do?
+
+1. Management 
+[SPACE] 
+2. Business and Financial Operations 
+[SPACE] 
+Professional  
+3. Computer and Mathematical 
+4. Architecture and Engineering 
+5. Life, Physical, and Social Sciences 
+6. Community and Social Services 
+7. Lawyer or Judge 
+8. Teacher, except college and university 
+9. Teacher, college and university 
+[SPACE] 
+Health Care 
+11. Medical Doctor (such as physician, surgeon, dentist, veterinarian) 
+12. Other Health Care Practitioner (such as nurse, pharmacist, chiropractor, dietician) 
+13. Health Technologist or Technician (such as paramedic, lab technician) 
+14. Health Care Support (such as nursing aide, orderly, dental assistant) 
+[SPACE] 
+Service 
+15. Protective Service 
+16. Food Preparation and Serving 
+17. Building and Grounds Cleaning and Maintenance 
+18. Personal Care and Service 
+[SPACE] 
+Sales 
+19. Sales Representative 
+20. Retail Sales 
+21. Other Sales 
+[SPACE] 
+22. Office and Administrative Support 
+[SPACE] 
+23. Farming, Forestry, and Fishing 
+[SPACE] 
+Precision Production, Craft and Repair  
+24. Construction and Extraction 
+25. Installation, Maintenance, and Repair 
+26. Precision Production (such as machinist, welder, baker, printer, tailor) 
+[SPACE] 
+27. Transportation and Material Moving 
+[SPACE] 
+28. Armed Forces 
+[SPACE] 
+10. Other Professional
+29. Other, please specify [O] 
+
+
+ASK IF DOV_EMPLOYED=1 AND ((PPWORK<2 OR CHANGOCCUP=1) OR (XIND1=22 (NOT ASKED) OR 23 (MISSING))
+INDUSTRY	Think about the industry in which you currently work at your MAIN job. Which of the following kinds of industries is it? 
+
+1. Agriculture, Forestry, Fishing and Hunting 
+2. Mining, Quarrying, and Oil and Gas Extraction 
+3. Utilities 
+4. Construction 
+5. Manufacturing 
+6. Wholesale Trade 
+7. Retail Trade 
+8. Transportation and Warehousing 
+9. Information 
+10. Finance and Insurance 
+11. Real Estate and Rental and Leasing 
+12. Professional, Scientific, and Technical Services 
+13. Management of Companies and Enterprises 
+14. Administrative and Support and Waste Management and Remediation Services 
+15. Educational Services 
+16. Health Care and Social Assistance 
+17. Arts, Entertainment, and Recreation 
+18. Accommodation and Food Services 
+19. Other Services and Community/Non-Profit Organizations (except Public Administration) 
+20. Public Administration 
+21. Armed Forces 
+
+
+ASK IF DOV_OCCUPAPTION=8 (TEACHER, EXCEPT COLLEGE AND UNIVERSITY)
+TEACHNC1 Thinking about the kind of work you do…
+
+Do you specialize in teaching particular subjects, or do you not do this in your job?
+
+1	Yes, specialize
+2	No, do not specialize
+
+
+ASK IF TEACHNC=1 (YES, SPECIALIZE)
+TEACHNC2	Which of these best describes your teaching specialty area? 
+
+English
+Mathematics or statistics
+Science (includes biology, chemistry, physics, Earth sciences and others)
+Social science or social studies (includes economics, history, psychology, and others)
+Physical education
+Special education
+Computing and information science
+Engineering
+Foreign language
+Performing or visual arts
+Business management
+[SPACE]
+12        Something else, please specify [O]
+
+
+ASK IF DOV_OCCUPATION=9 (TEACHER, COLLEGE AND UNIVERSITY)
+TEACHCOL1 	Thinking about the kind of work you do…
+
+Which of the following broad areas best describes your specialty? 
+
+Humanities
+Mathematics or statistics
+Life sciences, physical sciences, Earth sciences
+4          Social sciences (include economics, political science, psychology, sociology and others)
+5          Computing and information science
+6          Engineering
+7          Business management
+8          Law
+9          Journalism
+10        Architecture
+11        Agriculture
+12        Performing or visual arts
+13        Physical education
+14        Allied health professions (such as dentistry, medicine, nursing, pharmacy, public health,    veterinary medicine)
+15        Something else, please specify [O]
+
+
+ASK IF DOV_OCCUPATION=3 (COMPUTER AND MATHEMATICAL)
+RECONA 	And which of the following best describes the kind of work you do? 
+
+Computer work (such as software developer, data scientist or database administrator)
+Statistician, mathematician or actuary 
+Other, please specify [O]
+
+
+ASK IF DOV_OCCUPATION=4 (ARCHITECTURE AND ENGINEERING)
+RECONB 	And which of the following best describes the kind of work you do?
+
+Architect or surveyor
+Engineer
+Other, please specify [O]
+
+
+ASK IF DOV_OCCUPATION=5 (LIFE, PHYSICAL, AND SOCIAL SCIENCES)
+RECONC	And which of the following best describes the kind of work you do?
+ 
+1	Life sciences 
+2	Physical sciences (include Earth sciences)
+3	Social sciences (include economics, political science, psychology, sociology and others)
+4	Other, please specify [O]
+
+
+ASK ALL:
+SCH1	Thinking about what's being taught in the K to 12 public schools these days, what ONE subject should schools emphasize more than they do now? 
+
+[OPEN-END]
+
+
+ASK ALL:
+SCH2 	Overall, how much would you say you know about the K to 12 public schools…
+
+In your local community 
+
+A lot
+A little
+Nothing at all
+
+In the U.S. as a whole
+
+A lot
+A little
+Nothing at all
+
+
+ASK ALL:
+SCH3	How would you rate the K to 12 public schools in your local community in the following areas? [RANDOMIZE ITEMS]
+
+In providing the knowledge and skills needed for pursuing a four-year college degree 
+
+Excellent
+Good
+Only fair
+Poor
+
+In teaching reading, writing and mathematics 
+
+Excellent 
+Good
+Only fair
+Poor
+
+In providing the knowledge and skills needed for pursuing a vocational or technical career 
+
+Excellent 
+Good
+Only fair
+Poor
+
+In teaching critical-thinking and problem-solving skills 
+
+Excellent 
+Good
+Only fair
+Poor
+
+
+ASK ALL:
+SCH4	Compared with other developed nations, how would you rate the United States in the following area... education in K to 12 public schools? 
+
+1	The U.S. is the best in the world
+2	The U.S. is above average
+3	The U.S. is average
+4	The U.S. is below average
+
+ASK ALL:
+SCH5	 [RANDOMLY ASSIGN HALF OF RESPONDENTS ITEMS IN ORDER OF A, B, C AND OTHER HALF OF ITEMS IN ORDER C, B, A]
+
+	a. Compared with other developed nations, how would you rate the United States in the following area…education in science, technology, engineering and math in K to 12 public schools?
+
+1	The U.S. is the best in the world
+2	The U.S. is above average
+3	The U.S. is average
+4	The U.S. is below average
+
+	b. Compared with other developed nations, how would you rate the United States in the following area…undergraduate education in science, technology, engineering and math in colleges and universities?
+1	The U.S. is the best in the world
+2	The U.S. is above average
+3	The U.S. is average
+4	The U.S. is below average
+
+	c. Compared with other developed nations, how would you rate the United States in the following area…graduate education in science, technology, engineering and math in universities?
+1	The U.S. is the best in the world
+2	The U.S. is above average
+3	The U.S. is average
+4	The U.S. is below average
+
+ASK ALL:
+SCH6	Thinking about science, technology, engineering and math education in the nation’s K to 12 public schools these days, do you think each of the following is a big problem, a small problem or not a problem? [RANDOMIZE ITEMS, SPLIT ON TWO SCREENS, SHOWING 4 ITEMS ON EACH SCREEN]
+
+Too little time is spent on these subjects in elementary school
+
+A big problem
+A small problem
+Not a problem
+
+Teachers do not have curriculum materials that are up-to-date with the newest developments in these subjects
+
+A big problem
+A small problem
+Not a problem
+
+Students lack interest in learning about these subjects
+
+A big problem
+A small problem
+Not a problem
+
+Too much emphasis is given to meeting state standards in these subjects
+
+A big problem
+A small problem
+Not a problem
+
+Teachers do not emphasize the practical uses of these subjects for everyday life
+
+A big problem
+A small problem
+Not a problem
+
+Parents are not involved in supporting school education in these subjects 
+
+A big problem
+A small problem
+Not a problem
+
+Students are not willing to work hard to excel in these subjects
+
+A big problem
+A small problem
+Not a problem
+
+Teachers rarely use methods that help students think critically and problem-solve in these subjects
+
+A big problem
+A small problem
+Not a problem
+
+
+ASK ALL:
+SCH7 	What's the main reason many young people don't pursue college degrees in science, technology, engineering and mathematics? Is it mostly because… [RANDOMIZE RESPONSE OPTIONS 1-3 WITH 4 ALWAYS LAST]
+
+They think these subjects are too hard
+They think these subjects are too boring
+They think these subjects are not useful for their careers
+	[SPACE]
+Some other reason (please specify)
+
+
+ASK ALL:
+SCH8	Thinking back to your own experiences in grades K to 12, did you generally like or dislike… [RANDOMIZE ITEMS]
+
+Science classes
+
+Liked  
+Disliked  
+
+Math classes
+
+Liked  
+Disliked  
+
+
+ASK IF SCH8a=1 OR 2 (NOT REFUSED)
+SCH9A	Thinking back to your experiences in grades K to 12, which of these was the main reason you generally [IF SCH8a=1:liked/IF SCH8a=2:disliked] SCIENCE CLASSES? [SHOW SCH9A AND SCH9B IN SAME ORDER AS SCH8]
+
+I [IF SCH8a=1:liked/IF SCH8a=2:disliked] the way science classes were taught
+I [IF SCH8a=1:liked/IF SCH8a=2:disliked] the subject matter of the science classes
+
+
+ASK IF SCH8B=1 OR 2 (NOT REFUSED)
+SCH9B 	Thinking back to your experiences in grades K to 12, which of these was the main reason you generally [IF SCH8B=1:liked/IF SCH8B=2:disliked] MATH CLASSES?
+
+I [IF SCH8B=1:liked/IF SCH8B=2:disliked] the way math classes were taught
+I [IF SCH8B=1:liked/IF SCH8B=2:disliked] the subject matter of the math classes
+
+
+
+ASK IF SCH8a=1 (LIKED SCIENCE CLASSES)
+SCH10A 	Thinking back to your own experiences in grades K to 12 which of these, if any, describe reasons you generally liked SCIENCE CLASSES? [RANDOMIZE ITEMS 1-5 WITH 6 ALWAYS LAST]
+
+Select all answers that apply
+
+I found science classes easy
+It was easy to see how science would be useful for the future
+I felt that I belonged in science classes
+I liked the labs and hands-on learning experiences
+I had a lot of support at home or after school to help me do well in these classes
+
+None of these
+
+
+ASK IF SCH8A=2 (DISLIKED SCIENCE CLASSES)
+SCH10B 	Thinking back to your own experiences in grades K to 12, which of these, if any, describe reasons you generally disliked SCIENCE CLASSES? [RANDOMIZE ITEMS 1-5 WITH 6 ALWAYS LAST]
+
+Select all answers that apply
+
+I found science classes hard
+It was not easy to see how science would be useful for the future
+I felt that I didn’t belong in science classes
+I didn’t like the labs and hands-on learning experiences
+I didn’t have enough support at home or after school to help me do well in these classes
+
+None of these
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+JOBVALU1	Thinking about your own work experiences…
+
+Which of these things, if any, is important to you personally when choosing a job? [RANDOMIZE ITEMS 1-7 WITH 8 ALWAYS LAST]
+
+Select all answers that apply
+
+1.	Having a high-paying job 
+2.	Having flexibility to balance work and family needs 
+3.	Having opportunities for promotion or advancement 
+4.	Making a meaningful contribution to society 
+5.	Having a job that others respect and value 
+6.	Having a job that focuses on helping others 
+7. 	Being in a workplace that is welcoming for people like me
+[SPACE]
+8.	None of the above
+
+
+
+ASK IF MORE THAN ONE ITEM SELECTED IN JOBVALU1
+JOBVALU2 	And, which of these things is MOST important to you personally when choosing a job? [SHOW ITEMS SELECTED IN JOBVALU1 IN SAME ORDER, AUTOPUNCH IF ONLY ONE RESPONSE AT JOBVALU1, BUT DO NOT SHOW RESPONDENT]
+
+1	Having a high-paying job
+2	Having flexibility to balance work and family needs 
+3	Having opportunities for promotion or advancement
+4	Making a meaningful contribution to society
+5	Having a job that others respect and value
+6	Having a job that focuses on helping others
+7	Being in a workplace that is welcoming for people like me
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+AHEAD	Thinking about the kind of work you do, would you say each of the following helps, hurts, or makes little difference for your chances of getting ahead in your job? [RANDOMIZE ITEMS]
+
+Being assertive 
+
+Helps my chances of getting ahead in my job
+Hurts my chances of getting ahead in my job
+Makes little difference
+
+Participating in informal social activities with my co-workers
+
+Helps my chances of getting ahead in my job
+Hurts my chances of getting ahead in my job
+Makes little difference
+
+Speaking out about problems I see in the workplace
+
+Helps my chances of getting ahead in my job
+Hurts my chances of getting ahead in my job
+Makes little difference
+
+Having a workplace mentor to advise me
+
+Helps my chances of getting ahead in my job
+Hurts my chances of getting ahead in my job
+Makes little difference
+
+Talking about my personal life at work
+
+Helps my chances of getting ahead in my job
+Hurts my chances of getting ahead in my job
+Makes little difference
+
+
+Working harder than others
+
+Helps my chances of getting ahead in my job
+Hurts my chances of getting ahead in my job
+Makes little difference
+
+Being vocal about my work and accomplishments
+
+Helps my chances of getting ahead in my job
+Hurts my chances of getting ahead in my job
+Makes little difference
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+TALENT 	For the kind of work that you do, how important, if at all, would you say having a natural ability is or has been for you, personally, to get ahead in your job? 
+
+Very important
+Somewhat important
+Not too important
+Not at all important
+
+
+ASK IF WORK1_1=1 OR WORK_2=1 (NOT-SELF EMPLOYED ONLY)
+PROVE 	How often, if ever, do you feel the need to prove yourself at work in order to be respected by your co-workers? 
+
+All the time
+Some of the time
+Not too often
+Never
+
+
+ASK IF WORK1_1=1 OR WORK_2=1 (NOT-SELF EMPLOYED ONLY)
+[RANDOMIZE ORDER OF RESPECTA AND RESPECTB, SHOW ON SAME SCREEN]
+RESPECTA 	How much would you say that your contributions at work are valued by your SUPERVISOR?
+
+A lot
+Some
+Not too much
+Not at all
+
+
+
+
+RESPECTB	How much would you say that your contributions at work are valued by your CO-WORKERS?
+
+A lot
+Some
+Not too much
+Not at all
+
+
+ASK ALL:
+FAMSTEM1	Do you have any close family members who work or have worked in a job or career that involves science, technology, engineering or math?
+
+Yes
+No 
+
+
+ASK IF FAMSTEM=1 (YES)
+FAMSTEM2 	These close family members who work or have worked in a job or career that involves science, technology, engineering or math are…
+
+Select all answers that apply
+
+1	Older than I am 
+2	About my age or younger than I am
+
+
+ASK IF WORKTYPE_FINAL=2 (EMPLOYED IN IN NON-STEM)
+INTEREST1 	Were you, personally, ever interested in pursuing a job or career that involves science, technology, engineering or math?
+
+Yes, I was very interested 
+Yes, I was somewhat interested
+No, I was not too interested
+No, I was not at all interested
+[SPACE]
+5	My job or career currently involves science, technology, engineering or math 
+
+
+ASK IF INTEREST1=1 OR 2 (SOMEWHAT OR VERY INTERESTED)
+INTEREST2  	When were you [IF INTEREST1=1:very; IF INTEREST1=2:somewhat] interested in pursuing a job or career that involves science, technology, engineering or math? [Enter your age at the time. If you don’t recall a specific age, describe the time period in your life.]
+
+[OPEN-END]
+		
+
+
+ASK IF INTEREST1=1 OR 2 (SOMEWHAT OR VERY INTERESTED)
+INTEREST3 	What’s the main reason you did not pursue a job or career that involves science, technology, engineering or math?
+
+[OPEN-END]
+
+
+ASK ALL:
+STEMJOB 	Compared with jobs in other industries, would you say… [RANDOMIZE ITEMS, SPLIT ON TWO SCREENS]
+
+Jobs in science, technology, engineering and math…
+
+Offer higher pay than jobs in other industries
+Offer lower pay than jobs in other industries
+Offer similar pay to jobs in other industries
+
+Jobs in science, technology, engineering and math…
+
+Offer more opportunities for advancement than jobs in other industries
+Offer fewer opportunities for advancement than jobs in other industries
+Offer about the same number of opportunities for advancement as jobs in other industries
+
+Jobs in science, technology, engineering and math…
+
+Have more flexibility to balance work and family needs than jobs in other industries
+Have less flexibility to balance work and family needs than jobs in other industries
+Have about the same amount of flexibility to balance work and family needs as jobs in 
+other industries
+
+Jobs in science, technology, engineering and math…
+
+Make a more meaningful contribution to society than jobs in other industries
+Make a less meaningful contribution to society than jobs in other industries
+Make about the same contribution to society as jobs in other industries
+
+Jobs in science, technology, engineering and math…
+
+Are more well-respected than jobs in other industries
+Are less well-respected than jobs in other industries
+Are respected about the same as jobs in other industries
+
+Jobs in science, technology, engineering and math…
+
+Are more focused on helping others than jobs in other industries
+Are less focused on helping others than jobs in other industries
+Are focused about the same amount on helping others as jobs in other industries
+
+Jobs in science, technology, engineering and math…
+
+Attract more of the brightest and most qualified young people than jobs in other industries
+Attract fewer of the brightest and most qualified young people than jobs in other industries
+Attract about the same number of the brightest and most qualified young people as jobs in other industries
+
+Jobs in science, technology, engineering and math…
+
+Are more difficult to get into than jobs in other industries
+Are less difficult to get into than jobs in other industries
+Are similarly difficult to get into as jobs in other industries
+
+
+CREATE DOV_FORM [S]
+Randomly assign half of respondents into DOV_FORM=1 and the other half into DOV_FORM=2
+IF DOV_FORM=1, SHOW REASON1 FIRST. IF DOV_FORM=2, SHOW REASON2 FIRST.
+
+ASK ALL:
+REASON1 	As you may know, women are underrepresented in some science, technology, engineering and math jobs in this country. 
+
+For each of the following, please indicate whether you think it is a major reason, a minor reason or not a reason why there are not more women working in science, technology, engineering and math jobs. [RANDOMIZE ITEMS, SHOW REASON1 AND REASON2 IN SAME ORDER] 
+
+a. 	From an early age, girls are not encouraged to pursue these subjects in school
+
+A major reason
+A minor reason
+Not a reason
+
+Women are less likely than men to believe that they can succeed in these fields
+
+A major reason
+A minor reason
+Not a reason
+
+Women do not pursue these jobs because there are so few female role models in these fields
+
+A major reason
+A minor reason
+Not a reason
+
+Women face discrimination in the recruitment process, hiring and promotions
+
+A major reason
+A minor reason
+Not a reason
+
+More women are being trained in science, technology, engineering and math than before, but it takes time and the process is slow
+
+A major reason
+A minor reason
+Not a reason
+
+Women are just less interested in science, technology, engineering and math than men
+
+A major reason
+A minor reason
+Not a reason
+
+It is more difficult to build a career while balancing work and family responsibilities in science, technology, engineering and math jobs than jobs in other industries
+
+A major reason
+A minor reason
+Not a reason
+
+
+ASK ALL:
+REASON2 	As you may know, blacks and Hispanics are underrepresented in science, technology, engineering and math jobs in this country. 
+
+For each of the following, please indicate whether you think it is a major reason, a minor reason or not a reason why there are not more blacks and Hispanics working in science, technology, engineering and math jobs. [RANDOMIZE ITEMS, SHOW REASON1 AND REASON2 IN SAME ORDER]
+
+From an early age, blacks and Hispanics are not encouraged to pursue these subjects in school
+
+A major reason
+A minor reason
+Not a reason
+
+Blacks and Hispanics are less likely than others to believe that they can succeed in these fields
+
+A major reason
+A minor reason
+Not a reason
+
+Blacks and Hispanics do not pursue these jobs because there are so few black and Hispanic role models in these fields
+
+A major reason
+A minor reason
+Not a reason
+
+Blacks and Hispanics face discrimination in the recruitment process, hiring and promotions
+
+A major reason
+A minor reason
+Not a reason
+
+More blacks and Hispanics are being trained in science, technology, engineering and math than before, but it takes time and the process is slow
+
+A major reason
+A minor reason
+Not a reason
+
+Blacks and Hispanics are just less interested in science, technology, engineering and math than others
+
+A major reason
+A minor reason
+Not a reason
+
+Blacks and Hispanics are less likely to have access to quality education to prepare them for these fields than others
+
+A major reason
+A minor reason
+Not a reason
+
+
+IF DOV_FORM=1, SHOW TECH1-TECH3 FIRST. IF DOV_FORM=2, SHOW TECH4-TECH6 FIRST.
+ASK ALL:
+TECH1 How much, if anything, have you heard or read about discrimination against women in the technology industry? 
+
+A lot
+A little
+Nothing at all
+
+
+
+ASK ALL:
+TECH2	Compared with other industries, do you think there is more, less or about the same amount of discrimination against women in the technology industry?
+
+More discrimination against women
+Less discrimination against women
+About the same amount of discrimination as other industries
+
+
+ASK ALL:
+TECH3	Do you think discrimination against women is a major problem, a minor problem or not a problem in the technology industry?
+	
+A major problem
+A minor problem
+Not a problem
+
+
+ASK ALL:
+TECH4	How much, if anything, have you heard or read about discrimination against blacks and Hispanics in the technology industry? 
+
+A lot
+A little
+Nothing at all
+
+
+ASK ALL:
+TECH5	Compared with other industries, do you think there is more, less or about the same amount of discrimination against blacks and Hispanics in the technology industry?
+
+More discrimination against blacks and Hispanics
+Less discrimination against blacks and Hispanics
+About the same amount of discrimination as other industries
+
+
+ASK ALL:
+TECH6	Do you think discrimination against blacks and Hispanics is a major problem, a minor problem or not a problem in the technology industry? 
+	
+A major problem
+A minor problem
+Not a problem
+
+
+
+IF DOV_FORM=1, SHOW GEND1-6. IF DOV_FORM=2, SHOW ETHN1-6.
+
+Thinking about your own workplace…
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+GEND1 	What is the balance of men and women in your workplace? [RANDOMIZE OPTIONS 1 AND 2]
+
+There are more men
+There are more women
+There is an even mix of men and women
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+GEND2	How would you say your workplace treats women when it comes to the recruitment and hiring process?  
+
+Usually treated fairly in the recruitment and hiring process
+Sometimes treated fairly and sometimes treated unfairly 
+Usually treated unfairly in the recruitment and hiring process
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+GEND3 	How would you say your workplace treats women when it comes to opportunities for promotion and advancement?
+
+Usually treated fairly in opportunities for promotion and advancement 
+Sometimes treated fairly and sometimes treated unfairly 
+Usually treated unfairly in opportunities for promotion and advancement
+
+
+ASK IF DOV_EMPLOYED=1 (EMPOYED)
+GEND4 	Would you say your workplace pays too much, too little or about the right amount of attention to increasing gender diversity? 
+
+Too much attention
+Too little attention
+About the right amount of attention	
+
+
+ASK ALL:
+GEND5 	How important would you say it is to have gender diversity in workplaces today?
+
+Extremely important
+Very important
+Somewhat important
+Not too important
+Not at all important
+
+
+ASK IF GEND5=1,2,3 (EXTREMELY, VERY, SOMEWHAT IMPORTANT)
+GEND6	Which of these, if any, do you consider important reasons to increase gender diversity in the workplace? [RANDOMIZE ITEMS a-c WITH ITEM d ALWAYS LAST]
+
+Select all answers that apply
+
+a. Gender diversity in the workplace gives people an equal opportunity to succeed 
+b. Gender diversity provides other perspectives that contribute to the overall success of companies and organizations
+c. Gender diversity makes good business sense because it increases the supply of potential workers
+[SPACE]
+d. None of these 
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+ETHN1 	Which of these best describes your workplace? [RANDOMIZE OPTIONS 1 AND 2]
+
+Most people are the same race and ethnicity as I am
+Most people are a different race or ethnicity than I am
+There is a mix of people from different racial and ethnic backgrounds
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+ETHN2	How would you say your workplace treats people in each of the following groups when it comes to the recruitment and hiring process? [RANDOMIZE ITEMS]
+
+Whites
+
+Usually treated fairly in the recruitment and hiring process
+Sometimes treated fairly and sometimes treated unfairly 
+Usually treated unfairly in the recruitment and hiring process
+
+Blacks
+
+Usually treated fairly in the recruitment and hiring process
+Sometimes treated fairly and sometimes treated unfairly 
+Usually treated unfairly in the recruitment and hiring process
+
+Hispanics
+
+Usually treated fairly in the recruitment and hiring process
+Sometimes treated fairly and sometimes treated unfairly 
+Usually treated unfairly in the recruitment and hiring process
+
+Asian Americans 
+
+Usually treated fairly in the recruitment and hiring process
+Sometimes treated fairly and sometimes treated unfairly 
+Usually treated unfairly in the recruitment and hiring process
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+ETHN3	How would you say your workplace treats people in each of the following groups when it comes to opportunities for promotion and advancement? [SHOW IN SAME ORDER AS ETHN2]
+
+Whites
+
+Usually treated fairly in opportunities for promotion and advancement 
+Sometimes treated fairly and sometimes treated unfairly 
+Usually treated unfairly in opportunities for promotion and advancement
+
+Blacks
+
+Usually treated fairly in opportunities for promotion and advancement 
+Sometimes treated fairly and sometimes treated unfairly 
+Usually treated unfairly in opportunities for promotion and advancement
+
+Hispanics
+
+Usually treated fairly in opportunities for promotion and advancement 
+Sometimes treated fairly and sometimes treated unfairly 
+Usually treated unfairly in opportunities for promotion and advancement
+
+Asian Americans 
+
+Usually treated fairly in opportunities for promotion and advancement 
+Sometimes treated fairly and sometimes treated unfairly 
+Usually treated unfairly in opportunities for promotion and advancement
+
+
+ASK IF DOV_EMPLOYED=1:
+ETHN4 	Would you say your workplace pays too much, too little or about the right amount of attention to increasing racial and ethnic diversity? 
+
+Too much attention
+Too little attention
+About the right amount of attention	
+
+
+ASK ALL:
+ETHN5	How important would you say it is to have racial and ethnic diversity in workplaces today? 
+
+Extremely important
+Very important
+Somewhat important
+Not too important
+Not at all important
+
+
+
+ASK IF ETHN5=1,2,3 (EXTREMELY, VERY, SOMEWHAT IMPORTANT)
+ETHN6	Which of these, if any, do you consider important reasons to increase racial and ethnic diversity in the workplace? [RANDOMIZE ITEMS a-c WITH ITEM d ALWAYS LAST]
+
+Select all answers that apply
+
+a. Racial and ethnic diversity in the workplace gives people an equal opportunity to succeed 
+b. Racial and ethnic diversity provides other perspectives that contribute to the overall success of companies and organizations
+c. Racial and ethnic diversity makes good business sense because it increases the supply of potential workers
+	[SPACE]
+	d. None of these
+
+
+IF DOV_FORM=1, show GENDJOB1-GENDJOB2 FIRST; IF DOV_FORM=2, SHOW ETHNJOB1 ETHNJOB2 FIRST
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+GENDJOB1	Overall, which of these best describes your experience? [RANDOMIZE OPTIONS 1 AND 2, SHOW IN SAME ORDER AS ETHNJOB1]
+
+My gender has made it harder for me to succeed in my job
+My gender has made it easier for me to succeed in my job 
+My gender has not made much difference in my job
+
+
+ASK IF WORKTYPE_FINAL=1 (STEM) AND GENDJOB1=1 (HARDER TO SUCCEED)
+GENDJOB2 	Why do you think that your gender has made it harder to succeed in your job? 
+
+[OPEN-END]
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+ETHNJOB1 	Overall, which of these best describes your experience? [RANDOMIZE OPTIONS 1 AND 2, 
+SHOW IN SAME ORDER AS GENDJOB1]
+
+My race or ethnicity has made it harder for me to succeed in my job
+My race or ethnicity has made it easier for me to succeed in my job 
+My race or ethnicity has not made much difference in my job
+
+
+ASK IF WORKTYPE_FINAL=1 (STEM) AND ETHNJOB1=1 (HARDER TO SUCCEED)
+ETHNJOB2 	Why do you think that your race or ethnicity has made it harder to succeed in your job?
+
+[OPEN-END]
+
+
+
+ASK IF WORKTYPE_FINAL=1 AND ((PPGENDER=1 and PPETHM=2, BLACK MAN) OR (PPGENDER=1 AND PPETHM=4, HISPANIC MAN) OR (PPGENDER=2 AND PPETHM=1, WHITE WOMAN) OR (PPGENDER=2 AND PPETHM=2, BLACK WOMAN) OR (PPGENDER=2 AND PPETHM=4, HISPANIC WOMAN) OR (PPGENDER=2 AND (XRACEM=4 AND PPETHM=3), ASIAN AMERICAN WOMAN))
+CHANGE 	In your view, what would be the MOST EFFECTIVE way to attract more [IF PPGENDER=1 and PPETHM=2:black men; IF PPGENDER=1 AND PPETHM=4:Hispanic men; IF PPGENDER=2 AND PPETHM=1:white women; IF PPGENDER=2 AND PPETHM=2:black women; IF PPGENDER=2 AND PPETHM-4:Hispanic women; IF PPGENDER=2 AND (XRACEM=4 AND PPETHM=3):Asian American women] to jobs in science, technology, engineering and math?
+
+[OPEN-END]
+
+Prompt if refused: You did not give a response. If you are sure you want to skip, click next.
+
+
+IF DOV_FORM=1, ASK GENDDISC FIRST; IF DOV_FORM=2, ASK ETHNDISC FIRST.
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+GENDDISC	Here are a few things that some people have experienced in their workplace because of their gender. 
+
+Which, if any, of the following has ever happened to you? [RANDOMIZE ITEMS a-h with i ALWAYS LAST]
+
+Select all answers that apply
+
+Been denied a promotion because of your gender 
+Earned less than a [IF PPGENDER=1:woman; IF PPGENDER=2: man] who was doing the same job 
+Been turned down for a job because of your gender 
+Felt isolated in your workplace because of your gender
+Received less support from senior leaders than a [IF PPGENDER=1:woman; IF PPGENDER=2: man] who was doing the same job
+Had someone treat you as if you were not competent because of your gender 
+Been passed over for the most important assignments because of your gender
+Experienced repeated, small slights at work because of your gender 
+[SPACE]
+None of these 
+
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED) 
+ETHNDISC	Here are a few things that some people have experienced in their workplace because of their race or ethnicity. 
+
+Which, if any, of the following has ever happened to you? [RANDOMIZE ITEMS a-h with i ALWAYS LAST]
+
+Select all answers that apply
+
+Been denied a promotion because of your race or ethnicity 
+Earned less than a coworker who was doing the same job because of your race or ethnicity 
+Been turned down for a job because of your race or ethnicity 
+Felt isolated in your workplace because of your race or ethnicity 
+Received less support from senior leaders than another worker who was doing the same job because of your race or ethnicity 
+Had someone treat you as if you were not competent because of your race or ethnicity 
+Been passed over for the most important assignments because of your race or ethnicity 
+Experienced repeated, small slights at work because of your race or ethnicity 
+[SPACE]
+None of these 
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+HARASS1 	As far as you know, would you say sexual harassment is a big problem, a small problem or not a problem in your workplace? 
+
+Big problem
+Small problem
+Not a problem
+
+
+ASK IF DOV_EMPLOYED=1
+HARASS2 	Overall, would you say sexual harassment is a big problem, a small problem or not a problem in jobs in the industry where you work?
+
+Big problem
+Small problem
+Not a problem
+
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED)
+HARASS3 	Have you ever personally experienced sexual harassment at work, or have you not experienced this?
+
+Yes, I have experienced sexual harassment at work
+No, I have not experienced sexual harassment at work
+
+
+ASK ALL:
+VOTECH 	Just a few more questions about your background and experiences…
+
+Have you completed any vocational or technical training, certificate or apprenticeship? 
+
+Yes
+No
+
+
+ASK IF PPEDUC=11,12,13,14 (ASSOCIATE DEGREE OR MORE)
+DEGREE1 	What was your major field of study in college? (Please fill in as many as apply) 
+
+Major field 1	[OPEN-END TEXT BOX; SINGLE LINE]
+Major field 2	[OPEN-END TEXT BOX; SINGLE LINE]
+
+
+ASK IF PPEDUC=13,14 (GRADUATE DEGREE)
+DEGREE2 	Thinking about your most recent graduate degree, what was your degree field? 
+
+		Degree field [OPEN-END TEXT BOX; SINGLE LINE]
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED) AND PPEDUC=11,12,13,14 (ASSOCIATE DEGREE OR MORE)
+
+RELATE1 [S]	How closely related is your current job to [IF PPEDUC=11, 12: your college major(s)/ IF PPEDUC=13, 14:the field you received your graduate degree in]?
+Very closely related
+Somewhat closely related
+Not very closely related
+Not at all related
+
+
+
+ASK IF DOV_EMPLOYED=1 (EMPLOYED) AND PPEDUC=11,12,13,14 (ASSOCIATE DEGREE OR MORE)
+RELATE2	How often do you use skills and knowledge from your [IF PPEDUC=11,12: college major(s); IF PPEDUC=13,14:graduate degree] in your current job? 
+
+All the time
+Some of the time
+Not too often
+Never
+
+
+ASK IF PPEDUC=10-14 (SOME COLLEGE OR MORE)
+SCICOUR1	Have you ever taken any college-level science courses? 
+
+Yes
+No
+[SPACE]
+3	Don’t remember
+
+
+ASK IF SCICOUR1=1 (TAKEN COLLEGE-LEVEL SCIENCE COURSES)
+SCICOUR2 	How many college-level science courses have you taken? [range 0-50] 
+
+		         ____ science courses 	
+
+98	Don’t remember
+
+
+ASK IF PPEDUC=10-14 (SOME COLLEGE OR MORE)
+MATHCOUR1 	Have you ever taken any college-level math courses? 
+
+Yes
+No
+
+3	Don’t remember
+
+
+ASK IF MATHCOUR1=1 (TAKEN COLLEGE-LEVEL MATH COURSES)
+MATHCOUR2 	How many college-level math courses have you taken? [range 0-50]
+		 
+	    ____ math courses 	
+
+98	Don’t remember
+
+
+ASK IF PPEDUC=10-14 (SOME COLLEGE OR MORE)
+FIRSTCOLL 	Are you the first person in your immediate family to have attended college, or not? [Immediate family includes parents and siblings.] 
+
+Yes
+No
+
+
+ASK IF WORKTYPE_FINAL=1 (STEM) AND TEACHSTEM DOES NOT EQUAL 1 (NOT A STEM TEACHER)
+
+OCCUP_OE	
+How would you best describe your occupation, that is the kind of work you do in your MAIN job?
+
+[Open-end]
+
+Prompt if refused: You did not give a response. If you are sure you want to skip, click next.
+
+
+ASK ALL:
+PARTY 	In politics today, do you consider yourself a: 
+
+1	Republican 
+2	Democrat 
+3	Independent
+4	Something else, please specify [OPEN-END]
+
+
+IF PARTY=3,4 OR REFUSED
+PARTYLN 	As of today do you lean more to… 
+
+1	The Republican Party
+2	The Democratic Party
+
+
+ASK ALL:
+IDEO 		In general, would you describe your political views as:
+
+1	Very conservative
+2	Conservative
+3	Moderate
+4	Liberal 
+5	Very liberal
+
+
+ASK IF XPARENT=1 (ASK IF HAVE A CHILD UNDER 18)
+PUBLIC [S]
+Do you have any children in kindergarten through 12th grade attending a public school, or not?
+
+Yes
+No
+
