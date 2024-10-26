@@ -13,6 +13,9 @@ opendatasets = "*"
 beautifulsoup4 = "*"
 lxml = "*"
 python-dotenv = "*"
+matplotlib = "*"
+seaborn = "*"
+scikit-learn = "*"
 
 [dev-packages]
 
