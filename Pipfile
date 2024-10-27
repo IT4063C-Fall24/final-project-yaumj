@@ -18,6 +18,7 @@ seaborn = "*"
 scikit-learn = "*"
 pyreadstat = "*"
 python-docx = "*"
+openpyxl = "*"
 
 [dev-packages]
 
