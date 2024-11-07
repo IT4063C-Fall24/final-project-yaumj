@@ -35,9 +35,13 @@
 # *HackerRank 2018 Developer Survey (Kaggle):* Published in 2018, based on 2017 survey responses.  
 # *Pew Research Center 2017 STEM Survey (zip file):* Based on 2017 responses.  
 # *NSF's National Center for Science and Engineering Statistics (Web-Scraped Tables):* Spans several years, ending in 2019, with specific data points from 2017 for comparison.
+# *From College to Jobs American Community Survey 2019 (U.S. Census Bureau xls files): Detailed information about jobs and salaries broken down by gender and level of education. 
 # 
 # **Relating the Data**  
-# The datasets can be linked based on the shared year (2017) and gender as a common variable. Gender will serve as a primary key or part of a composite key for linking.
+# - The datasets can be linked based on the shared timeframe (2017-2019) and gender as a common variable. 
+# - Gender will serve as a primary key or part of a composite key for linking. (Non-binary or unknown will be excluded from analysis.)
+# - Ages will be limited to the 25 - 64 range to match the American Community Survey data.
+# 
 
 # ## Approach and Analysis
 # *What is your approach to answering your project question?*
@@ -58,7 +62,7 @@
 
 # #### Package Imports
 
-# In[2]:
+# In[1]:
 
 
 #import packages
@@ -89,7 +93,7 @@ from docx import Document
 
 # #### Import Dataset 1: HackerRank Developer Survey Published in 2018 that covered 2017 Questionnaire Responses
 
-# In[81]:
+# In[2]:
 
 
 # import dataset from Kaggle using URL 
@@ -99,7 +103,7 @@ od.download(dataset_url, data_dir="./data")
 
 # #### Convert dataset to a pandas dataframe and inspect data for Exploratory Data Analysis (EDA)
 
-# In[82]:
+# In[3]:
 
 
 # Define the data directory
@@ -133,7 +137,7 @@ display(dev_survey_values_df.head(5))
 # - There are outliers in this data as far as what can be directly related to my other datasets and my hypothesis for the purpose of analysis.
 #     - Age ranges will need to be limited to match what is available in the datasets from other sources to make "apples to apples" comparisons.
 
-# In[83]:
+# In[4]:
 
 
 # Find United States in the country_code_df to use for filtering purposes
@@ -150,7 +154,7 @@ display(us_country_code_df)
 
 # #### Filtered dataframe to include only respondents in the United States
 
-# In[84]:
+# In[5]:
 
 
 # Filter the DataFrame for United States questionnaire responses
@@ -167,7 +171,7 @@ display(us_dev_survey_numeric_df.head(5))
 # #### Reduce dataframe columns to only those relevant to supporting or disproving my hypothesis
 # - fields such as date survey was completed and questions about the HackerRank survey were removed from dataframe for simplification
 
-# In[85]:
+# In[6]:
 
 
 # List of relevant columns to keep
@@ -203,7 +207,7 @@ display(filtered_us_dev_survey_numeric_df.head(5))
 # #### Check for Duplicate Records
 # - Some records will be similar, but all records should have a unique RespondentID
 
-# In[108]:
+# In[7]:
 
 
 # Check for duplicates in the RespondentID field
@@ -220,84 +224,77 @@ else:
     print("No duplicate records found in RespondentID.")
 
 
-# #### Separate Responses by Worker Responses and Hiring Manager Responses
-# - Used q16HiringManager response to determine role
-# - Chose specific response fields relevant to hypothesis such as age, gender, industry, job level, current role, and job qualities for worker dataframe
-# - Survey questions were ordered by if they applied to worker responses or hiring manager responses. For example, everything after q16HiringManager were
-# questions only shown/relevant to people who responded "Yes"
+# #### Filter DataFrame to be Consistent with American Community Survey Parameters for Data Matching
+# - Remove ages under 25 years old (coded as q2Age: 1, 2, or 3)
+# - Remove ages over 64 years old (coded as q2Age: 8 or 9)
+# - Remove non-binary respondents (coded as q3Gender: 3)
 
-# In[86]:
+# In[8]:
 
 
-# Define columns for Worker Responses Numeric DataFrame
-worker_columns_numeric = [
-    'RespondentID', 'q2Age', 'q3Gender', 'q10Industry',
-    'q8JobLevel', 'q9CurrentRole',
-    'q12JobCritPrefTechStack', 'q12JobCritCompMission',
-    'q12JobCritCompCulture', 'q12JobCritWorkLifeBal',
-    'q12JobCritCompensation', 'q12JobCritProximity',
-    'q12JobCritPerks', 'q12JobCritSmartPeopleTeam',
-    'q12JobCritImpactwithProduct', 'q12JobCritInterestProblems',
-    'q12JobCritFundingandValuation', 'q12JobCritStability',
-    'q12JobCritProfGrowth', 'q16HiringManager'
+# Summary of counts for each value in q2Age
+age_summary = filtered_us_dev_survey_numeric_df['q2Age'].value_counts(dropna=False)
+print("Summary of counts for each value in q2Age:")
+print(age_summary)
+
+# Summary of counts for each value in q3Gender
+gender_summary = filtered_us_dev_survey_numeric_df['q3Gender'].value_counts(dropna=False)
+print("\nSummary of counts for each value in q3Gender:")
+print(gender_summary)
+
+
+# In[9]:
+
+
+# Remove records where q2Age is #NULL!, 1, 2, 3, 8, or 9
+filtered_us_dev_survey_numeric_df = filtered_us_dev_survey_numeric_df[
+    ~filtered_us_dev_survey_numeric_df['q2Age'].isin(['#NULL!', '1', '2', '3', '8', '9'])
 ]
 
-# Create Worker Responses Numeric DataFrame
-worker_responses_numeric_df = filtered_us_dev_survey_numeric_df[
-    filtered_us_dev_survey_numeric_df['q16HiringManager'] == 2  # Not a hiring manager
-][worker_columns_numeric]
-
-# Define columns for Hiring Manager Responses Numeric DataFrame
-hiring_manager_columns_numeric = [
-    'RespondentID', 'q2Age', 'q3Gender', 'q10Industry',
-    'q8JobLevel', 'q9CurrentRole', 'q16HiringManager',
-    'q17HirChaNoDiversCandidates', 'q20CandYearExp',
-    'q20CandCompScienceDegree', 'q20CandCodingBootcamp',
-    'q20CandSkillCert', 'q20CandHackerRankActivity',
-    'q20CandOtherCodingCommAct', 'q20CandGithubPersProj',
-    'q20CandOpenSourceContrib', 'q20CandHackathonPart',
-    'q20CandPrevWorkExp', 'q20CandPrestigeDegree',
-    'q20CandLinkInSkills', 'q20CandGithubPersProj2'
+# Remove records where q3Gender is #NULL! or 3
+filtered_us_dev_survey_numeric_df = filtered_us_dev_survey_numeric_df[
+    ~filtered_us_dev_survey_numeric_df['q3Gender'].isin(['#NULL!', '3'])
 ]
 
-# Create Hiring Manager Responses Numeric DataFrame
-hiring_manager_responses_numeric_df = filtered_us_dev_survey_numeric_df[
-    filtered_us_dev_survey_numeric_df['q16HiringManager'] == 1  # Is a hiring manager
-][hiring_manager_columns_numeric]
+# Display the row count of the refined DataFrame
+row_count_after_filtering = filtered_us_dev_survey_numeric_df.shape[0]
+print(f"Row count after filtering: {row_count_after_filtering}")
 
-# Display the resulting Worker Responses Numeric DataFrame and info about the dataframe
-print("Worker Responses Numeric DataFrame:")
-display(worker_responses_numeric_df.info())
-display(worker_responses_numeric_df.head(5))
+# New summary of counts for each value in q2Age
+age_summary = filtered_us_dev_survey_numeric_df['q2Age'].value_counts(dropna=False)
+print("New summary of counts for each value in q2Age:")
+print(age_summary)
 
-# Display the resulting Hiring Manager Responses Numeric DataFrame and info about the dataframe
-print("Hiring Manager Responses Numeric DataFrame:")
-display(hiring_manager_responses_numeric_df.info())
-display(hiring_manager_responses_numeric_df.head(5))
+# Summary of counts for each value in q3Gender
+gender_summary = filtered_us_dev_survey_numeric_df['q3Gender'].value_counts(dropna=False)
+print("\nNew summary of counts for each value in q3Gender:")
+print(gender_summary)
 
 
 # #### Exploratory Data Analysis (EDA)
+# - Begin renaming columns
 # - The numeric dataframe should consist entirely of int64 data types, yet the majority have an "object" data type instead.
-#  - These datatypes will need to be converted for certain types of analysis like a correlation matrix.
+#     - These datatypes will need to be converted for certain types of analysis like a correlation matrix.
 
-# In[156]:
+# In[47]:
 
 
-# Convert all columns in Worker Responses Numeric DataFrame to int64
-worker_responses_numeric_df = worker_responses_numeric_df.apply(pd.to_numeric, errors='coerce').astype('Int64')
+# Rename columns
+filtered_us_dev_survey_numeric_df.rename(columns={
+    'q2Age': 'Age',
+    'q3Gender': 'Gender',
+    'q10Industry': 'Industry',
+    'q8JobLevel': 'Job Level',
+    'q9CurrentRole': 'Current Role'
+}, inplace=True)
 
-# Convert all columns in Hiring Manager Responses Numeric DataFrame to int64
-hiring_manager_responses_numeric_df = hiring_manager_responses_numeric_df.apply(pd.to_numeric, errors='coerce').astype('Int64')
+# Convert all columns to Int64 
+filtered_us_dev_survey_numeric_df = filtered_us_dev_survey_numeric_df.apply(pd.to_numeric, errors='coerce').astype('Int64')
 
-# Display the resulting Worker Responses Numeric DataFrame and info about the dataframe
-print("Worker Responses Numeric DataFrame:")
-display(worker_responses_numeric_df.info())
-display(worker_responses_numeric_df.head(5))
-
-# Display the resulting Hiring Manager Responses Numeric DataFrame and info about the dataframe
-print("Hiring Manager Responses Numeric DataFrame:")
-display(hiring_manager_responses_numeric_df.info())
-display(hiring_manager_responses_numeric_df.head(5))
+# Display the resulting Numeric DataFrame and info
+print("Revised Numeric DataFrame (No Splitting, Renamed Columns):")
+display(filtered_us_dev_survey_numeric_df.info())
+display(filtered_us_dev_survey_numeric_df.head(5))
 
 
 # #### Data Visualization using Seaborn Correlation Matrix
@@ -306,20 +303,28 @@ display(hiring_manager_responses_numeric_df.head(5))
 # **Insights:**
 # - **Age and Job Level Correlation:** The matrix reveals a moderate correlation between *Age* and *Job Level*, indicating that older workers are more likely to hold higher job levels, reflecting common career progression trends.
 # - **Weak Correlations:** Most other variables show minimal correlation, suggesting that individual factors like *job preferences* or *industry* alone do not strongly predict other attributes, making them less effective for simple statistical analysis--at least in this specific dataset.
+# 
+# 
+# **INSIGHTS UPDATE:**
+# - *After further filtering to remove ages under 25 and over 64, the moderate correlation between age and job level that was seen in the earlier version is no longer apparent.*
 
-# In[158]:
+# In[50]:
 
 
-# Filter out rows with any missing values for the correlation calculation
-worker_responses_filtered = worker_responses_numeric_df.dropna()
+# Select only the desired columns for the correlation matrix
+selected_columns = ['Age', 'Gender', 'Industry', 'Job Level', 'Current Role']
+filtered_responses = filtered_us_dev_survey_numeric_df[selected_columns]
 
-# Compute the correlation matrix on the filtered data
-worker_correlation_matrix = worker_responses_filtered.corr()
+# Filter out rows with any missing values in the selected columns
+filtered_responses = filtered_responses.dropna()
+
+# Compute the correlation matrix on the filtered data with selected columns
+correlation_matrix = filtered_responses.corr()
 
 # Plot the correlation heatmap for Worker Responses
 plt.figure(figsize=(10, 8))
-sns.heatmap(worker_correlation_matrix, annot=False, cmap='coolwarm')
-plt.title("Correlation Matrix for Worker Responses Numeric DataFrame")
+sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm')
+plt.title("Correlation Matrix for HackerRank Survey Responses")
 plt.show()
 
 
@@ -327,7 +332,7 @@ plt.show()
 # - Both datasets contain the same records, but one has numeric codes for all responses and the other has plain language values for all responses 
 # so the same logic can be used for both dataframes.
 
-# In[87]:
+# In[13]:
 
 
 # Filter the DataFrame for CountryNumeric2 = "United States"
@@ -341,7 +346,7 @@ display(f"Number of records: {num_records_values}")
 display(us_dev_survey_values_df.head(5))
 
 
-# In[88]:
+# In[14]:
 
 
 # Reduce dataframe columns to only those relevant to supporting or disproving my hypothesis
@@ -376,70 +381,63 @@ filtered_us_dev_survey_values_df.info()
 display(filtered_us_dev_survey_values_df.head(5))
 
 
-# In[89]:
-
-
-# Define columns for Worker Responses Values DataFrame
-worker_columns_values = [
-    'RespondentID', 'q2Age', 'q3Gender', 'q10Industry',
-    'q8JobLevel', 'q9CurrentRole', 'q16HiringManager',
-    'q12JobCritPrefTechStack', 'q12JobCritCompMission',
-    'q12JobCritCompCulture', 'q12JobCritWorkLifeBal',
-    'q12JobCritCompensation', 'q12JobCritProximity',
-    'q12JobCritPerks', 'q12JobCritSmartPeopleTeam',
-    'q12JobCritImpactwithProduct', 'q12JobCritInterestProblems',
-    'q12JobCritFundingandValuation', 'q12JobCritStability',
-    'q12JobCritProfGrowth'
-]
-
-# Create Worker Responses Values DataFrame
-worker_responses_values_df = filtered_us_dev_survey_values_df[
-    filtered_us_dev_survey_values_df['q16HiringManager'] == 'No'  # Not a hiring manager
-][worker_columns_values]
-
-# Define columns for Hiring Manager Responses Values DataFrame
-hiring_manager_columns_values = [
-    'RespondentID', 'q2Age', 'q3Gender', 'q10Industry',
-    'q8JobLevel', 'q9CurrentRole', 'q16HiringManager',
-    'q17HirChaNoDiversCandidates', 'q20CandYearExp',
-    'q20CandCompScienceDegree', 'q20CandCodingBootcamp',
-    'q20CandSkillCert', 'q20CandHackerRankActivity',
-    'q20CandOtherCodingCommAct', 'q20CandGithubPersProj',
-    'q20CandOpenSourceContrib', 'q20CandHackathonPart',
-    'q20CandPrevWorkExp', 'q20CandPrestigeDegree',
-    'q20CandLinkInSkills', 'q20CandGithubPersProj2'
-]
-
-# Create Hiring Manager Responses Values DataFrame
-hiring_manager_responses_values_df = filtered_us_dev_survey_values_df[
-    filtered_us_dev_survey_values_df['q16HiringManager'] == 'Yes'  # Is a hiring manager
-][hiring_manager_columns_values]
-
-# Display the resulting Worker Responses Values DataFrame and info about the dataframe
-print("Worker Responses Values DataFrame:")
-display(worker_responses_values_df.info())
-display(worker_responses_values_df.head(5))
-
-# Display the resulting Hiring Manager Responses Values DataFrame and info about the dataframe
-print("Hiring Manager Responses Values DataFrame:")
-display(hiring_manager_responses_values_df.info())
-display(hiring_manager_responses_values_df.head(5))
-
-
-# #### Clean the workers dataframe
+# #### Clean the values dataframe
 # - Removed records where gender is missing because they cannot be used to prove/disprove the hypothesis.
-# - Filtered out records where respondents were 18 or younger since they were unlikely to be relevant to investigating the professional levels in the technology field. 
-# Anyone under 18 who shows a job, is essentially an outlier for the purpose of my dataset.
+# - Filtered out records where gender is non-binary to match the parameters of the US Census Burea's American Community Survey.
+# - Filtered out records where respondents were under 25 or over 64 to match the parameters of the US Census Bureau's American Community Survey.
 # - Filtered out records where the age is null because both age and gender are necessary to determine job level comparisons.
+# 
+
+# In[23]:
+
+
+# Create a copy to work on and avoid SettingWithCopyWarning
+filtered_us_dev_survey_values_df = filtered_us_dev_survey_values_df.copy()
+
+# Drop records where Gender is null
+filtered_us_dev_survey_values_df.dropna(subset=['q3Gender'], inplace=True)
+
+# Drop records where Gender is '#NULL!' or 'Non-Binary'
+filtered_us_dev_survey_values_df.drop(
+    filtered_us_dev_survey_values_df[filtered_us_dev_survey_values_df['q3Gender'].isin(['#NULL!', 'Non-Binary'])].index,
+    inplace=True
+)
+
+# Filter out respondents who are under 25 or over 64 
+filtered_us_dev_survey_values_df = filtered_us_dev_survey_values_df[
+    ~filtered_us_dev_survey_values_df['q2Age'].isin(["Under 12 years old", "12 - 18 years old", "18 - 24 years old", "65 - 74 years old", "75 years or older"])
+]
+
+# Filter out rows where Age is '#NULL!'
+filtered_us_dev_survey_values_df = filtered_us_dev_survey_values_df[
+    filtered_us_dev_survey_values_df['q2Age'] != '#NULL!'
+]
+
+# Display how many rows remain
+print(f"Remaining records after cleaning (SHOULD BE 2942 IF CORRECT): {filtered_us_dev_survey_values_df.shape[0]}")
+
+# New summary of counts for each value in q2Age
+age_summary = filtered_us_dev_survey_values_df['q2Age'].value_counts(dropna=False)
+print("New summary of counts for each value in Age:")
+print(age_summary)
+
+# Summary of counts for each value in q3Gender
+gender_summary = filtered_us_dev_survey_values_df['q3Gender'].value_counts(dropna=False)
+print("\nNew summary of counts for each value in Gender:")
+print(gender_summary)
+
+
+# #### Clean the values dataframe
+# - Rename columns
 # - Filtered out records where current role or job level is student because they are not relevant to my hypothesis.
 # - Filtered out records where both the Job Level and Current Role were NaN because there is no way to determine values for the field if both are blank.
 # 
 
-# In[109]:
+# In[27]:
 
 
-# Rename columns for clarity
-worker_responses_values_df.rename(columns={
+# Rename columns
+filtered_us_dev_survey_values_df.rename(columns={
     'q2Age': 'Age',
     'q3Gender': 'Gender',
     'q10Industry': 'Industry',
@@ -447,55 +445,33 @@ worker_responses_values_df.rename(columns={
     'q9CurrentRole': 'Current Role'
 }, inplace=True)
 
-# Drop records where Gender is null
-worker_responses_values_df.dropna(subset=['Gender'], inplace=True)
-
-# Drop records where Gender is '#NULL!'
-worker_responses_values_df.drop(
-    worker_responses_values_df[worker_responses_values_df['Gender'] == '#NULL!'].index,
-    inplace=True
-)
-
-# Filter out respondents who are categorized as "Under 12 years old" or "12 - 18 years old"
-worker_responses_values_df = worker_responses_values_df[
-    ~worker_responses_values_df['Age'].isin(["Under 12 years old", "12 - 18 years old"])
-]
-
-# Filter out rows where Age is '#NULL!'
-worker_responses_values_df = worker_responses_values_df[
-    worker_responses_values_df['Age'] != '#NULL!'
-]
-
 # Filter out rows where Current Role or Job Level is "Student"
-worker_responses_values_df = worker_responses_values_df[
-    (worker_responses_values_df['Current Role'] != 'Student') & 
-    (worker_responses_values_df['Job Level'] != 'Student')
+filtered_us_dev_survey_values_df = filtered_us_dev_survey_values_df[
+    (filtered_us_dev_survey_values_df['Current Role'] != 'Student') & 
+    (filtered_us_dev_survey_values_df['Job Level'] != 'Student')
 ]
 
 # Filter out rows where both Job Level and Current Role are NaN
-worker_responses_values_df = worker_responses_values_df[
-    ~ (worker_responses_values_df['Job Level'].isna() & worker_responses_values_df['Current Role'].isna())
+filtered_us_dev_survey_values_df = filtered_us_dev_survey_values_df[
+    ~ (filtered_us_dev_survey_values_df['Job Level'].isna() & filtered_us_dev_survey_values_df['Current Role'].isna())
 ]
 
 # Display how many rows remain
-print(f"Remaining records after cleaning: {worker_responses_values_df.shape[0]}")
-
-# Display the cleaned DataFrame
-display(worker_responses_values_df.head(5))
+print(f"Remaining responses after cleaning: {filtered_us_dev_survey_values_df.shape[0]}")
 
 
 # #### Data Visualization using Matplotlib Bar Graph
 # **Purpose:** Perform a preliminary analysis of the HackerRank Dataset breakdown by age and gender
 # **Insights:**
 # - **Age Group Representation**: The graph reveals how many workers fall into each age group, highlighting the most common age demographics within the dataset.
-# - **Gender Distribution**: By comparing the heights of the bars for different genders, we can see which age groups have higher counts of male, female, and non-binary workers. This highlights trends in workforce composition.
+# - **Gender Distribution**: By comparing the heights of the bars for different genders, we can see which age groups have higher counts of male and female workers. This highlights trends in workforce composition.
 # - **Demographic Changes:** The visualization aims to assess whether there is a change in demographics proportionally from age group to age group, providing insights into how representation shifts across different stages of workforce experience.
 
-# In[154]:
+# In[26]:
 
 
 # Group the data by Age Group and Gender, and count occurrences
-age_gender_counts = worker_responses_values_df.groupby(['Age', 'Gender']).size().unstack(fill_value=0)
+age_gender_counts = filtered_us_dev_survey_values_df.groupby(['Age', 'Gender']).size().unstack(fill_value=0)
 
 # Plotting
 plt.figure(figsize=(10, 6))
@@ -519,18 +495,18 @@ plt.show()
 # - Look for records where the Job Level is NaN but the Current Role is not NaN.
 #     - These records can be used with machine learning classification to populate missing values.
 
-# In[102]:
+# In[28]:
 
 
 # Review dataset to determine what data is relevant
 
 # Check Current Role for Job Level "New grad"
-new_grad_roles = worker_responses_values_df[worker_responses_values_df['Job Level'] == 'New grad'] \
+new_grad_roles = filtered_us_dev_survey_values_df[filtered_us_dev_survey_values_df['Job Level'] == 'New grad'] \
     .groupby('Current Role').size().reset_index(name='Counts')
 
 # Filter for rows where Job Level is NaN and Current Role is not NaN
-nan_job_level_current_role_df = worker_responses_values_df[worker_responses_values_df['Job Level'].isna() & 
-    worker_responses_values_df['Current Role'].notna()]
+nan_job_level_current_role_df = filtered_us_dev_survey_values_df[filtered_us_dev_survey_values_df['Job Level'].isna() & 
+    filtered_us_dev_survey_values_df['Current Role'].notna()]
 
 # Display results
 print("Current Roles for Job Level 'New grad':")
@@ -543,11 +519,11 @@ display(nan_job_level_current_role_df[['Job Level', 'Current Role']])
 # #### More Exploratory Data Analysis (EDA)
 # - Check if there is a dominant job level associated with the Current Role field that could be used to populate empty fields.
 
-# In[129]:
+# In[29]:
 
 
 # Group by Current Role and Job Level, and count occurrences
-role_level_counts = worker_responses_values_df.groupby(['Current Role', 'Job Level']).size().reset_index(name='Counts')
+role_level_counts = filtered_us_dev_survey_values_df.groupby(['Current Role', 'Job Level']).size().reset_index(name='Counts')
 
 # Set the option to display all rows for this code cell only
 with pd.option_context('display.max_rows', None):
@@ -555,21 +531,26 @@ with pd.option_context('display.max_rows', None):
 
 
 # #### Data Visualization using Seaborn Box Plot
-# **Purpose:** Demonstrate how gender may impact job levels within specific career roles, in this case, "Software Test Engineer."
+# **Purpose:** Demonstrate how gender may impact job levels within specific career roles, in this case, "Development Operations Engineer."
 # 
 # **Insights:**
-# - **Gender-based Distribution:** The box plot illustrates how job levels are distributed across genders within the "Software Test Engineer" role. For instance, males are generally concentrated in junior and mid-level positions, while non-binary individuals occupy a broader range of senior levels.
-# - **Outliers and Range:** The visualization shows that job levels for male and non-binary workers in this role vary significantly, with outliers extending to senior positions, indicating possible disparities in advancement.
-# - **Rationale for Machine Learning Approach:** The diverse distribution across gender groups suggests that simple statistical measures like the mean or median would be insufficient for accurately predicting job level. Instead, using a KNN classifier can better capture these nuances by considering demographic variables like gender and role.
+# - **Gender-based Distribution:** 
+#     - The box plot illustrates the distribution of job levels across genders within the "Development Operations Engineer" role. 
+#     - Males occupy a wide range of job levels, predominantly at the Senior Developer level, with a few scattered across roles such as Principal Engineer and Engineering Manager. This broader range suggests more opportunities or representation in higher-level roles for males within this career path. 
+#     - In contrast, females are mostly represented at the Level 1 Developer (junior) level, with a smaller range and limited presence in higher job levels. The presence of only a few females, and their clustering at the junior level, may reflect a restricted career progression or underrepresentation at advanced job levels in this role.
+# 
+# - **Rationale for Machine Learning Approach:** 
+#     - Given the clear differences in distribution between genders, a machine learning model like K-Nearest Neighbors (KNN) could be beneficial for predicting job levels. KNN can account for the complex relationships between demographic features (such as gender) and job levels, offering a more refined prediction than simple averages or medians.
+#     - This approach would allow the model to better understand and respond to the demographic factors that impact job levels, potentially providing insights into patterns of representation and advancement within this role and the other roles within the dataset.
 # 
 # This visualization highlights the relevance of employing a machine learning approach that can adapt to demographic differences, rather than relying on single-point estimates like the mean or median for classification.
 
-# In[152]:
+# In[35]:
 
 
 # Filter for a specific current role 
-specific_role = "Software Test Engineer"
-role_data = worker_responses_values_df[worker_responses_values_df['Current Role'] == specific_role].copy()
+specific_role = "Development Operations Engineer"
+role_data = filtered_us_dev_survey_values_df[filtered_us_dev_survey_values_df['Current Role'] == specific_role].copy()
 
 # Create a horizontal box plot with gaps between the boxes
 plt.figure(figsize=(6, 6))
@@ -584,13 +565,25 @@ plt.show()
 
 # #### Use Machine Learning to Populate NaN Job Level Records
 
-# In[105]:
+# In[37]:
 
 
 # Use KNearestNeighbors to determine most likely Job Level based on age, gender, and current role
 
+age_mapping = {
+    '25 - 34 years old': 4,
+    '35 - 44 years old': 5,
+    '45 - 54 years old': 6,
+    '55 - 64 years old': 7,
+}
+
+gender_mapping = {
+    'Male': 1,
+    'Female': 2,
+}
+
 # Prepare the DataFrame for KNN training
-train_df = worker_responses_values_df[worker_responses_values_df['Job Level'].notna()].copy()
+train_df = filtered_us_dev_survey_values_df[filtered_us_dev_survey_values_df['Job Level'].notna()].copy()
 
 # Create numeric mappings for Age and Gender for training
 train_df.loc[:, 'Age Numeric'] = train_df['Age'].map(age_mapping)
@@ -605,7 +598,7 @@ X_train = train_df[['Age Numeric', 'Gender Numeric', 'Current Role Encoded']]
 y_train = train_df['Job Level']
 
 # Filter the rows with NaN Job Level for predictions
-predict_df = worker_responses_values_df[worker_responses_values_df['Job Level'].isna()].copy()
+predict_df = filtered_us_dev_survey_values_df[filtered_us_dev_survey_values_df['Job Level'].isna()].copy()
 predict_df.loc[:, 'Age Numeric'] = predict_df['Age'].map(age_mapping)
 predict_df.loc[:, 'Gender Numeric'] = predict_df['Gender'].map(gender_mapping)
 predict_df.loc[:, 'Current Role Encoded'] = le_role.transform(predict_df['Current Role'])
@@ -623,28 +616,28 @@ predicted_levels = knn.predict(X_predict)
 # Display the predictions before overwriting the original DataFrame
 predict_df['Predicted Job Level'] = predicted_levels
 print("Predicted Job Levels for records with NaN Job Level:")
-display(predict_df[['Current Role', 'Predicted Job Level']])
+display(predict_df[['Age', 'Gender', 'Current Role', 'Predicted Job Level']])
 
 
-# In[107]:
+# In[38]:
 
 
 #Update Job Level field with predictions and verify changes
 
 # Update the Job Level in the original DataFrame where it was NaN
-worker_responses_values_df.loc[worker_responses_values_df['Job Level'].isna(), 'Job Level'] = predicted_levels
+filtered_us_dev_survey_values_df.loc[filtered_us_dev_survey_values_df['Job Level'].isna(), 'Job Level'] = predicted_levels
 
 # Verify that no records remain with NaN Job Level
-remaining_nan_job_levels = worker_responses_values_df['Job Level'].isna().sum()
+remaining_nan_job_levels = filtered_us_dev_survey_values_df['Job Level'].isna().sum()
 print(f"Number of records with NaN Job Level after updating: {remaining_nan_job_levels}")
 
 # Display the cleaned DataFrame
-display(worker_responses_values_df.head(5))
+display(filtered_us_dev_survey_values_df.head(5))
 
 
 # #### Import Dataset 2: 2017 Pew Research Center STEM Survey
 
-# In[111]:
+# In[39]:
 
 
 # import zip file from Pew Research
@@ -656,7 +649,7 @@ zipfile.close()
 
 # #### Examine contents of .sav file
 
-# In[122]:
+# In[40]:
 
 
 file_path = 'data/materials for public release/2017 Pew Research Center STEM survey.sav'
@@ -670,11 +663,13 @@ print(df.info())
 # Display the first few rows of the DataFrame
 print(df.head())
 
+print(df.tail())
+
 
 # #### Read the .docx file
 # - Read the Pew Research Center files associated with the .sav file and convert them into .txt files to understand the codes used.
 
-# In[124]:
+# In[41]:
 
 
 # Load the Questionnaire document
@@ -731,12 +726,164 @@ print(prc_codebook_text[:400])
 # #### Display All Column Names in Dataframe
 # - Reading the column names with the new context of the Questionnaire and Codebook file will help to determine which columns are needed for analysis
 
-# In[123]:
+# In[42]:
 
 
 # Display all column names in the DataFrame
 print("Column names in the Pew Research dataset:")
 for col in df.columns:
+    print(col)
+
+
+# #### Convert CaseID columns from float to int64
+
+# In[43]:
+
+
+# Convert 'CaseID' to int64
+df['CaseID'] = df['CaseID'].astype('int64')
+
+# Confirm the change
+print("\nData types after conversion:")
+print(df.dtypes)
+
+
+# #### Exploratory Data Analysis (EDA)
+# - Search for null values or refused responses in fields required for analysis.
+
+# In[44]:
+
+
+# Summary of counts for each value in WORK_1
+employed_full_time = df['WORK_1'].value_counts(dropna=False)
+print("Summary of counts for each value in WORK_1:")
+print(employed_full_time)
+
+# Summary of counts for each value in WORK_2
+employed_part_time = df['WORK_2'].value_counts(dropna=False)
+print("\nSummary of counts for each value in WORK_2:")
+print(employed_part_time)
+
+# Summary of counts for each value in WORK_3
+self_employed_full_time = df['WORK_3'].value_counts(dropna=False)
+print("\nSummary of counts for each value in WORK_3:")
+print(self_employed_full_time)
+
+# Summary of counts for each value in WORK_4
+self_employed_part_time = df['WORK_4'].value_counts(dropna=False)
+print("\nSummary of counts for each value in WORK_4:")
+print(self_employed_part_time)
+
+# Summary of counts for each value in EMPLOYED
+employment_status = df['EMPLOYED'].value_counts(dropna=False)
+print("\nSummary of counts for each value in EMPLOYED:")
+print(employment_status)
+
+# Summary of counts for each value in FULLPART
+employment_full_part = df['FULLPART'].value_counts(dropna=False)
+print("\nSummary of counts for each value in FULLPART:")
+print(employment_full_part)
+
+# Summary of counts for each value in SELFEMPLOYED
+self_employment = df['SELFEMPLOYED'].value_counts(dropna=False)
+print("\nSummary of counts for each value in SELFEMPLOYED:")
+print(self_employment)
+
+# Summary of counts for each value in ppagecat
+prc_age = df['ppagecat'].value_counts(dropna=False)
+print("\nSummary of counts for each value in ppagecat:")
+print(prc_age)
+
+# Summary of counts for each value in PPGENDER
+prc_gender = df['PPGENDER'].value_counts(dropna=False)
+print("\nSummary of counts for each value in PPGENDER:")
+print(prc_gender)
+
+
+# In[45]:
+
+
+# Convert specified columns to int64
+columns_to_convert = [
+    'WORK_1', 'WORK_2', 'WORK_3', 'WORK_4', 
+    'EMPLOYED', 'FULLPART', 'SELFEMPLOYED'
+]
+
+# Convert to int64
+for column in columns_to_convert:
+    df[column] = df[column].astype('int64')
+
+# Drop records with 9 for WORK_1, WORK_2, WORK_3, WORK_4, EMPLOYED, FULLPART, SELFEMPLOYED
+df = df[~df[columns_to_convert].isin([9]).any(axis=1)]
+
+# For ppagecat, drop 1, 6, and 7
+df = df[~df['ppagecat'].isin([1, 6, 7])]
+
+# Confirming the changes
+print(f"Remaining records after filtering: {df.shape[0]}")
+print("\nUpdated DataFrame info:")
+print(df.info())
+
+
+# #### Refine DataFrame for Pew Research Center STEM Survey
+# - Eliminate fields not needed for hypothesis
+# - Begin renaming fields
+
+# In[46]:
+
+
+# List of columns to exclude
+columns_to_exclude = [
+    'SCH2a', 'SCH2b', 'SCH3a', 'SCH3b', 'SCH3c', 'SCH3d',
+    'SCH4', 'SCH5a', 'SCH5b', 'SCH5c', 'SCH6a', 'SCH6b',
+    'SCH6c', 'SCH6d', 'SCH6e', 'SCH6f', 'SCH6g', 'SCH6h',
+    'SCH7', 'SCH8a', 'SCH8b', 'SCH9a', 'SCH9b', 'SCH10_flag',
+    'SCH10A_1', 'SCH10A_2', 'SCH10A_3', 'SCH10A_4', 'SCH10A_5',
+    'SCH10A_6', 'SCH10A_Refused', 'SCH10B_1', 'SCH10B_2',
+    'SCH10B_3', 'SCH10B_4', 'SCH10B_5', 'SCH10B_6', 'SCH10B_Refused',
+    'STEMJOBa', 'STEMJOBb', 'STEMJOBc', 'STEMJOBd', 'STEMJOBe',
+    'STEMJOBf', 'STEMJOBg', 'STEMJOBh', 'REASON2a', 'REASON2b',
+    'REASON2c', 'REASON2d', 'REASON2e', 'REASON2f', 'REASON2g',
+    'ETHNJOB2', 'ETHNJOB2_OE1_col', 'ETHNJOB2_OE2_col', 
+    'ETHNJOB2_OE3_col', 'STEM_DEGREE', 'RACE_col', 'SCICOUR2_t',
+    'MATHCOUR2_t', 'PPT017_t', 'PPT18OV_t', 'PPHHSIZE_t', 
+    'ETHN1', 'ETHN2a', 'ETHN2b', 'ETHN2c', 'ETHN2d', 
+    'ETHN3a', 'ETHN3b', 'ETHN3c', 'ETHN3d', 'ETHN4', 
+    'ETHN5', 'ETHN6_a', 'ETHN6_b', 'ETHN6_c', 'ETHN6_d',
+    'ETHN6_Refused', 'ETHNDISC_a', 'ETHNDISC_b', 'ETHNDISC_c',
+    'ETHNDISC_d', 'ETHNDISC_e', 'ETHNDISC_f', 'ETHNDISC_g',
+    'ETHNDISC_h', 'ETHNDISC_i', 'ETHNDISC_Refused'
+]
+
+# Create a new DataFrame excluding the specified columns
+pew_research_numeric = df.loc[:, ~df.columns.isin(columns_to_exclude)].copy()
+
+# Create a dictionary for renaming specified columns
+columns_to_rename = {
+    'WORK_1': 'Employed Full-Time by Company',
+    'WORK_2': 'Employed Part-Time by Company',
+    'WORK_3': 'Self-Employed Full-Time',
+    'WORK_4': 'Self-Employed Part-Time',
+    'EMPLOYED': 'Employment Status',
+    'FULLPART': 'Employee Type',
+    'SELFEMPLOYED': 'Self-Employment Status',
+    'OCCUPATION_col': 'Occupation',
+    'INDUSTRY_col': 'Industry',
+    'TEACHSTEM': 'STEM Teacher Y_N',
+    'WORKTYPE_FINAL': 'STEM Worker Y_N',
+    'EDUC4CAT': 'Education Level Categorical',
+    'RECONA_col': 'Computer Work Y_N',
+    'RECONB_col': 'Engineer Y_N',
+    'RECONC_col': 'Science Worker Type',
+    'STEM_DEGREE': 'STEM Degree Y_N'
+}
+
+# Rename the columns as specified
+pew_research_numeric.rename(columns=columns_to_rename, inplace=True)
+
+# Display the new DataFrame info to confirm changes
+print("Column names in the Pew Research Numeric dataset:")
+for col in pew_research_numeric.columns:
     print(col)
 
 
@@ -749,7 +896,7 @@ for col in df.columns:
 # - Data was compiled by the NCSES from the U.S. Census Bureau, American Community Survey, National Center for Science and Engineering Statistics, and more
 # - For the full list of compiled sources: https://ncses.nsf.gov/pubs/nsb20212/data#source-block 
 
-# In[6]:
+# In[51]:
 
 
 # scrape HTML file to extract tables
@@ -795,7 +942,7 @@ for i in range(len(tables)):
 # #### Import Dataset 4: United States Census Bureau
 # - From College to Jobs: American Community Survey 2019
 
-# In[3]:
+# In[52]:
 
 
 # Define the directory to store the downloaded files
@@ -833,7 +980,7 @@ for file_name, url in urls.items():
 
 # **Extract the data for the men from the first Excel file to test processing**
 
-# In[15]:
+# In[53]:
 
 
 # Define the path to the file
@@ -875,7 +1022,7 @@ print(df_men_all_ed_levels.tail())
 
 # #### Exploratory Data Analyis (EDA): Check the Data Types
 
-# In[16]:
+# In[54]:
 
 
 df_men_all_ed_levels.info()
@@ -883,7 +1030,7 @@ df_men_all_ed_levels.info()
 
 # **Convert columns to correct data types (float64 to int64)**
 
-# In[17]:
+# In[55]:
 
 
 # Select numeric columns that need conversion to int64
@@ -906,7 +1053,7 @@ print(df_men_all_ed_levels.info())
 
 # **Repeat the process for the women's data in the same file**
 
-# In[24]:
+# In[56]:
 
 
 # Define the path to the file
@@ -978,7 +1125,7 @@ print(df_women_all_ed_levels.info())
 # - **Cross-Disciplinary Employment Trends:** The visualizations reveal that while men frequently cross into technical roles with non-STEM degrees, women tend to stay within fields closely aligned with their degree, such as **Education** and **Social Services**.
 # 
 
-# In[27]:
+# In[57]:
 
 
 # Define fields of degree columns
@@ -1020,6 +1167,275 @@ plt.tight_layout()
 plt.show()
 
 
+# #### Process the second xlsx file from the American Community Survey
+# - Recreate the steps used on the first file from the dataset
+
+# In[58]:
+
+
+# Define the path to the file
+file_path = './data/from-college-to-jobs-acs-2019/job-by-bach-degree-field-bach-degree.xlsx'
+
+# Specify only the required columns by their indices
+selected_columns = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
+
+# Define the starting row and the number of rows to read
+start_row = 27
+num_rows = 20  # Number of rows to read after the starting row
+
+# Load the data with only the selected columns and limit the rows
+df_men_bach_degree = pd.read_excel(file_path, skiprows=start_row, nrows=num_rows, usecols=selected_columns)
+
+# Define descriptive column names for the selected columns
+columns = [
+    "Occupation", "FoD-Computers_Math_Stats", "FoD-Engineering", "FoD-Physical_Sciences",
+    "FoD-Biological_Environmental_Agricultural_Sciences", "FoD-Psychology",
+    "FoD-Social_Sciences", "FoD-Multidiscipline", "FoD-Science_and_Engineering_Related",
+    "FoD-Business", "FoD-Education", "FoD-Literature_and_Languages",
+    "FoD-Liberal_Arts_and_History", "FoD-Visual_and_Performing_Arts",
+    "FoD-Communications", "FoD-Other_EG_Criminal_Justice_or_Social_Work"
+]
+
+# Apply the custom column names
+df_men_bach_degree.columns = columns
+
+# Remove any leading dots or whitespace from the 'Occupation' column
+df_men_bach_degree['Occupation'] = df_men_bach_degree['Occupation'].str.lstrip(". ")
+
+# Add a gender column
+df_men_bach_degree['Gender'] = 'Male'
+
+# Select numeric columns that need conversion to int64
+numeric_columns = [
+    "FoD-Computers_Math_Stats", "FoD-Engineering", "FoD-Physical_Sciences",
+    "FoD-Biological_Environmental_Agricultural_Sciences", "FoD-Psychology",
+    "FoD-Social_Sciences", "FoD-Multidiscipline", "FoD-Science_and_Engineering_Related",
+    "FoD-Business", "FoD-Education", "FoD-Literature_and_Languages",
+    "FoD-Liberal_Arts_and_History", "FoD-Visual_and_Performing_Arts",
+    "FoD-Communications", "FoD-Other_EG_Criminal_Justice_or_Social_Work"
+]
+
+# Convert selected numeric columns to int64
+df_men_bach_degree[numeric_columns] = df_men_bach_degree[numeric_columns].astype('int64')
+
+# Preview to confirm correct data import and types
+print(df_men_bach_degree.head())
+print(df_men_bach_degree.tail())
+print(df_men_bach_degree.info())
+
+
+# In[59]:
+
+
+# Define the path to the file
+file_path = './data/from-college-to-jobs-acs-2019/job-by-bach-degree-field-bach-degree.xlsx'
+
+# Specify the selected columns by their indices (same as for men)
+selected_columns = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
+
+# Define the header row and the number of rows for women
+header_row = 49
+num_rows = 20  # The same as for men
+
+# Load the data for women with the specified columns, skipping initial rows and using the right number of rows
+df_women_bach_degree = pd.read_excel(
+    file_path, skiprows=header_row, nrows=num_rows, usecols=selected_columns
+)
+
+# Define descriptive column names
+columns = [
+    "Occupation", "FoD-Computers_Math_Stats", "FoD-Engineering", "FoD-Physical_Sciences",
+    "FoD-Biological_Environmental_Agricultural_Sciences", "FoD-Psychology",
+    "FoD-Social_Sciences", "FoD-Multidiscipline", "FoD-Science_and_Engineering_Related",
+    "FoD-Business", "FoD-Education", "FoD-Literature_and_Languages",
+    "FoD-Liberal_Arts_and_History", "FoD-Visual_and_Performing_Arts",
+    "FoD-Communications", "FoD-Other_EG_Criminal_Justice_or_Social_Work"
+]
+
+# Apply the column names
+df_women_bach_degree.columns = columns
+
+# Remove any leading dots or whitespace from the 'Occupation' column
+df_women_bach_degree['Occupation'] = df_women_bach_degree['Occupation'].str.lstrip(". ")
+
+# Add a gender column with "Female" as the value
+df_women_bach_degree['Gender'] = 'Female'
+
+# Convert numeric columns to int64 to ensure consistency with the men’s DataFrame
+numeric_columns = [
+    "FoD-Computers_Math_Stats", "FoD-Engineering", "FoD-Physical_Sciences",
+    "FoD-Biological_Environmental_Agricultural_Sciences", "FoD-Psychology",
+    "FoD-Social_Sciences", "FoD-Multidiscipline", "FoD-Science_and_Engineering_Related",
+    "FoD-Business", "FoD-Education", "FoD-Literature_and_Languages",
+    "FoD-Liberal_Arts_and_History", "FoD-Visual_and_Performing_Arts",
+    "FoD-Communications", "FoD-Other_EG_Criminal_Justice_or_Social_Work"
+]
+df_women_bach_degree[numeric_columns] = df_women_bach_degree[numeric_columns].astype('int64')
+
+# Preview to confirm correct data import and types
+print(df_women_bach_degree.head())
+print(df_women_bach_degree.tail())
+print(df_women_bach_degree.info())
+
+
+# #### Process the third xlsx file from the American Community Survey
+# - Recreate the steps used on the first and second files from the dataset
+
+# In[60]:
+
+
+# Define the path to the file
+file_path = './data/from-college-to-jobs-acs-2019/job-by-bach-degree-field-grad-degree.xlsx'
+
+# Specify only the required columns by their indices
+selected_columns = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
+
+# Define the starting row and the number of rows to read
+start_row = 27
+num_rows = 20  # Number of rows to read after the starting row
+
+# Load the data with only the selected columns and limit the rows
+df_men_grad_degree = pd.read_excel(file_path, skiprows=start_row, nrows=num_rows, usecols=selected_columns)
+
+# Define descriptive column names for the selected columns
+columns = [
+    "Occupation", "FoD-Computers_Math_Stats", "FoD-Engineering", "FoD-Physical_Sciences",
+    "FoD-Biological_Environmental_Agricultural_Sciences", "FoD-Psychology",
+    "FoD-Social_Sciences", "FoD-Multidiscipline", "FoD-Science_and_Engineering_Related",
+    "FoD-Business", "FoD-Education", "FoD-Literature_and_Languages",
+    "FoD-Liberal_Arts_and_History", "FoD-Visual_and_Performing_Arts",
+    "FoD-Communications", "FoD-Other_EG_Criminal_Justice_or_Social_Work"
+]
+
+# Apply the custom column names
+df_men_grad_degree.columns = columns
+
+# Remove any leading dots or whitespace from the 'Occupation' column
+df_men_grad_degree['Occupation'] = df_men_grad_degree['Occupation'].str.lstrip(". ")
+
+# Add a gender column
+df_men_grad_degree['Gender'] = 'Male'
+
+# Select numeric columns that need conversion to int64
+numeric_columns = [
+    "FoD-Computers_Math_Stats", "FoD-Engineering", "FoD-Physical_Sciences",
+    "FoD-Biological_Environmental_Agricultural_Sciences", "FoD-Psychology",
+    "FoD-Social_Sciences", "FoD-Multidiscipline", "FoD-Science_and_Engineering_Related",
+    "FoD-Business", "FoD-Education", "FoD-Literature_and_Languages",
+    "FoD-Liberal_Arts_and_History", "FoD-Visual_and_Performing_Arts",
+    "FoD-Communications", "FoD-Other_EG_Criminal_Justice_or_Social_Work"
+]
+
+# Convert selected numeric columns to int64
+df_men_grad_degree[numeric_columns] = df_men_grad_degree[numeric_columns].astype('int64')
+
+# Preview to confirm correct data import and types
+print(df_men_grad_degree.head())
+print(df_men_grad_degree.tail())
+print(df_men_grad_degree.info())
+
+
+# In[61]:
+
+
+# Define the path to the file
+file_path = './data/from-college-to-jobs-acs-2019/job-by-bach-degree-field-grad-degree.xlsx'
+
+# Specify the selected columns by their indices (same as for men)
+selected_columns = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
+
+# Define the header row and the number of rows for women
+header_row = 49
+num_rows = 20  # The same as for men
+
+# Load the data for women with the specified columns, skipping initial rows and using the right number of rows
+df_women_grad_degree = pd.read_excel(
+    file_path, skiprows=header_row, nrows=num_rows, usecols=selected_columns
+)
+
+# Define descriptive column names
+columns = [
+    "Occupation", "FoD-Computers_Math_Stats", "FoD-Engineering", "FoD-Physical_Sciences",
+    "FoD-Biological_Environmental_Agricultural_Sciences", "FoD-Psychology",
+    "FoD-Social_Sciences", "FoD-Multidiscipline", "FoD-Science_and_Engineering_Related",
+    "FoD-Business", "FoD-Education", "FoD-Literature_and_Languages",
+    "FoD-Liberal_Arts_and_History", "FoD-Visual_and_Performing_Arts",
+    "FoD-Communications", "FoD-Other_EG_Criminal_Justice_or_Social_Work"
+]
+
+# Apply the column names
+df_women_grad_degree.columns = columns
+
+# Remove any leading dots or whitespace from the 'Occupation' column
+df_women_grad_degree['Occupation'] = df_women_grad_degree['Occupation'].str.lstrip(". ")
+
+# Add a gender column with "Female" as the value
+df_women_grad_degree['Gender'] = 'Female'
+
+# Convert numeric columns to int64 to ensure consistency with the men’s DataFrame
+numeric_columns = [
+    "FoD-Computers_Math_Stats", "FoD-Engineering", "FoD-Physical_Sciences",
+    "FoD-Biological_Environmental_Agricultural_Sciences", "FoD-Psychology",
+    "FoD-Social_Sciences", "FoD-Multidiscipline", "FoD-Science_and_Engineering_Related",
+    "FoD-Business", "FoD-Education", "FoD-Literature_and_Languages",
+    "FoD-Liberal_Arts_and_History", "FoD-Visual_and_Performing_Arts",
+    "FoD-Communications", "FoD-Other_EG_Criminal_Justice_or_Social_Work"
+]
+df_women_grad_degree[numeric_columns] = df_women_grad_degree[numeric_columns].astype('int64')
+
+# Preview to confirm correct data import and types
+print(df_women_grad_degree.head())
+print(df_women_grad_degree.tail())
+print(df_women_grad_degree.info())
+
+
+# #### Process the 4th xlsx file from the American Community Survey
+
+# In[67]:
+
+
+# Define the path to the file
+file_path = './data/from-college-to-jobs-acs-2019/med-earn-by-degree-level-field-and-occupation.xlsx'
+
+# Define the columns to read (based on the specified indices)
+selected_columns = [0, 1, 3, 5, 7, 9, 11]
+
+# Define column names for the data
+columns = [
+    "Occupation", "STEM Major All Degrees", "non-STEM Major All Degrees",
+    "STEM Major Bachelors", "non-STEM Major Bachelors",
+    "STEM Major Graduate Degree", "non-STEM Major Graduate Degree"
+]
+
+# Load the data for men
+start_row_men = 16  
+num_rows_men = 7  # Number of rows for the men's data section
+male_median_earnings = pd.read_excel(file_path, skiprows=start_row_men, nrows=num_rows_men, usecols=selected_columns)
+male_median_earnings.columns = columns
+
+# Remove any leading dots or whitespace from the 'Occupation' column
+male_median_earnings['Occupation'] = male_median_earnings['Occupation'].str.lstrip(". ")
+
+male_median_earnings['Gender'] = 'Male'
+
+# Load the data for women
+start_row_women = start_row_men + num_rows_men + 2  
+num_rows_women = 7  # Number of rows for the women's data section
+female_median_earnings = pd.read_excel(file_path, skiprows=start_row_women, nrows=num_rows_women, usecols=selected_columns)
+female_median_earnings.columns = columns
+
+# Remove any leading dots or whitespace from the 'Occupation' column
+female_median_earnings['Occupation'] = female_median_earnings['Occupation'].str.lstrip(". ")
+
+female_median_earnings['Gender'] = 'Female'
+
+# Preview the results to confirm
+print("Men's Median Earnings DataFrame:")
+display(male_median_earnings.head(6))
+print("Women's Median Earnings DataFrame:")
+display(female_median_earnings.head(6))
+
+
 # ## Resources and References
 # *What resources and references have you used for this project?*
 # 📝 <!-- Answer Below -->
@@ -1033,7 +1449,7 @@ plt.show()
 # - https://medium.com/@acceldia/python-101-reading-excel-and-spss-files-with-pandas-eed6d0441c0b to learn how to work with .sav files
 # - https://python-docx.readthedocs.io/en/latest/user/documents.html to learn how to work with .docx files inside Python
 
-# In[1]:
+# In[ ]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
