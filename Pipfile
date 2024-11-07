@@ -19,6 +19,7 @@ scikit-learn = "*"
 pyreadstat = "*"
 python-docx = "*"
 openpyxl = "*"
+plotly = "*"
 
 [dev-packages]
 
