@@ -62,7 +62,7 @@
 
 # #### Package Imports
 
-# In[1]:
+# In[104]:
 
 
 #import packages
@@ -72,12 +72,15 @@ load_dotenv(override=True)
 
 import opendatasets as od
 import pandas as pd
+import numpy as np
 import pyreadstat
 import requests
 import re # for string manipulation
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.express as px
+import plotly.graph_objects as go
 
 from zipfile import ZipFile
 from urllib.request import urlretrieve
@@ -93,7 +96,7 @@ from docx import Document
 
 # #### Import Dataset 1: HackerRank Developer Survey Published in 2018 that covered 2017 Questionnaire Responses
 
-# In[2]:
+# In[105]:
 
 
 # import dataset from Kaggle using URL 
@@ -103,7 +106,7 @@ od.download(dataset_url, data_dir="./data")
 
 # #### Convert dataset to a pandas dataframe and inspect data for Exploratory Data Analysis (EDA)
 
-# In[3]:
+# In[106]:
 
 
 # Define the data directory
@@ -137,7 +140,7 @@ display(dev_survey_values_df.head(5))
 # - There are outliers in this data as far as what can be directly related to my other datasets and my hypothesis for the purpose of analysis.
 #     - Age ranges will need to be limited to match what is available in the datasets from other sources to make "apples to apples" comparisons.
 
-# In[4]:
+# In[107]:
 
 
 # Find United States in the country_code_df to use for filtering purposes
@@ -154,7 +157,7 @@ display(us_country_code_df)
 
 # #### Filtered dataframe to include only respondents in the United States
 
-# In[5]:
+# In[108]:
 
 
 # Filter the DataFrame for United States questionnaire responses
@@ -171,7 +174,7 @@ display(us_dev_survey_numeric_df.head(5))
 # #### Reduce dataframe columns to only those relevant to supporting or disproving my hypothesis
 # - fields such as date survey was completed and questions about the HackerRank survey were removed from dataframe for simplification
 
-# In[6]:
+# In[109]:
 
 
 # List of relevant columns to keep
@@ -207,7 +210,7 @@ display(filtered_us_dev_survey_numeric_df.head(5))
 # #### Check for Duplicate Records
 # - Some records will be similar, but all records should have a unique RespondentID
 
-# In[7]:
+# In[110]:
 
 
 # Check for duplicates in the RespondentID field
@@ -229,7 +232,7 @@ else:
 # - Remove ages over 64 years old (coded as q2Age: 8 or 9)
 # - Remove non-binary respondents (coded as q3Gender: 3)
 
-# In[8]:
+# In[111]:
 
 
 # Summary of counts for each value in q2Age
@@ -243,7 +246,7 @@ print("\nSummary of counts for each value in q3Gender:")
 print(gender_summary)
 
 
-# In[9]:
+# In[112]:
 
 
 # Remove records where q2Age is #NULL!, 1, 2, 3, 8, or 9
@@ -276,7 +279,7 @@ print(gender_summary)
 # - The numeric dataframe should consist entirely of int64 data types, yet the majority have an "object" data type instead.
 #     - These datatypes will need to be converted for certain types of analysis like a correlation matrix.
 
-# In[47]:
+# In[113]:
 
 
 # Rename columns
@@ -308,7 +311,7 @@ display(filtered_us_dev_survey_numeric_df.head(5))
 # **INSIGHTS UPDATE:**
 # - *After further filtering to remove ages under 25 and over 64, the moderate correlation between age and job level that was seen in the earlier version is no longer apparent.*
 
-# In[50]:
+# In[114]:
 
 
 # Select only the desired columns for the correlation matrix
@@ -332,7 +335,7 @@ plt.show()
 # - Both datasets contain the same records, but one has numeric codes for all responses and the other has plain language values for all responses 
 # so the same logic can be used for both dataframes.
 
-# In[13]:
+# In[115]:
 
 
 # Filter the DataFrame for CountryNumeric2 = "United States"
@@ -346,7 +349,7 @@ display(f"Number of records: {num_records_values}")
 display(us_dev_survey_values_df.head(5))
 
 
-# In[14]:
+# In[116]:
 
 
 # Reduce dataframe columns to only those relevant to supporting or disproving my hypothesis
@@ -388,7 +391,7 @@ display(filtered_us_dev_survey_values_df.head(5))
 # - Filtered out records where the age is null because both age and gender are necessary to determine job level comparisons.
 # 
 
-# In[23]:
+# In[117]:
 
 
 # Create a copy to work on and avoid SettingWithCopyWarning
@@ -433,7 +436,7 @@ print(gender_summary)
 # - Filtered out records where both the Job Level and Current Role were NaN because there is no way to determine values for the field if both are blank.
 # 
 
-# In[27]:
+# In[118]:
 
 
 # Rename columns
@@ -467,7 +470,7 @@ print(f"Remaining responses after cleaning: {filtered_us_dev_survey_values_df.sh
 # - **Gender Distribution**: By comparing the heights of the bars for different genders, we can see which age groups have higher counts of male and female workers. This highlights trends in workforce composition.
 # - **Demographic Changes:** The visualization aims to assess whether there is a change in demographics proportionally from age group to age group, providing insights into how representation shifts across different stages of workforce experience.
 
-# In[26]:
+# In[119]:
 
 
 # Group the data by Age Group and Gender, and count occurrences
@@ -495,7 +498,7 @@ plt.show()
 # - Look for records where the Job Level is NaN but the Current Role is not NaN.
 #     - These records can be used with machine learning classification to populate missing values.
 
-# In[28]:
+# In[120]:
 
 
 # Review dataset to determine what data is relevant
@@ -519,7 +522,7 @@ display(nan_job_level_current_role_df[['Job Level', 'Current Role']])
 # #### More Exploratory Data Analysis (EDA)
 # - Check if there is a dominant job level associated with the Current Role field that could be used to populate empty fields.
 
-# In[29]:
+# In[121]:
 
 
 # Group by Current Role and Job Level, and count occurrences
@@ -545,7 +548,7 @@ with pd.option_context('display.max_rows', None):
 # 
 # This visualization highlights the relevance of employing a machine learning approach that can adapt to demographic differences, rather than relying on single-point estimates like the mean or median for classification.
 
-# In[35]:
+# In[122]:
 
 
 # Filter for a specific current role 
@@ -565,7 +568,7 @@ plt.show()
 
 # #### Use Machine Learning to Populate NaN Job Level Records
 
-# In[37]:
+# In[123]:
 
 
 # Use KNearestNeighbors to determine most likely Job Level based on age, gender, and current role
@@ -619,7 +622,7 @@ print("Predicted Job Levels for records with NaN Job Level:")
 display(predict_df[['Age', 'Gender', 'Current Role', 'Predicted Job Level']])
 
 
-# In[38]:
+# In[124]:
 
 
 #Update Job Level field with predictions and verify changes
@@ -637,7 +640,7 @@ display(filtered_us_dev_survey_values_df.head(5))
 
 # #### Import Dataset 2: 2017 Pew Research Center STEM Survey
 
-# In[39]:
+# In[125]:
 
 
 # import zip file from Pew Research
@@ -649,7 +652,7 @@ zipfile.close()
 
 # #### Examine contents of .sav file
 
-# In[40]:
+# In[126]:
 
 
 file_path = 'data/materials for public release/2017 Pew Research Center STEM survey.sav'
@@ -669,7 +672,7 @@ print(df.tail())
 # #### Read the .docx file
 # - Read the Pew Research Center files associated with the .sav file and convert them into .txt files to understand the codes used.
 
-# In[41]:
+# In[127]:
 
 
 # Load the Questionnaire document
@@ -726,7 +729,7 @@ print(prc_codebook_text[:400])
 # #### Display All Column Names in Dataframe
 # - Reading the column names with the new context of the Questionnaire and Codebook file will help to determine which columns are needed for analysis
 
-# In[42]:
+# In[128]:
 
 
 # Display all column names in the DataFrame
@@ -737,7 +740,7 @@ for col in df.columns:
 
 # #### Convert CaseID columns from float to int64
 
-# In[43]:
+# In[129]:
 
 
 # Convert 'CaseID' to int64
@@ -751,7 +754,7 @@ print(df.dtypes)
 # #### Exploratory Data Analysis (EDA)
 # - Search for null values or refused responses in fields required for analysis.
 
-# In[44]:
+# In[130]:
 
 
 # Summary of counts for each value in WORK_1
@@ -800,7 +803,7 @@ print("\nSummary of counts for each value in PPGENDER:")
 print(prc_gender)
 
 
-# In[45]:
+# In[131]:
 
 
 # Convert specified columns to int64
@@ -829,7 +832,7 @@ print(df.info())
 # - Eliminate fields not needed for hypothesis
 # - Begin renaming fields
 
-# In[46]:
+# In[132]:
 
 
 # List of columns to exclude
@@ -852,7 +855,13 @@ columns_to_exclude = [
     'ETHN5', 'ETHN6_a', 'ETHN6_b', 'ETHN6_c', 'ETHN6_d',
     'ETHN6_Refused', 'ETHNDISC_a', 'ETHNDISC_b', 'ETHNDISC_c',
     'ETHNDISC_d', 'ETHNDISC_e', 'ETHNDISC_f', 'ETHNDISC_g',
-    'ETHNDISC_h', 'ETHNDISC_i', 'ETHNDISC_Refused'
+    'ETHNDISC_h', 'ETHNDISC_i', 'ETHNDISC_Refused', 'FAMSTEM1',
+    'FAMSTEM2_1', 'FAMSTEM2_2', 'FAMSTEM2_Refused', 'INTEREST1',
+    'TECH4', 'TECH5', 'TECH6', 'ETHNJOB1', 'PARTY', 'PARTYLN',
+    'IDEO', 'PUBLIC', 'DOV_FORM', 'PPHHHEAD', 'HH_INCOME_col',
+    'PPMARIT', 'PPMSACAT', 'SCH1_OE1_col', 'SCH1_OE2_col',
+    'SCH1_OE3_col', 'SCH7_OE1_col', 'INTEREST2_OE', 'INTEREST3_OE1_col',
+    'INTEREST3_OE2_col', 'INTEREST3_OE3_col'
 ]
 
 # Create a new DataFrame excluding the specified columns
@@ -875,7 +884,27 @@ columns_to_rename = {
     'RECONA_col': 'Computer Work Y_N',
     'RECONB_col': 'Engineer Y_N',
     'RECONC_col': 'Science Worker Type',
-    'STEM_DEGREE': 'STEM Degree Y_N'
+    'STEM_DEGREE': 'STEM Degree Y_N',
+    'JOBVALU1_1': 'Job Choice - High Pay',
+    'JOBVALU1_2': 'Job Choice - Work-Life Balance',
+    'JOBVALU1_3': 'Job Choice - Advancement Opportunities',
+    'JOBVALU1_4': 'Job Choice - Contribution to Society',
+    'JOBVALU1_5': 'Job Choice - Respect of Others',
+    'JOBVALU1_6': 'Job Choice - Helping Others',
+    'JOBVALU1_7': 'Job Choice - Welcoming Environment',
+    'JOBVALU1_8': 'Job Choice - None of the Above',
+    'JOBVALU2': 'Job Choice - Most Important',
+    'AHEADa': 'Employment Advancement - Assertiveness',
+    'AHEADb': 'Employment Advancement - Socializing with Co-Workers',
+    'AHEADc': 'Employment Advancement - Point Out Workplace Problems',
+    'AHEADd': 'Employment Advancement - Workplace Mentor',
+    'AHEADe': 'Employment Advancement - Sharing Personal Life',
+    'AHEADf': 'Employment Advancement - Working Harder',
+    'AHEADg': 'Employment Advancement - Point Out Personal Accomplishments',
+    'TALENT': 'Employment Advancement - Natural Ability',
+    'PROVE': 'Workplace Respect - Need to Prove Oneself',
+    'RESPECTA': 'Workplace Respect - Valued by Supervisor',
+    'RESPECTB': 'Workplace Respect - Valued by Co-Workers'
 }
 
 # Rename the columns as specified
@@ -896,7 +925,7 @@ for col in pew_research_numeric.columns:
 # - Data was compiled by the NCSES from the U.S. Census Bureau, American Community Survey, National Center for Science and Engineering Statistics, and more
 # - For the full list of compiled sources: https://ncses.nsf.gov/pubs/nsb20212/data#source-block 
 
-# In[51]:
+# In[133]:
 
 
 # scrape HTML file to extract tables
@@ -939,10 +968,298 @@ for i in range(len(tables)):
     df.to_csv(file_name, index=False)
 
 
+# **Import Additional Resources From National Center for Science and Engineering Statistics (NCSES)**
+# - The Report titled *"The STEM Labor Force of Today: Scientists, Engineers, and Skilled Technical Workers"* spans several pages and has supplemental tables that are not included on any of the pages. 
+
+# In[134]:
+
+
+# import data-tables zip file from NCSES
+file_handle, _ = urlretrieve("https://ncses.nsf.gov/pubs/nsb20212/assets/nsb20212-report-tables-excels.zip")
+zipfile = ZipFile(file_handle, "r")
+zipfile.extractall("./data/ncses")
+zipfile.close()
+
+# import data-figures zip file from NCSES
+file_handle, _ = urlretrieve("https://ncses.nsf.gov/pubs/nsb20212/assets/nsb20212-report-figures-excels.zip")
+zipfile = ZipFile(file_handle, "r")
+zipfile.extractall("./data/ncses")
+zipfile.close()
+
+# import supplemental tables zip file from NCSES
+file_handle, _ = urlretrieve("https://ncses.nsf.gov/pubs/nsb20212/assets/supplemental-tables/nsb20212-supplemental-tables-figures-tables-excels.zip")
+zipfile = ZipFile(file_handle, "r")
+zipfile.extractall("./data/ncses")
+zipfile.close()
+
+
+# **Convert relevant xlsx files into pandas dataframes**
+
+# In[135]:
+
+
+# Define the path to the file: Table LBR-7 - Women with a bachelor's degree or above, by broad occupational group and highest degree: 1993, 2003, 2019
+file_path = './data/ncses/nsb20212-tablbr-007.xlsx'
+
+# Define start rows for each section based on the Excel file structure
+start_row_degrees = 9  # Adjust based on where Degree Focus data starts
+start_row_occupations = 6  # Adjust based on where Occupational Group data starts
+num_rows_degrees = 2  # Number of rows for the degree section
+num_rows_occupations = 2  # Number of rows for the occupation section
+
+# Load the Degree Focus data
+degree_focus_df = pd.read_excel(
+    file_path,
+    skiprows=start_row_degrees,
+    nrows=num_rows_degrees,
+    names=["Category", "1993 - Count", "2003 - Count", "2019 - Count", "1993 - Percent", "2003 - Percent", "2019 - Percent"]
+)
+
+# Load the Occupational Group data
+occupational_group_df = pd.read_excel(
+    file_path,
+    skiprows=start_row_occupations,
+    nrows=num_rows_occupations,
+    names=["Category", "1993 - Count", "2003 - Count", "2019 - Count", "1993 - Percent", "2003 - Percent", "2019 - Percent"]
+)
+
+# Add a column to indicate whether the data is for degrees or occupations
+degree_focus_df['Type'] = 'Degree'
+occupational_group_df['Type'] = 'Occupation'
+
+# Convert "Thousands" columns to actual numbers by multiplying by 1,000
+for col in ["1993 - Count", "2003 - Count", "2019 - Count"]:
+    degree_focus_df[col] = degree_focus_df[col] * 1000
+    occupational_group_df[col] = occupational_group_df[col] * 1000
+
+# Concatenate both DataFrames to have one unified DataFrame for comparison
+ncses_women_science_and_engineering_ed_vs_employment_df = pd.concat([degree_focus_df, occupational_group_df], ignore_index=True)
+
+# Display the resulting DataFrame
+print("Combined DataFrame for Degrees and Occupations:")
+display(ncses_women_science_and_engineering_ed_vs_employment_df)
+
+
+# In[136]:
+
+
+# Define the path to the file: Figure LBR-21 - Women with a bachelor's degree or higher in S&E and S&E-related occupations: Selected years, 1993–2019
+file_path = './data/ncses/nsb20212-figlbr-021.xlsx'
+
+# Load the data, skipping rows based on the Excel file structure
+start_row = 3  
+
+# Load the data with descriptive column names
+women_s_e_degree_trends_df = pd.read_excel(
+    file_path,
+    skiprows=start_row,
+    names=[
+        "Year", "Computer and Mathematical Scientists (%)", "Biological, Agricultural, and Environmental Life Scientists (%)",
+        "Physical Scientists (%)", "Social Scientists (%)", "Engineers (%)", "All S&E-related Workers (%)"
+    ]
+)
+
+# Display the resulting DataFrame to ensure it loaded correctly
+print("S&E Degree Trends for Women DataFrame (with % values):")
+display(women_s_e_degree_trends_df)
+
+
+# In[137]:
+
+
+# Define the path to the file: Figure LBR-27 - Median annual salaries of full-time workers with highest degrees in S&E or S&E-related fields, by sex: Selected years, 1995, 2003, and 2019
+file_path = './data/ncses/nsb20212-figlbr-027.xlsx'
+
+# Load the data, skipping rows based on the Excel file structure
+start_row = 3  
+
+# Load the data into a DataFrame
+median_salary_by_gender_df = pd.read_excel(
+    file_path,
+    skiprows=start_row,
+    names=["Degree Field", "Gender", "1995 Salary", "2003 Salary", "2019 Salary"]
+)
+
+# Forward-fill the "Degree Field" column to handle merged cells properly
+median_salary_by_gender_df["Degree Field"] = median_salary_by_gender_df["Degree Field"].ffill()
+
+# Display the final structured DataFrame
+print("Restructured Salary DataFrame:")
+display(median_salary_by_gender_df)
+
+
+# #### Interactive Line Graph using Plotly Graph Objects: Median Salary by Gender with Percentage Increase Over Time
+# 
+# **Purpose:** To analyze and demonstrate the disparity in median salaries between genders over time for workers with S&E degrees, highlighting how salary increases have influenced the wage gap.
+# 
+# **Insights:**
+# - **Initial Salary Disparity:**  
+#     - In 1995, the median salary for males was $69,000, while females earned $47,000, creating an initial wage gap of 31.88%.
+# - **Unequal Salary Increases:**  
+#     - Over the next 8 years (first measured interval), the male median salary increased by 20.3%, whereas the female median salary increased by only 17.0%. This disproportionate increase further widened the gap between male and female earnings.
+# - **Persistent Disparity by 2019:**  
+#     - At the next interval, 16 years later, both genders saw an identical salary increase of 3.6%. However, the male median salary reached $86,000, while the female median salary only rose to $57,000. This resulted in an even larger wage gap, with a final disparity of 33.72%.
+# 
+# This interactive visualization highlights the long-standing and widening disparity in median salaries between genders. The unequal salary increases at crucial intervals have exacerbated the wage gap, emphasizing how systemic disparities in salary growth prevent women from closing the gap in career fields that require science and engineering degrees.
+
+# In[138]:
+
+
+# Filter only rows where Degree Field is "S&E"
+se_salary_df = median_salary_by_gender_df[median_salary_by_gender_df["Degree Field"] == "S&E"].copy()
+
+# Reshape the DataFrame from wide to long format for plotting
+salary_melted_df = se_salary_df.melt(
+    id_vars=["Gender"],
+    value_vars=["1995 Salary", "2003 Salary", "2019 Salary"],
+    var_name="Year",
+    value_name="Median Salary"
+)
+
+# Convert 'Year' to numeric format
+salary_melted_df["Year"] = salary_melted_df["Year"].str.extract('(\d{4})').astype(int)
+
+# Sort values to ensure correct plotting order
+salary_melted_df = salary_melted_df.sort_values(["Gender", "Year"])
+
+# Calculate the percentage increase for each gender
+salary_melted_df["Percentage Increase"] = salary_melted_df.groupby("Gender")["Median Salary"].pct_change() * 100
+
+# Create the line chart with percentage increase annotations
+fig = go.Figure()
+
+# Add Male Salary Line
+fig.add_trace(go.Scatter(
+    x=salary_melted_df[salary_melted_df["Gender"] == "Male"]["Year"],
+    y=salary_melted_df[salary_melted_df["Gender"] == "Male"]["Median Salary"],
+    mode="lines+markers+text",
+    name="Male Salary",
+    line=dict(color="red"),
+    marker=dict(size=8),
+    text=[f"{perc:.1f}% Increase" if not pd.isna(perc) else ""
+          for perc in salary_melted_df[salary_melted_df["Gender"] == "Male"]["Percentage Increase"]],
+    textposition="top left",
+    hovertemplate="<b>Year:</b> %{x}<br><b>Salary:</b> %{y:$,}<br>%{text}<extra></extra>"
+))
+
+# Add Female Salary Line
+fig.add_trace(go.Scatter(
+    x=salary_melted_df[salary_melted_df["Gender"] == "Female"]["Year"],
+    y=salary_melted_df[salary_melted_df["Gender"] == "Female"]["Median Salary"],
+    mode="lines+markers+text",
+    name="Female Salary",
+    line=dict(color="blue"),
+    marker=dict(size=8),
+    text=[f"{perc:.1f}% Increase" if not pd.isna(perc) else ""
+          for perc in salary_melted_df[salary_melted_df["Gender"] == "Female"]["Percentage Increase"]],
+    textposition="top left",
+    hovertemplate="<b>Year:</b> %{x}<br><b>Salary:</b> %{y:$,}<br>%{text}<extra></extra>"
+))
+
+# Customize layout
+fig.update_layout(
+    title="Median Salary by Gender with Percentage Increase Over Time (S&E Degrees)",
+    xaxis_title="Year",
+    yaxis_title="Median Salary ($)",
+    yaxis_tickprefix="$",
+    yaxis_range=[40000, 105000],  # Adjusted y-axis range to give more room for top labels
+    legend=dict(x=0.1, y=1.1, orientation="h"),
+)
+
+# Show the figure
+fig.show()
+
+
+# In[139]:
+
+
+# Define the path to the file: Table SLBR-30 - Number and median salary of full-time workers with highest degree in S&E field, by sex and occupation: 2019
+file_path = './data/ncses/nsb20212-tabslbr-030.xlsx'
+
+# Define specific row indices for the occupations 
+selected_rows = [7, 28, 40, 53, 66, 85, 112] 
+
+# Load the entire file first, then filter for the selected rows
+data = pd.read_excel(file_path, header=None)
+
+# Select the specified rows and reset the index for male and female data
+slbr30_male_df = data.iloc[selected_rows, [0, 5, 6]].copy()
+slbr30_female_df = data.iloc[selected_rows, [0, 3, 4]].copy()
+
+# Rename columns for both DataFrames
+slbr30_male_df.columns = ["Occupation", "Total Workers", "Median Salary"]
+slbr30_female_df.columns = ["Occupation", "Total Workers", "Median Salary"]
+
+# Convert Thousands to actual counts
+slbr30_male_df["Total Workers"] = slbr30_male_df["Total Workers"] * 1000
+slbr30_female_df["Total Workers"] = slbr30_female_df["Total Workers"] * 1000
+
+# Add Gender columns
+slbr30_male_df["Gender"] = "Male"
+slbr30_female_df["Gender"] = "Female"
+
+# Combine the DataFrames
+employment_count_and_salary_by_occupation_and_gender_df = pd.concat([slbr30_male_df, slbr30_female_df], ignore_index=True)
+
+# Display the resulting DataFrame
+print("Combined DataFrame for Selected Occupations and Salaries:")
+display(employment_count_and_salary_by_occupation_and_gender_df)
+
+
+# In[140]:
+
+
+# Define the path to the file: Table SLBR-32 - Employed S&E highest degree holders, by sex, race or ethnicity, field of highest degree, and broad occupational category: 2019
+file_path = './data/ncses/nsb20212-tabslbr-032.xlsx'
+
+# Define start rows and number of rows for each gender based on the Excel file structure
+start_row_female = 7  
+start_row_male = 14   
+num_rows_female = 5   
+num_rows_male = 5     
+
+# Load the Female data
+female_df = pd.read_excel(
+    file_path,
+    skiprows=start_row_female,
+    nrows=num_rows_female,
+    names=[
+        "Degree Type", "Total S&E Occupations (%)", 
+        "S&E Occupations - Degree Related (%)", "S&E Occupations - Not Related to Degree (%)",
+        "S&E-Related Occupations (%)", "Non-S&E Occupations (%)"
+    ]
+)
+
+# Add Gender column for Female
+female_df['Gender'] = 'Female'
+
+# Load the Male data
+male_df = pd.read_excel(
+    file_path,
+    skiprows=start_row_male,
+    nrows=num_rows_male,
+    names=[
+        "Degree Type", "Total S&E Occupations (%)", 
+        "S&E Occupations - Degree Related (%)", "S&E Occupations - Not Related to Degree (%)",
+        "S&E-Related Occupations (%)", "Non-S&E Occupations (%)"
+    ]
+)
+
+# Add Gender column for Male
+male_df['Gender'] = 'Male'
+
+# Combine the two DataFrames
+se_degree_vs_occupation_by_gender_df = pd.concat([female_df, male_df], ignore_index=True)
+
+# Display the final structured DataFrame
+print("Occupation of S&E Degree Holders DataFrame with Gender:")
+display(se_degree_vs_occupation_by_gender_df)
+
+
 # #### Import Dataset 4: United States Census Bureau
 # - From College to Jobs: American Community Survey 2019
 
-# In[52]:
+# In[141]:
 
 
 # Define the directory to store the downloaded files
@@ -980,7 +1297,7 @@ for file_name, url in urls.items():
 
 # **Extract the data for the men from the first Excel file to test processing**
 
-# In[53]:
+# In[142]:
 
 
 # Define the path to the file
@@ -1022,7 +1339,7 @@ print(df_men_all_ed_levels.tail())
 
 # #### Exploratory Data Analyis (EDA): Check the Data Types
 
-# In[54]:
+# In[143]:
 
 
 df_men_all_ed_levels.info()
@@ -1030,7 +1347,7 @@ df_men_all_ed_levels.info()
 
 # **Convert columns to correct data types (float64 to int64)**
 
-# In[55]:
+# In[144]:
 
 
 # Select numeric columns that need conversion to int64
@@ -1053,7 +1370,7 @@ print(df_men_all_ed_levels.info())
 
 # **Repeat the process for the women's data in the same file**
 
-# In[56]:
+# In[145]:
 
 
 # Define the path to the file
@@ -1125,7 +1442,7 @@ print(df_women_all_ed_levels.info())
 # - **Cross-Disciplinary Employment Trends:** The visualizations reveal that while men frequently cross into technical roles with non-STEM degrees, women tend to stay within fields closely aligned with their degree, such as **Education** and **Social Services**.
 # 
 
-# In[57]:
+# In[146]:
 
 
 # Define fields of degree columns
@@ -1170,7 +1487,7 @@ plt.show()
 # #### Process the second xlsx file from the American Community Survey
 # - Recreate the steps used on the first file from the dataset
 
-# In[58]:
+# In[147]:
 
 
 # Define the path to the file
@@ -1224,7 +1541,7 @@ print(df_men_bach_degree.tail())
 print(df_men_bach_degree.info())
 
 
-# In[59]:
+# In[148]:
 
 
 # Define the path to the file
@@ -1281,7 +1598,7 @@ print(df_women_bach_degree.info())
 # #### Process the third xlsx file from the American Community Survey
 # - Recreate the steps used on the first and second files from the dataset
 
-# In[60]:
+# In[149]:
 
 
 # Define the path to the file
@@ -1335,7 +1652,7 @@ print(df_men_grad_degree.tail())
 print(df_men_grad_degree.info())
 
 
-# In[61]:
+# In[150]:
 
 
 # Define the path to the file
@@ -1391,7 +1708,7 @@ print(df_women_grad_degree.info())
 
 # #### Process the 4th xlsx file from the American Community Survey
 
-# In[67]:
+# In[151]:
 
 
 # Define the path to the file
@@ -1444,12 +1761,13 @@ display(female_median_earnings.head(6))
 # - https://www.kaggle.com/datasets/hackerrank/developer-survey-2018/data for the Kaggle dataset 
 # - https://www.pewresearch.org/social-trends/2018/01/09/women-and-men-in-stem-often-at-odds-over-workplace-equity/  for the link to the Pew Research Survey
 # - https://ncses.nsf.gov/pubs/nsb20212/participation-of-demographic-groups-in-stem for the html scraped dataset
+# - https://ncses.nsf.gov/pubs/nsb20212/downloads for additional tables that were not part of the html scrape
 # - https://www.census.gov/library/stories/2021/06/does-majoring-in-stem-lead-to-stem-job-after-graduation.html for the links to the American Community Survey 2019
 # - IT4075 Applied Machine Learning zyBooks for data classification logic and code
 # - https://medium.com/@acceldia/python-101-reading-excel-and-spss-files-with-pandas-eed6d0441c0b to learn how to work with .sav files
 # - https://python-docx.readthedocs.io/en/latest/user/documents.html to learn how to work with .docx files inside Python
 
-# In[ ]:
+# In[152]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
