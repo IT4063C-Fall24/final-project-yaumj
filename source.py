@@ -67,7 +67,7 @@
 
 # #### Package Imports
 
-# In[204]:
+# In[2]:
 
 
 #import packages
@@ -101,7 +101,7 @@ from docx import Document
 
 # #### Import Dataset 1: HackerRank Developer Survey Published in 2018 that covered 2017 Questionnaire Responses
 
-# In[205]:
+# In[3]:
 
 
 # import dataset from Kaggle using URL 
@@ -111,7 +111,7 @@ od.download(dataset_url, data_dir="./data")
 
 # #### Convert dataset to a pandas dataframe and inspect data for Exploratory Data Analysis (EDA)
 
-# In[206]:
+# In[4]:
 
 
 # Define the data directory
@@ -145,7 +145,7 @@ display(dev_survey_values_df.head(5))
 # - There are outliers in this data as far as what can be directly related to my other datasets and my hypothesis for the purpose of analysis.
 #     - Age ranges will need to be limited to match what is available in the datasets from other sources to make "apples to apples" comparisons.
 
-# In[207]:
+# In[5]:
 
 
 # Find United States in the country_code_df to use for filtering purposes
@@ -162,7 +162,7 @@ display(us_country_code_df)
 
 # #### Filtered dataframe to include only respondents in the United States
 
-# In[208]:
+# In[6]:
 
 
 # Filter the DataFrame for United States questionnaire responses
@@ -179,7 +179,7 @@ display(us_dev_survey_numeric_df.head(5))
 # #### Reduce dataframe columns to only those relevant to supporting or disproving my hypothesis
 # - fields such as date survey was completed and questions about the HackerRank survey were removed from dataframe for simplification
 
-# In[209]:
+# In[7]:
 
 
 # List of relevant columns to keep
@@ -215,7 +215,7 @@ display(filtered_us_dev_survey_numeric_df.head(5))
 # #### Check for Duplicate Records
 # - Some records will be similar, but all records should have a unique RespondentID
 
-# In[210]:
+# In[8]:
 
 
 # Check for duplicates in the RespondentID field
@@ -237,7 +237,7 @@ else:
 # - Remove ages over 64 years old (coded as q2Age: 8 or 9)
 # - Remove non-binary respondents (coded as q3Gender: 3)
 
-# In[211]:
+# In[9]:
 
 
 # Summary of counts for each value in q2Age
@@ -251,7 +251,7 @@ print("\nSummary of counts for each value in q3Gender:")
 print(gender_summary)
 
 
-# In[212]:
+# In[10]:
 
 
 # Remove records where q2Age is #NULL!, 1, 2, 3, 8, or 9
@@ -284,7 +284,7 @@ print(gender_summary)
 # - The numeric dataframe should consist entirely of int64 data types, yet the majority have an "object" data type instead.
 #     - These datatypes will need to be converted for certain types of analysis like a correlation matrix.
 
-# In[282]:
+# In[11]:
 
 
 # Rename columns
@@ -332,7 +332,7 @@ display(filtered_us_dev_survey_numeric_df.head(5))
 # 
 # **Summary:** The findings reinforce the hypothesis that women in tech value career advancement opportunities, inclusive workplace culture, and work-life balance over compensation alone. These insights highlight the importance of creating growth-oriented, flexible, and supportive environments to retain female talent in the technology industry.
 
-# In[287]:
+# In[12]:
 
 
 # Define a dictionary mapping the actual DataFrame column names to the desired display names
@@ -390,7 +390,7 @@ plt.show()
 # - Both datasets contain the same records, but one has numeric codes for all responses and the other has plain language values for all responses 
 # so the same logic can be used for both dataframes.
 
-# In[215]:
+# In[13]:
 
 
 # Filter the DataFrame for CountryNumeric2 = "United States"
@@ -404,7 +404,7 @@ display(f"Number of records: {num_records_values}")
 display(us_dev_survey_values_df.head(5))
 
 
-# In[216]:
+# In[14]:
 
 
 # Reduce dataframe columns to only those relevant to supporting or disproving my hypothesis
@@ -446,7 +446,7 @@ display(filtered_us_dev_survey_values_df.head(5))
 # - Filtered out records where the age is null because both age and gender are necessary to determine job level comparisons.
 # 
 
-# In[217]:
+# In[15]:
 
 
 # Create a copy to work on and avoid SettingWithCopyWarning
@@ -491,7 +491,7 @@ print(gender_summary)
 # - Filtered out records where both the Job Level and Current Role were NaN because there is no way to determine values for the field if both are blank.
 # 
 
-# In[288]:
+# In[16]:
 
 
 # Rename columns
@@ -541,7 +541,7 @@ print(f"Remaining responses after cleaning: {filtered_us_dev_survey_values_df.sh
 # - **Gender Disparity in Age Groups**: Male respondents dominate all age groups, particularly in the 25–34 range, indicating a potential gender imbalance that could influence job levels and advancement opportunities.
 # - **Next Steps in Analysis:** Given the evident gender imbalance, further analysis will explore how this demographic distribution correlates with job levels. Examining job levels across genders and age groups can identify whether disproportionate career progression patterns exist. Additional visualizations, such as a stacked bar chart by job level and gender or a heatmap for job level concentration, will deepen the understanding of gender-based trends in career advancement.
 
-# In[289]:
+# In[17]:
 
 
 # Group the data by Age Group and Gender, and count occurrences
@@ -569,7 +569,7 @@ plt.show()
 # - Look for records where the Job Level is NaN but the Current Role is not NaN.
 #     - These records can be used with machine learning classification to populate missing values.
 
-# In[290]:
+# In[18]:
 
 
 # Review dataset to determine what data is relevant
@@ -593,7 +593,7 @@ display(nan_job_level_current_role_df[['Job Level', 'Current Role']])
 # #### More Exploratory Data Analysis (EDA)
 # - Check if there is a dominant job level associated with the Current Role field that could be used to populate empty fields.
 
-# In[291]:
+# In[19]:
 
 
 # Group by Current Role and Job Level, and count occurrences
@@ -617,7 +617,7 @@ with pd.option_context('display.max_rows', None):
 #     - Given these clear disparities in job level distribution by gender, a machine learning model like K-Nearest Neighbors (KNN) is well-suited for predicting job levels. KNN can capture complex relationships between demographic features (such as gender) and job levels, providing a more nuanced prediction than simple averages or medians.
 #     - By considering demographic factors, this approach enables the model to better reflect real-world patterns of representation and career advancement, offering a data-driven perspective on disparities within roles across the dataset.
 
-# In[297]:
+# In[74]:
 
 
 # Define the desired order for job levels from junior to senior based on numeric dataset mapping
@@ -629,7 +629,6 @@ job_level_order = [
     "Principal engineer",
     "Architect",
     "Engineering manager",
-    "Director / VP of Engineering",
     "Founder / CEO / CTO"
 ]
 
@@ -652,7 +651,7 @@ plt.show()
 
 # #### Use Machine Learning to Populate NaN Job Level Records
 
-# In[223]:
+# In[21]:
 
 
 # Use KNearestNeighbors to determine most likely Job Level based on age, gender, and current role
@@ -706,7 +705,7 @@ print("Predicted Job Levels for records with NaN Job Level:")
 display(predict_df[['Age', 'Gender', 'Current Role', 'Predicted Job Level']])
 
 
-# In[224]:
+# In[22]:
 
 
 #Update Job Level field with predictions and verify changes
@@ -722,9 +721,61 @@ print(f"Number of records with NaN Job Level after updating: {remaining_nan_job_
 display(filtered_us_dev_survey_values_df.head(5))
 
 
+# #### Seaborn Strip Plot: Distribution of Job Levels by Gender within Each Age Group
+# **Purpose:** Visualize the distribution of job levels across genders within each age group in the technology sector, providing insights into potential patterns of gender representation and career progression at different stages of professional life.
+# 
+# **Insights:**
+# - **25–34 Age Group:** Men and women are represented at all job levels from New grad to Engineering Manager. However, Founder/CEO/CTO roles are exclusively occupied by men, and multiple data points at this level indicate that this is not an isolated outlier. Additionally, men appear to have continuous representation across all job levels, while higher levels for women, such as Principal Engineer, Architect, and Engineering Manager, display distinct individual points. This suggests lower representation for women in higher roles at this career stage.
+# - **35–44 Age Group:** Both genders are represented across all job levels, including Founder/CEO/CTO, showing relatively balanced representation in this age range. This distribution may indicate that women who reach this age group achieve a broader range of job levels than in earlier career stages.
+# - **45–54 Age Group:** There is a noticeable reduction in representation, particularly for women. In this group, women are clustered around Level 1 Developer (junior) and Senior Developer, with only a single outlier at Engineering Manager. Men continue to show representation across more levels, indicating a possible disparity in advancement opportunities as careers progress.
+# - **55–64 Age Group:** Men are represented across several senior roles, from Senior Developer to Engineering Manager. Women, however, are predominantly clustered at Senior Developer, with sparse representation at Level 1 Developer (junior), Architect, and Engineering Manager. This pattern may reflect limited opportunities for women to progress to higher roles at later career stages.
+# 
+# **Summary:** The visualization highlights potential gender-based differences in career progression. Women in the 25–34 age group appear to be underrepresented in higher roles, with the disparity becoming more pronounced in later career stages (45–54 and 55–64 age groups). This analysis suggests that women in tech may face challenges in advancing to senior positions as they progress in their careers, potentially reflecting systemic barriers to higher-level roles.
+
+# In[87]:
+
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Define the desired order for job levels and age groups
+job_level_order = [
+    "Student", "New grad", "Freelancer", "Level 1 developer (junior)", 
+    "Senior developer", "Principal engineer", "Architect", 
+    "Engineering manager", "Founder / CEO / CTO"
+]
+age_order = ["25 - 34 years old", "35 - 44 years old", "45 - 54 years old", "55 - 64 years old"]
+
+# Ensure Job Level column is ordered categorically
+filtered_us_dev_survey_values_df['Job Level'] = pd.Categorical(
+    filtered_us_dev_survey_values_df['Job Level'], categories=job_level_order, ordered=True
+)
+filtered_us_dev_survey_values_df['Gender'] = pd.Categorical(
+    filtered_us_dev_survey_values_df['Gender'], categories=["Male", "Female"], ordered=True
+)
+
+# Create the catplot
+g = sns.catplot(
+    data=filtered_us_dev_survey_values_df,
+    x="Gender", y="Job Level", col="Age", hue="Gender",
+    kind="strip", col_order=age_order, hue_order=["Male", "Female"],
+    palette="Set2", dodge=True, jitter=True, height=6, aspect=0.8
+)
+
+# Set title for each plot
+g.set_titles("Age Group: {col_name}")
+
+# Overall title for the plot
+plt.subplots_adjust(top=0.9)
+g.figure.suptitle("Distribution of Job Levels by Gender within Each Age Group", fontsize=16)
+
+plt.show()
+
+
 # #### Import Dataset 2: 2017 Pew Research Center STEM Survey
 
-# In[225]:
+# In[24]:
 
 
 # import zip file from Pew Research
@@ -736,7 +787,7 @@ zipfile.close()
 
 # #### Examine contents of .sav file
 
-# In[257]:
+# In[25]:
 
 
 file_path = 'data/materials for public release/2017 Pew Research Center STEM survey.sav'
@@ -756,7 +807,7 @@ print(prc_stem_df.tail())
 # #### Read the .docx file
 # - Read the Pew Research Center files associated with the .sav file and convert them into .txt files to understand the codes used.
 
-# In[258]:
+# In[26]:
 
 
 # Load the Questionnaire document
@@ -813,7 +864,7 @@ print(prc_codebook_text[:400])
 # #### Display All Column Names in Dataframe
 # - Reading the column names with the new context of the Questionnaire and Codebook file will help to determine which columns are needed for analysis
 
-# In[259]:
+# In[27]:
 
 
 # Display all column names in the DataFrame
@@ -824,7 +875,7 @@ for col in prc_stem_df.columns:
 
 # #### Convert CaseID from float to int64
 
-# In[261]:
+# In[28]:
 
 
 # Convert 'CaseID' to int64
@@ -838,7 +889,7 @@ print(prc_stem_df.dtypes)
 # #### Exploratory Data Analysis (EDA)
 # - Search for null values or refused responses in fields required for analysis.
 
-# In[262]:
+# In[29]:
 
 
 # Summary of counts for each value in WORK_1
@@ -892,7 +943,7 @@ print("\nSummary of counts for each value in STEM_DEGREE:")
 print(prc_stem_degree)
 
 
-# In[263]:
+# In[30]:
 
 
 # Convert specified columns to int64
@@ -921,7 +972,7 @@ print(prc_stem_df.info())
 # - Eliminate fields not needed for hypothesis
 # - Rename columns to more meaningful names
 
-# In[267]:
+# In[31]:
 
 
 # List of columns to exclude
@@ -1078,7 +1129,7 @@ for col in pew_research_numeric.columns:
 #     - Respondents who are only self-employed are not useful to my hypothesis so they can be filtered out from the dataset
 # 
 
-# In[272]:
+# In[32]:
 
 
 # Count of respondents who are both self-employed part-time and employed by a company
@@ -1099,7 +1150,7 @@ print("Count of respondents who are both self-employed part-time and employed by
 print("Count of respondents who are self-employed part-time and not employed by a company:", self_employed_full_time_only_count)
 
 
-# In[273]:
+# In[33]:
 
 
 # Count of respondents who are both self-employed full-time and employed by a company
@@ -1120,7 +1171,7 @@ print("Count of respondents who are both self-employed full-time and employed by
 print("Count of respondents who are self-employed full-time and not employed by a company:", self_employed_full_time_only_count)
 
 
-# In[277]:
+# In[34]:
 
 
 # Filter to retain only records where the respondent is employed by a company, has Employment Status = 1, and is a STEM Worker
@@ -1145,7 +1196,7 @@ remaining_stem_employed_count
 # - Data was compiled by the NCSES from the U.S. Census Bureau, American Community Survey, National Center for Science and Engineering Statistics, and more
 # - For the full list of compiled sources: https://ncses.nsf.gov/pubs/nsb20212/data#source-block 
 
-# In[233]:
+# In[35]:
 
 
 # scrape HTML file to extract tables
@@ -1191,7 +1242,7 @@ for i in range(len(tables)):
 # **Import Additional Resources From National Center for Science and Engineering Statistics (NCSES)**
 # - The Report titled *"The STEM Labor Force of Today: Scientists, Engineers, and Skilled Technical Workers"* spans several pages and has supplemental tables that are not included on any of the pages. 
 
-# In[234]:
+# In[36]:
 
 
 # import data-tables zip file from NCSES
@@ -1215,7 +1266,7 @@ zipfile.close()
 
 # **Convert relevant xlsx files into pandas dataframes**
 
-# In[235]:
+# In[37]:
 
 
 # Define the path to the file: Table LBR-7 - Women with a bachelor's degree or above, by broad occupational group and highest degree: 1993, 2003, 2019
@@ -1260,7 +1311,7 @@ print("Combined DataFrame for Degrees and Occupations:")
 display(ncses_women_science_and_engineering_ed_vs_employment_df)
 
 
-# In[236]:
+# In[38]:
 
 
 # Define the path to the file: Figure LBR-21 - Women with a bachelor's degree or higher in S&E and S&E-related occupations: Selected years, 1993–2019
@@ -1284,7 +1335,7 @@ print("S&E Degree Trends for Women DataFrame (with % values):")
 display(women_s_e_degree_trends_df)
 
 
-# In[237]:
+# In[39]:
 
 
 # Define the path to the file: Figure LBR-27 - Median annual salaries of full-time workers with highest degrees in S&E or S&E-related fields, by sex: Selected years, 1995, 2003, and 2019
@@ -1322,7 +1373,7 @@ display(median_salary_by_gender_df)
 # 
 # This interactive visualization highlights the long-standing and widening disparity in median salaries between genders. The unequal salary increases at crucial intervals have exacerbated the wage gap, emphasizing how systemic disparities in salary growth prevent women from closing the gap in career fields that require science and engineering degrees.
 
-# In[238]:
+# In[40]:
 
 
 # Filter only rows where Degree Field is "S&E"
@@ -1390,7 +1441,7 @@ fig.update_layout(
 fig.show()
 
 
-# In[239]:
+# In[41]:
 
 
 # Define the path to the file: Table SLBR-30 - Number and median salary of full-time workers with highest degree in S&E field, by sex and occupation: 2019
@@ -1426,7 +1477,7 @@ print("Combined DataFrame for Selected Occupations and Salaries:")
 display(employment_count_and_salary_by_occupation_and_gender_df)
 
 
-# In[240]:
+# In[42]:
 
 
 # Define the path to the file: Table SLBR-32 - Employed S&E highest degree holders, by sex, race or ethnicity, field of highest degree, and broad occupational category: 2019
@@ -1479,7 +1530,7 @@ display(se_degree_vs_occupation_by_gender_df)
 # #### Import Dataset 4: United States Census Bureau
 # - From College to Jobs: American Community Survey 2019
 
-# In[241]:
+# In[43]:
 
 
 # Define the directory to store the downloaded files
@@ -1517,7 +1568,7 @@ for file_name, url in urls.items():
 
 # **Extract the data for the men from the first Excel file to test processing**
 
-# In[242]:
+# In[44]:
 
 
 # Define the path to the file
@@ -1559,7 +1610,7 @@ print(df_men_all_ed_levels.tail())
 
 # #### Exploratory Data Analyis (EDA): Check the Data Types
 
-# In[243]:
+# In[45]:
 
 
 df_men_all_ed_levels.info()
@@ -1567,7 +1618,7 @@ df_men_all_ed_levels.info()
 
 # **Convert columns to correct data types (float64 to int64)**
 
-# In[244]:
+# In[46]:
 
 
 # Select numeric columns that need conversion to int64
@@ -1590,7 +1641,7 @@ print(df_men_all_ed_levels.info())
 
 # **Repeat the process for the women's data in the same file**
 
-# In[245]:
+# In[47]:
 
 
 # Define the path to the file
@@ -1662,7 +1713,7 @@ print(df_women_all_ed_levels.info())
 # - **Cross-Disciplinary Employment Trends:** The visualizations reveal that while men frequently cross into technical roles with non-STEM degrees, women tend to stay within fields closely aligned with their degree, such as **Education** and **Social Services**.
 # 
 
-# In[246]:
+# In[48]:
 
 
 # Define fields of degree columns
@@ -1707,7 +1758,7 @@ plt.show()
 # #### Process the second xlsx file from the American Community Survey
 # - Recreate the steps used on the first file from the dataset
 
-# In[247]:
+# In[49]:
 
 
 # Define the path to the file
@@ -1761,7 +1812,7 @@ print(df_men_bach_degree.tail())
 print(df_men_bach_degree.info())
 
 
-# In[248]:
+# In[50]:
 
 
 # Define the path to the file
@@ -1818,7 +1869,7 @@ print(df_women_bach_degree.info())
 # #### Process the third xlsx file from the American Community Survey
 # - Recreate the steps used on the first and second files from the dataset
 
-# In[249]:
+# In[51]:
 
 
 # Define the path to the file
@@ -1872,7 +1923,7 @@ print(df_men_grad_degree.tail())
 print(df_men_grad_degree.info())
 
 
-# In[250]:
+# In[52]:
 
 
 # Define the path to the file
@@ -1928,7 +1979,7 @@ print(df_women_grad_degree.info())
 
 # #### Process the 4th xlsx file from the American Community Survey
 
-# In[251]:
+# In[53]:
 
 
 # Define the path to the file
@@ -1986,8 +2037,10 @@ display(female_median_earnings.head(6))
 # - IT4075 Applied Machine Learning zyBooks for data classification logic and code
 # - https://medium.com/@acceldia/python-101-reading-excel-and-spss-files-with-pandas-eed6d0441c0b to learn how to work with .sav files
 # - https://python-docx.readthedocs.io/en/latest/user/documents.html to learn how to work with .docx files inside Python
+# - https://seaborn.pydata.org/generated/seaborn.FacetGrid.html to learn how to create and edit a seaborn FacetGrid
+# - ChatGPT to troubleshoot visualizations (such as legends not showing correctly, labels partially hidden, and correcting sort order of categorical data)
 
-# In[252]:
+# In[54]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
