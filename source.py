@@ -38,10 +38,13 @@
 # - *From College to Jobs American Community Survey 2019 (U.S. Census Bureau xls files):* Detailed data about occupations, salaries, gender, and educational backgrounds for a comprehensive view of career outcomes. 
 # 
 # **Relating the Data**  
-# - The datasets can be linked based on the shared timeframe (2017-2019) and gender as a common variable. 
-# - Gender will serve as a primary key or part of a composite key for linking. (Non-binary or unknown will be excluded from analysis.)
-# - Ages will be limited to the 25 - 64 range to match the American Community Survey data, ensuring consistency across employment data
-# - The analysis will focus on individuals who were employed at the time of each survey, and each dataset will be filtered accordingly.
+# - The datasets can be linked based on the several criteria for consistency:
+#     - All of the data is part of a shared timeframe of all of the data (2017-2019).  
+#     - Gender will be limited to only male or female. Anyone who did not answer or chose non-binary will be excluded from analysis.
+#     - Responses will be limited to the United States. 
+#     - Only data where the individual works in a STEM career will be included.
+#     - Ages will be limited to the 25 - 64 range to match the American Community Survey data, ensuring consistency across employment data.
+#     - The analysis will focus on individuals who were employed at the time of each survey, and each dataset will be filtered accordingly.
 # 
 
 # ## Approach and Analysis
@@ -49,7 +52,7 @@
 # *How will you use the identified data to answer your project question?*
 # 📝 <!-- Start Discussing the project here; you can add as many code cells as you need -->
 # 
-# After limiting each dataset to core demographics (e.g., country, age, gender, employment status, employment field), I will analyze trends across individual datasets, rather than combining them directly. This approach will allow me to observe patterns related to gender disparities without necessitating complex data joins.
+# After limiting each dataset to core demographics (e.g., country, age, gender, employment status, employment field), I will analyze trends across individual datasets and determine if the responses are similar for the other datasets. As an example, both the HackerRank and Pew Research Center surveys have data about job search criteria, so recreating the same visualization type on each will allow me to observe patterns related to gender disparities.
 # 
 # **Planned Visualizations to Support the Hypothesis:**
 # 1. *Line Chart: Gender and Age Distribution in Technology*  
@@ -62,8 +65,7 @@
 # A side-by-side column chart will compare the key workplace concerns between men and women, such as issues with career progression, work-life balance, pay disparity, and workplace discrimination. Each concern will have two columns—one representing men and one representing women. This will make it easy to see where concerns overlap and where significant differences exist between the genders.
 # 
 # ### UPDATE: Plan Revisions After Exploratory Data Analysis:
-# - My initial plan required data joining; however, after further analysis, I found that filtering each dataset for common demographics provided a more straightforward and effective trend analysis without combining datasets. This streamlined approach aligns with the project’s analytical goals.
-# - During exploratory data analysis, I adjusted some visualizations to better align with the patterns emerging in the raw data.
+# - After the initial exploratory data analysis, the visualization choices were adjusted to better align with the patterns emerging in the raw data.
 
 # #### Package Imports
 
@@ -332,7 +334,7 @@ display(filtered_us_dev_survey_numeric_df.head(5))
 # 
 # **Summary:** The findings reinforce the hypothesis that women in tech value career advancement opportunities, inclusive workplace culture, and work-life balance over compensation alone. These insights highlight the importance of creating growth-oriented, flexible, and supportive environments to retain female talent in the technology industry.
 
-# In[132]:
+# In[11]:
 
 
 # Define a dictionary mapping the actual DataFrame column names to the desired display names
@@ -542,7 +544,7 @@ print(f"Remaining responses after cleaning: {filtered_us_dev_survey_values_df.sh
 # - **Gender Disparity in Age Groups**: Male respondents dominate all age groups, particularly in the 25–34 range, indicating a potential gender imbalance that could influence job levels and advancement opportunities.
 # - **Next Steps in Analysis:** Given the evident gender imbalance, further analysis will explore how this demographic distribution correlates with job levels. Examining job levels across genders and age groups can identify whether disproportionate career progression patterns exist. Additional visualizations, such as a stacked bar chart by job level and gender or a heatmap for job level concentration, will deepen the understanding of gender-based trends in career advancement.
 
-# In[133]:
+# In[16]:
 
 
 # Group the data by Age Group and Gender, and count occurrences
@@ -618,7 +620,7 @@ with pd.option_context('display.max_rows', None):
 #     - Given these clear disparities in job level distribution by gender, a machine learning model like K-Nearest Neighbors (KNN) is well-suited for predicting job levels. KNN can capture complex relationships between demographic features (such as gender) and job levels, providing a more nuanced prediction than simple averages or medians.
 #     - By considering demographic factors, this approach enables the model to better reflect real-world patterns of representation and career advancement, offering a data-driven perspective on disparities within roles across the dataset.
 
-# In[134]:
+# In[19]:
 
 
 # Define the desired order for job levels from junior to senior based on numeric dataset mapping
@@ -736,7 +738,7 @@ display(filtered_us_dev_survey_values_df.head(5))
 # 
 # **Summary:** The visualization highlights potential gender-based differences in career progression. Women in the 25–34 age group appear to be underrepresented in higher roles, with the disparity becoming more pronounced in later career stages (45–54 and 55–64 age groups). This analysis suggests that women in tech may face challenges in advancing to senior positions as they progress in their careers, potentially reflecting systemic barriers to higher-level roles.
 
-# In[135]:
+# In[22]:
 
 
 # Define the desired order for job levels and age groups
@@ -975,7 +977,7 @@ print(prc_stem_df.info())
 # - Eliminate fields not needed for hypothesis
 # - Rename columns to more meaningful names
 
-# In[54]:
+# In[30]:
 
 
 # List of columns to exclude
@@ -1132,7 +1134,7 @@ for col in pew_research_numeric.columns:
 #     - Respondents who are only self-employed are not useful to my hypothesis so they can be filtered out from the dataset
 # 
 
-# In[55]:
+# In[31]:
 
 
 # Count of respondents who are both self-employed part-time and employed by a company
@@ -1153,7 +1155,7 @@ print("Count of respondents who are both self-employed part-time and employed by
 print("Count of respondents who are self-employed part-time and not employed by a company:", self_employed_full_time_only_count)
 
 
-# In[56]:
+# In[32]:
 
 
 # Count of respondents who are both self-employed full-time and employed by a company
@@ -1174,7 +1176,7 @@ print("Count of respondents who are both self-employed full-time and employed by
 print("Count of respondents who are self-employed full-time and not employed by a company:", self_employed_full_time_only_count)
 
 
-# In[57]:
+# In[33]:
 
 
 # Filter to retain only records where the respondent is employed by a company, has Employment Status = 1, and is a STEM Worker
@@ -1193,7 +1195,7 @@ remaining_stem_employed_count
 # **Find values for "Job Choice" columns**
 # - The Job Choice columns were coded with numbers in the original survey as a single column. I need to know if the split columns have 0 and 1 or 1 and 2 as Yes/No representation to create visualizations.
 
-# In[59]:
+# In[34]:
 
 
 # List of job choice columns to check value counts
@@ -1215,20 +1217,20 @@ for column in job_choice_columns:
 
 
 # #### Matplotlib Stacked Bar Chart: Job Choice Priorities by Gender (Normalized)
-# **Purpose:** Recreate the HackerRank survey analysis with Pew Research Center data to validate findings on job choice priorities by gender in the technology and STEM fields. This chart has been normalized to account for the gender imbalance of respondents in the dataset.
+# **Purpose:** Recreate the HackerRank survey analysis with Pew Research Center data to validate findings on job choice priorities by gender in the technology and STEM fields. This chart has been both weighted and normalized to reflect the gender imbalance in respondents and the demographic adjustments applied in the Pew Research Center dataset.
 # 
 # **Insights:**
-# - **Work-Life Balance as Top Priority:** Both women (76.8%) and men (72.6%) consider *Work-Life Balance* crucial when choosing a job, consistent with the HackerRank survey. This emphasizes the importance of flexible work environments in addressing the demands of professional and personal life balance for both genders.
-# - **Higher Emphasis on Helping Others and Contribution to Society by Women:** Women in the Pew Research Center data place significantly more value on *Helping Others* (60.3% for women vs. 29.1% for men) and *Contribution to Society* (60.5% for women vs. 49.8% for men). In contrast, the HackerRank survey reported lower ratings for *Company Mission* and *Product Impact* for both genders, suggesting that while women in the Pew sample prioritize purpose-driven work, this emphasis was not as pronounced in the HackerRank survey. This could reflect differing values or motivations across these two groups of respondents.
-# - **Company Culture as a Key Factor:** *Company Culture* remains a higher priority for women (55.4%) compared to men (48.4%)in the Pew Research Center data, echoing findings from the HackerRank survey (44.2% for women vs. 39.0% for men). This preference underlines the importance of inclusive, supportive work environments for women in STEM fields.
-# - **Compensation as a Higher Priority for Men:** *Compensation* is more highly prioritized by men than women in both surveys, with Pew Research Center data showing 55.2% for men vs. 44.4% for women, and HackerRank showing 56.9% for men vs. 41.2% for women. This consistent trend suggests that, although compensation is important, it may not be the foremost factor for women in STEM.
-# - **Contrasting Trends in Professional Growth Priorities:** The *Professional Growth* findings between the two surveys reveal nearly opposite trends. In the HackerRank survey, women rated *Professional Growth and Learning* higher than men (54.6% for women vs. 44.9% for men). However, in the Pew Research Center data, men prioritized *Professional Growth* more (53.5% for men vs. 44.6% for women). This discrepancy may indicate varied career motivations between the samples, with HackerRank respondents possibly focusing more on career advancement opportunities for women than their counterparts in the Pew Research Center survey.
+# - **Work-Life Balance as Top Priority:** Both women (76.6%) and men (72.5%) consider *Work-Life Balance* crucial when choosing a job, consistent with the HackerRank survey. This emphasizes the importance of flexible work environments in addressing the demands of professional and personal life balance for both genders.
+# - **Higher Emphasis on Helping Others and Contribution to Society by Women:** Women in the Pew Research Center data place significantly more value on *Helping Others* (57.9% for women vs. 28.5% for men) and *Contribution to Society* (60.4% for women vs. 49.5% for men). In contrast, the HackerRank survey reported lower ratings for *Company Mission* and *Product Impact* for both genders, suggesting that while women in the Pew sample prioritize purpose-driven work, this emphasis was not as pronounced in the HackerRank survey. This could reflect differing values or motivations across these two groups of respondents.
+# - **Company Culture as a Key Factor:** *Company Culture* remains a higher priority for women (53.2%) compared to men (48.3%)in the Pew Research Center data, echoing findings from the HackerRank survey (44.2% for women vs. 39.0% for men). This preference underlines the importance of inclusive, supportive work environments for women in STEM fields.
+# - **Compensation as a Higher Priority for Men:** *Compensation* is more highly prioritized by men than women in both surveys, with Pew Research Center data showing 60.3% for men vs. 47.6% for women, and HackerRank showing 56.9% for men vs. 41.2% for women. This consistent trend suggests that, although compensation is important, it may not be the foremost factor for women in STEM.
+# - **Contrasting Trends in Professional Growth Priorities:** The *Professional Growth* findings between the two surveys reveal nearly opposite trends. In the HackerRank survey, women rated *Professional Growth and Learning* higher than men (54.6% for women vs. 44.9% for men). However, in the Pew Research Center data, men prioritized *Professional Growth* more (57.5% for men vs. 46.3% for women). This discrepancy may indicate varied career motivations between the samples, with HackerRank respondents possibly focusing more on career advancement opportunities for women than their counterparts in the Pew Research Center survey.
 # 
-# **Methodology Consideration:** It is important to note a key difference in methodology: the HackerRank survey required respondents to select exactly three job priorities, whereas the Pew Research Center survey allowed respondents to choose any number of priorities or none at all. This flexibility in the Pew Research Center survey may have influenced the distribution of choices, allowing for a broader expression of priorities compared to the forced-choice format of the HackerRank survey.
+# **Methodology Consideration:** It is important to note a key difference in methodology: the HackerRank survey required respondents to select exactly three job priorities, whereas the Pew Research Center survey allowed respondents to choose any number of priorities or none at all. This flexibility in the Pew Research Center survey may have influenced the distribution of choices, allowing for a broader expression of priorities compared to the forced-choice format of the HackerRank survey. Additionally, the Pew data incorporates a weighting factor to adjust for demographic representation, adding rigor to the analysis but potentially influencing comparisons with the HackerRank data.
 # 
 # **Summary:** This analysis of the Pew Research Center data generally supports the trends observed in the HackerRank survey, particularly around work-life balance and company culture. However, the contrasting findings for professional growth and the emphasis on helping others and societal contribution underscore that motivations can vary widely across STEM fields. These insights emphasize the importance of creating flexible, purpose-driven, and growth-oriented workplaces to effectively retain a diverse workforce in technology and STEM.
 
-# In[136]:
+# In[35]:
 
 
 # Define a dictionary mapping the Pew Research column names to display names
@@ -1245,25 +1247,30 @@ column_display_names_pew = {
 # Select only the job choice columns to analyze
 job_choice_columns = list(column_display_names_pew.keys())
 
-# Group data by gender and sum up the counts for each job choice criterion
-criteria_counts_pew = pew_research_stem_employed_filtered.groupby('Gender')[job_choice_columns].sum()
+# Multiply each job choice column by the weight column to apply weighting
+weighted_data = pew_research_stem_employed_filtered.copy()
+for col in job_choice_columns:
+    weighted_data[col] = weighted_data[col] * weighted_data['weight']
 
-# Calculate the total number of male and female respondents
-total_counts_by_gender_pew = pew_research_stem_employed_filtered['Gender'].value_counts()
+# Group data by gender and sum up the weighted counts for each job choice criterion
+weighted_criteria_counts_pew = weighted_data.groupby('Gender')[job_choice_columns].sum()
+
+# Calculate the total weighted count by gender to normalize the data
+total_weighted_counts_by_gender_pew = weighted_data.groupby('Gender')['weight'].sum()
 
 # Normalize the data by calculating the percentage of each job criterion per gender
-criteria_percentages_pew = criteria_counts_pew.div(total_counts_by_gender_pew, axis=0) * 100
+criteria_percentages_pew_weighted = weighted_criteria_counts_pew.div(total_weighted_counts_by_gender_pew, axis=0) * 100
 
 # Rename gender values for readability
-criteria_percentages_pew.index = criteria_percentages_pew.index.map({1: 'Male', 2: 'Female'})
+criteria_percentages_pew_weighted.index = criteria_percentages_pew_weighted.index.map({1: 'Male', 2: 'Female'})
 
 # Rename columns in the DataFrame for plotting
-criteria_percentages_pew = criteria_percentages_pew.rename(columns=column_display_names_pew)
+criteria_percentages_pew_weighted = criteria_percentages_pew_weighted.rename(columns=column_display_names_pew)
 
-# Plotting the normalized stacked bar chart
-ax = criteria_percentages_pew.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=['#8ad6cc', '#f99192'])
-plt.suptitle('Job Choice Priorities by Gender (Normalized)')
-plt.title('Pew Research Center Data', fontsize=12, color='gray')
+# Plotting the weighted normalized stacked bar chart
+ax = criteria_percentages_pew_weighted.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=['#8ad6cc', '#f99192'])
+plt.suptitle('Job Choice Priorities by Gender (Weighted and Normalized)')
+plt.title('Pew Research Center Data with Applied Weighting', fontsize=12, color='gray')
 plt.ylabel('Percentage of Respondents (%)')
 plt.legend(title='Gender')
 plt.xticks(rotation=45, ha='right')
@@ -1276,6 +1283,80 @@ for container in ax.containers:
 plt.show()
 
 
+# #### Seaborn Heatmap: Concentration of Discrimination Experiences by Age Group and Gender (Weighted Counts)
+# **Purpose:** This heatmap visualizes the concentration of reported discrimination experiences across age groups and gender, using weighted counts from the Pew Research Center data. By applying weighting factors, this chart provides a more representative view of how these experiences vary across demographics, especially by age and gender.
+# 
+# **Insights:**
+# - **High Concentration of Negative Experiences for Younger Women:** Women aged 25–34 report notably high weighted counts in experiences such as *Earning Less than Opposite Gender Counterpart* (21.5), *Experiencing Microaggressions* (18.2), and *Being Treated as Incompetent* (22.8). These elevated counts suggest significant barriers for younger women in the workforce, particularly in terms of respect and equitable treatment. 
+#   
+# - **Persisting Challenges for Women Aged 35–44:** In the 35–44 age group, women continue to report substantial discrimination experiences, including *Earning Less* (14.8), *Microaggressions* (10.4), *Receiving Less Senior Support* (11.5), and *Being Treated as Incompetent* (13.1). These experiences highlight ongoing barriers to career advancement and the importance of mentorship and support in the workplace. The need for a supportive company culture may be particularly strong in this group as they strive for professional growth and equity.
+# 
+# - **Decreasing but Consistent Reports in Later Career Stages:** For women aged 45–54, notable experiences include *Earning Less* (11.3) and *Being Treated as Incompetent* (11.3), while women aged 55–64 still report *Earning Less* (14.0) and *Being Treated as Incompetent* (10.2). Although these counts are slightly lower than in younger age groups, they indicate that discriminatory treatment persists throughout many women's careers, possibly impacting their satisfaction and retention in STEM fields.
+# 
+# - **Comparative Low Reports for Men Across All Age Groups:** Men report much lower weighted counts for these discrimination experiences across all age groups, suggesting they encounter these issues less frequently than women. This difference further highlights why women, compared to men, may prioritize company culture as a significant factor when evaluating job opportunities.
+# 
+# **Methodology Consideration:** This visualization uses weighted counts, which adjust each reported experience according to the demographic representation in the Pew Research Center dataset. These adjustments help reflect the actual prevalence of discrimination experiences in the workforce more accurately.
+# 
+# **Summary:** The analysis reveals that younger and mid-career women (ages 25–44) encounter the highest concentration of discrimination experiences, especially in terms of earning disparities, microaggressions, and perceived incompetence. These trends emphasize the need for supportive and equitable workplace cultures, as these factors likely influence why women place high value on company culture when considering job opportunities in STEM fields.
+
+# In[72]:
+
+
+# Define the age group labels only for ages 25-34, 35-44, 45-54, and 55-64
+age_group_labels = {
+    2: "Age 25-34", 
+    3: "Age 35-44", 
+    4: "Age 45-54", 
+    5: "Age 55-64"
+}
+
+# Define the mapping for renaming experience labels by removing "Personal Experience - "
+experience_columns = [
+    'Personal Experience - Denied Important Assignments',
+    'Personal Experience - Denied Job',
+    'Personal Experience - Denied Promotion',
+    'Personal Experience - Earned Less than Opposite Gender Counterpart',
+    'Personal Experience - Felt Isolated',
+    'Personal Experience - Microaggressions',
+    'Personal Experience - Received Less Senior Support than Opposite Gender Counterpart',
+    'Personal Experience - Treated as Incompetent'
+]
+experience_labels = {col: col.replace("Personal Experience - ", "") for col in experience_columns}
+
+# Select relevant columns and apply weighting
+weighted_data = pew_research_stem_employed_filtered.copy()
+for col in experience_columns:
+    weighted_data[col] = weighted_data[col] * weighted_data['weight']
+
+# Group by age and gender, summing weighted experiences
+weighted_experience_counts = weighted_data.groupby(['Age', 'Gender'])[experience_columns].sum().reset_index()
+
+# Map age groups and rename experience columns
+weighted_experience_counts['Age'] = weighted_experience_counts['Age'].map(age_group_labels)
+weighted_experience_counts = weighted_experience_counts.rename(columns=experience_labels)
+
+# Melt the DataFrame for heatmap plotting
+melted_data = weighted_experience_counts.melt(id_vars=['Age', 'Gender'], var_name='Discrimination Experience', value_name='Weighted Count')
+
+# Pivot for heatmap
+heatmap_data = melted_data.pivot_table(
+    index=['Age', 'Discrimination Experience'], 
+    columns='Gender', 
+    values='Weighted Count', 
+    fill_value=0
+)
+
+# Rename the Gender values for clarity
+heatmap_data.columns = heatmap_data.columns.map({1: 'Male', 2: 'Female'})
+
+# Plotting the heatmap
+plt.figure(figsize=(16, 14))
+sns.heatmap(heatmap_data, cmap='coolwarm', annot=True, fmt='.3f', cbar_kws={'label': 'Weighted Count of Experiences'})
+plt.title('Concentration of Discrimination Experiences by Age Group and Gender: Pew Research Center Data with Applied Weighting')
+plt.ylabel('Age Group and Discrimination Experience')
+plt.show()
+
+
 # ## Data after this point is still in the process of being analyzed, cleaned, and transformed.
 # - Due to time constraints for the submission of Checkpoint 2, the work on these datasets is not complete. However, they will continue to be worked with for the final project.
 # - The work prior to this point should include all requirements for Checkpoint 2: Exploratory Data Analysis & Visualization aside from one of the visualizations, which is included after Dataset 4 was imported and partially processed.
@@ -1285,7 +1366,7 @@ plt.show()
 # - Data was compiled by the NCSES from the U.S. Census Bureau, American Community Survey, National Center for Science and Engineering Statistics, and more
 # - For the full list of compiled sources: https://ncses.nsf.gov/pubs/nsb20212/data#source-block 
 
-# In[34]:
+# In[36]:
 
 
 # scrape HTML file to extract tables
@@ -1331,7 +1412,7 @@ for i in range(len(tables)):
 # **Import Additional Resources From National Center for Science and Engineering Statistics (NCSES)**
 # - The Report titled *"The STEM Labor Force of Today: Scientists, Engineers, and Skilled Technical Workers"* spans several pages and has supplemental tables that are not included on any of the pages. 
 
-# In[35]:
+# In[37]:
 
 
 # import data-tables zip file from NCSES
@@ -1355,7 +1436,7 @@ zipfile.close()
 
 # **Convert relevant xlsx files into pandas dataframes**
 
-# In[36]:
+# In[38]:
 
 
 # Define the path to the file: Table LBR-7 - Women with a bachelor's degree or above, by broad occupational group and highest degree: 1993, 2003, 2019
@@ -1400,7 +1481,7 @@ print("Combined DataFrame for Degrees and Occupations:")
 display(ncses_women_science_and_engineering_ed_vs_employment_df)
 
 
-# In[37]:
+# In[39]:
 
 
 # Define the path to the file: Figure LBR-21 - Women with a bachelor's degree or higher in S&E and S&E-related occupations: Selected years, 1993–2019
@@ -1424,7 +1505,7 @@ print("S&E Degree Trends for Women DataFrame (with % values):")
 display(women_s_e_degree_trends_df)
 
 
-# In[38]:
+# In[40]:
 
 
 # Define the path to the file: Figure LBR-27 - Median annual salaries of full-time workers with highest degrees in S&E or S&E-related fields, by sex: Selected years, 1995, 2003, and 2019
@@ -1462,7 +1543,7 @@ display(median_salary_by_gender_df)
 # 
 # This interactive visualization highlights the long-standing and widening disparity in median salaries between genders. The unequal salary increases at crucial intervals have exacerbated the wage gap, emphasizing how systemic disparities in salary growth prevent women from closing the gap in career fields that require science and engineering degrees.
 
-# In[138]:
+# In[41]:
 
 
 # Filter only rows where Degree Field is "S&E"
@@ -1530,7 +1611,7 @@ fig.update_layout(
 fig.show()
 
 
-# In[40]:
+# In[42]:
 
 
 # Define the path to the file: Table SLBR-30 - Number and median salary of full-time workers with highest degree in S&E field, by sex and occupation: 2019
@@ -1566,7 +1647,7 @@ print("Combined DataFrame for Selected Occupations and Salaries:")
 display(employment_count_and_salary_by_occupation_and_gender_df)
 
 
-# In[41]:
+# In[43]:
 
 
 # Define the path to the file: Table SLBR-32 - Employed S&E highest degree holders, by sex, race or ethnicity, field of highest degree, and broad occupational category: 2019
@@ -1619,7 +1700,7 @@ display(se_degree_vs_occupation_by_gender_df)
 # #### Import Dataset 4: United States Census Bureau
 # - From College to Jobs: American Community Survey 2019
 
-# In[42]:
+# In[44]:
 
 
 # Define the directory to store the downloaded files
@@ -1657,7 +1738,7 @@ for file_name, url in urls.items():
 
 # **Extract the data for the men from the first Excel file to test processing**
 
-# In[43]:
+# In[45]:
 
 
 # Define the path to the file
@@ -1699,7 +1780,7 @@ print(df_men_all_ed_levels.tail())
 
 # #### Exploratory Data Analyis (EDA): Check the Data Types
 
-# In[44]:
+# In[46]:
 
 
 df_men_all_ed_levels.info()
@@ -1707,7 +1788,7 @@ df_men_all_ed_levels.info()
 
 # **Convert columns to correct data types (float64 to int64)**
 
-# In[45]:
+# In[47]:
 
 
 # Select numeric columns that need conversion to int64
@@ -1730,7 +1811,7 @@ print(df_men_all_ed_levels.info())
 
 # **Repeat the process for the women's data in the same file**
 
-# In[46]:
+# In[48]:
 
 
 # Define the path to the file
@@ -1802,7 +1883,7 @@ print(df_women_all_ed_levels.info())
 # - **Cross-Disciplinary Employment Trends:** The visualizations reveal that while men frequently cross into technical roles with non-STEM degrees, women tend to stay within fields closely aligned with their degree, such as **Education** and **Social Services**.
 # 
 
-# In[47]:
+# In[49]:
 
 
 # Define fields of degree columns
@@ -1847,7 +1928,7 @@ plt.show()
 # #### Process the second xlsx file from the American Community Survey
 # - Recreate the steps used on the first file from the dataset
 
-# In[48]:
+# In[50]:
 
 
 # Define the path to the file
@@ -1901,7 +1982,7 @@ print(df_men_bach_degree.tail())
 print(df_men_bach_degree.info())
 
 
-# In[49]:
+# In[51]:
 
 
 # Define the path to the file
@@ -1958,7 +2039,7 @@ print(df_women_bach_degree.info())
 # #### Process the third xlsx file from the American Community Survey
 # - Recreate the steps used on the first and second files from the dataset
 
-# In[50]:
+# In[52]:
 
 
 # Define the path to the file
@@ -2012,7 +2093,7 @@ print(df_men_grad_degree.tail())
 print(df_men_grad_degree.info())
 
 
-# In[51]:
+# In[53]:
 
 
 # Define the path to the file
@@ -2068,7 +2149,7 @@ print(df_women_grad_degree.info())
 
 # #### Process the 4th xlsx file from the American Community Survey
 
-# In[52]:
+# In[54]:
 
 
 # Define the path to the file
@@ -2131,7 +2212,7 @@ display(female_median_earnings.head(6))
 # - https://stackoverflow.com/questions/1388450/giving-graphs-a-subtitle to learn how to add titles and subtitles to matplotlib visualizations
 # - https://www.color-hex.com/color-palettes/ to choose consistent color palette for visualizations
 
-# In[53]:
+# In[55]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
