@@ -69,7 +69,7 @@
 
 # #### Package Imports
 
-# In[1]:
+# In[61]:
 
 
 #import packages
@@ -85,6 +85,7 @@ import requests
 import re # for string manipulation
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
@@ -97,6 +98,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report, confusion_matrix
+
+from mpl_toolkits.mplot3d import Axes3D
 
 from docx import Document
 
@@ -374,7 +377,7 @@ criteria_percentages.index = criteria_percentages.index.map({1: 'Male', 2: 'Fema
 criteria_percentages = criteria_percentages.rename(columns=column_display_names)
 
 # Plotting the normalized stacked bar chart
-ax = criteria_percentages.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=['#8ad6cc', '#f99192'])
+ax = criteria_percentages.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=['slategray', 'lightseagreen'])
 plt.suptitle('Job Choice Priorities by Gender (Normalized)')
 plt.title('HackerRank 2018 Developer Survey', fontsize=12, color='gray')
 plt.ylabel('Percentage of Respondents (%)')
@@ -554,7 +557,7 @@ age_gender_counts = filtered_us_dev_survey_values_df.groupby(['Age', 'Gender'], 
 plt.figure(figsize=(10, 6))
 
 # Plot each gender as a separate bar
-age_gender_counts.plot(kind='bar', width=0.8, ax=plt.gca(), color=['#8ad6cc', '#f99192'])
+age_gender_counts.plot(kind='bar', width=0.8, ax=plt.gca(), color=['slategray', 'lightseagreen'])
 
 # Customize the plot
 plt.title('Count of Workers by Age Group and Gender')
@@ -620,7 +623,7 @@ with pd.option_context('display.max_rows', None):
 #     - Given these clear disparities in job level distribution by gender, a machine learning model like K-Nearest Neighbors (KNN) is well-suited for predicting job levels. KNN can capture complex relationships between demographic features (such as gender) and job levels, providing a more nuanced prediction than simple averages or medians.
 #     - By considering demographic factors, this approach enables the model to better reflect real-world patterns of representation and career advancement, offering a data-driven perspective on disparities within roles across the dataset.
 
-# In[19]:
+# In[136]:
 
 
 # Define the desired order for job levels from junior to senior based on numeric dataset mapping
@@ -641,7 +644,7 @@ role_data = filtered_us_dev_survey_values_df[filtered_us_dev_survey_values_df['C
 role_data['Job Level'] = pd.Categorical(role_data['Job Level'], categories=job_level_order, ordered=True)
 
 # Define a custom palette to match matplotlib graphs
-custom_palette = ['#8ad6cc', '#f99192']
+custom_palette = ['slategray', 'lightseagreen']
 
 # Create a horizontal box plot with gaps between the boxes
 plt.figure(figsize=(6, 6))
@@ -649,7 +652,7 @@ sns.boxplot(data=role_data, y='Job Level', x='Gender', hue='Gender', palette=cus
 plt.suptitle(f'Distribution of Job Levels for {specific_role} by Gender')
 plt.title('HackerRank 2018 Developer Survey', fontsize=12, color='gray')
 plt.ylabel('Job Level')
-plt.xlabel('Gender')
+plt.xlabel('')
 plt.xticks(rotation=0)
 plt.grid(axis='y')  # Add horizontal grid lines for better readability
 plt.show()
@@ -738,7 +741,7 @@ display(filtered_us_dev_survey_values_df.head(5))
 # 
 # **Summary:** The visualization highlights potential gender-based differences in career progression. Women in the 25–34 age group appear to be underrepresented in higher roles, with the disparity becoming more pronounced in later career stages (45–54 and 55–64 age groups). This analysis suggests that women in tech may face challenges in advancing to senior positions as they progress in their careers, potentially reflecting systemic barriers to higher-level roles.
 
-# In[22]:
+# In[137]:
 
 
 # Define the desired order for job levels and age groups
@@ -758,7 +761,7 @@ filtered_us_dev_survey_values_df['Gender'] = pd.Categorical(
 )
 
 # Define a custom palette to match matplotlib graphs
-custom_palette = ['#8ad6cc', '#f99192']
+custom_palette = ['slategray', 'lightseagreen']
 
 # Create the catplot
 g = sns.catplot(
@@ -770,6 +773,9 @@ g = sns.catplot(
 
 # Set title for each plot
 g.set_titles("Age Group: {col_name}")
+
+# Remove x-axis label
+g.set(xlabel="")  
 
 # Overall title for the plot
 plt.subplots_adjust(top=0.9)
@@ -1268,7 +1274,7 @@ criteria_percentages_pew_weighted.index = criteria_percentages_pew_weighted.inde
 criteria_percentages_pew_weighted = criteria_percentages_pew_weighted.rename(columns=column_display_names_pew)
 
 # Plotting the weighted normalized stacked bar chart
-ax = criteria_percentages_pew_weighted.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=['#8ad6cc', '#f99192'])
+ax = criteria_percentages_pew_weighted.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=['slategray', 'lightseagreen'])
 plt.suptitle('Job Choice Priorities by Gender (Weighted and Normalized)')
 plt.title('Pew Research Center Data with Applied Weighting', fontsize=12, color='gray')
 plt.ylabel('Percentage of Respondents (%)')
@@ -1299,7 +1305,7 @@ plt.show()
 # 
 # **Summary:** The analysis reveals that younger and mid-career women (ages 25–44) encounter the highest concentration of discrimination experiences, especially in terms of earning disparities, microaggressions, and perceived incompetence. These trends emphasize the need for supportive and equitable workplace cultures, as these factors likely influence why women place high value on company culture when considering job opportunities in STEM fields.
 
-# In[72]:
+# In[138]:
 
 
 # Define the age group labels only for ages 25-34, 35-44, 45-54, and 55-64
@@ -1353,20 +1359,17 @@ heatmap_data.columns = heatmap_data.columns.map({1: 'Male', 2: 'Female'})
 plt.figure(figsize=(16, 14))
 sns.heatmap(heatmap_data, cmap='coolwarm', annot=True, fmt='.3f', cbar_kws={'label': 'Weighted Count of Experiences'})
 plt.title('Concentration of Discrimination Experiences by Age Group and Gender: Pew Research Center Data with Applied Weighting')
+plt.xlabel('')
 plt.ylabel('Age Group and Discrimination Experience')
 plt.show()
 
-
-# ## Data after this point is still in the process of being analyzed, cleaned, and transformed.
-# - Due to time constraints for the submission of Checkpoint 2, the work on these datasets is not complete. However, they will continue to be worked with for the final project.
-# - The work prior to this point should include all requirements for Checkpoint 2: Exploratory Data Analysis & Visualization aside from one of the visualizations, which is included after Dataset 4 was imported and partially processed.
 
 # #### Import Dataset 3: National Center for Science and Engineering Statistics (NCSES)
 # - Includes demographic breakdown of STEM participation in the workforce from 1993 - 2019
 # - Data was compiled by the NCSES from the U.S. Census Bureau, American Community Survey, National Center for Science and Engineering Statistics, and more
 # - For the full list of compiled sources: https://ncses.nsf.gov/pubs/nsb20212/data#source-block 
 
-# In[36]:
+# In[37]:
 
 
 # scrape HTML file to extract tables
@@ -1412,7 +1415,7 @@ for i in range(len(tables)):
 # **Import Additional Resources From National Center for Science and Engineering Statistics (NCSES)**
 # - The Report titled *"The STEM Labor Force of Today: Scientists, Engineers, and Skilled Technical Workers"* spans several pages and has supplemental tables that are not included on any of the pages. 
 
-# In[37]:
+# In[38]:
 
 
 # import data-tables zip file from NCSES
@@ -1436,15 +1439,15 @@ zipfile.close()
 
 # **Convert relevant xlsx files into pandas dataframes**
 
-# In[38]:
+# In[39]:
 
 
 # Define the path to the file: Table LBR-7 - Women with a bachelor's degree or above, by broad occupational group and highest degree: 1993, 2003, 2019
 file_path = './data/ncses/nsb20212-tablbr-007.xlsx'
 
 # Define start rows for each section based on the Excel file structure
-start_row_degrees = 9  # Adjust based on where Degree Focus data starts
-start_row_occupations = 6  # Adjust based on where Occupational Group data starts
+start_row_degrees = 9  
+start_row_occupations = 6  
 num_rows_degrees = 2  # Number of rows for the degree section
 num_rows_occupations = 2  # Number of rows for the occupation section
 
@@ -1481,7 +1484,66 @@ print("Combined DataFrame for Degrees and Occupations:")
 display(ncses_women_science_and_engineering_ed_vs_employment_df)
 
 
-# In[39]:
+# #### Matplotlib Area Chart: Comparison of Women in S&E Degrees vs. S&E Occupations (1993, 2003, 2019)
+# **Purpose:** This area chart provides a comparison of the growth in the number of women earning degrees in science and engineering (S&E) fields versus the number of women employed in S&E occupations. By overlaying these two trends, this visualization highlights potential disparities between education and workforce participation in Science and Engineering for women.
+# 
+# **Insights:**
+# - **Significant Growth in S&E Degree Attainment:** From 1993 to 2019, the number of women earning degrees in S&E fields increased by approximately 202.67%, reflecting substantial progress in encouraging women to pursue studies in these fields. This trend suggests that more women are being equipped with the qualifications necessary for careers in science and engineering.
+# 
+# - **Lagging Workforce Representation Despite Educational Gains:** Over the same period, the increase in the number of women in S&E occupations was approximately 190.4%, a slower growth rate than the increase in degree attainment, suggesting that barriers may still prevent women from entering or advancing in S&E careers.
+# 
+# - **Indications of Structural Barriers:** The gap between educational achievement and workforce representation suggests that women in S&E fields may face structural or cultural barriers limiting their entry and advancement in these careers. These barriers likely impact not only individual career progression but also overall industry diversity and innovation potential.
+# 
+# **Summary:** This area chart emphasizes the challenge of translating educational advancements for women in S&E into equivalent representation in S&E occupations. Although women are earning degrees in S&E fields at increasing rates, this academic progress does not appear to be fully mirrored in workforce participation. This demonstrates that many women are encountering barriers to even entering into S&E fields, impacting their long-term career trajectories in the Science and Engineering Industry. These findings underscore the need for supportive, equitable workplace practices to bridge the gap between education and career progression for women in S&E.
+
+# In[40]:
+
+
+# Filter data for S&E category only and pivot it for plotting
+degree_data = ncses_women_science_and_engineering_ed_vs_employment_df[
+    (ncses_women_science_and_engineering_ed_vs_employment_df['Category'] == 'S&E') &
+    (ncses_women_science_and_engineering_ed_vs_employment_df['Type'] == 'Degree')
+]
+
+occupation_data = ncses_women_science_and_engineering_ed_vs_employment_df[
+    (ncses_women_science_and_engineering_ed_vs_employment_df['Category'] == 'S&E') &
+    (ncses_women_science_and_engineering_ed_vs_employment_df['Type'] == 'Occupation')
+]
+
+# Extract counts and convert years to labels for plotting
+years = ['1993', '2003', '2019']
+degree_counts = degree_data[['1993 - Count', '2003 - Count', '2019 - Count']].values.flatten()
+occupation_counts = occupation_data[['1993 - Count', '2003 - Count', '2019 - Count']].values.flatten()
+
+# Plotting the line chart with area fill
+plt.figure(figsize=(12, 6))
+plt.plot(years, degree_counts, color='lightseagreen', marker='o', label='S&E Degrees')
+plt.fill_between(years, degree_counts, color='lightseagreen', alpha=0.3)
+
+plt.plot(years, occupation_counts, color='slategray', marker='o', label='S&E Occupations')
+plt.fill_between(years, occupation_counts, color='slategray', alpha=0.5)
+
+# Adding data point labels
+for i, txt in enumerate(degree_counts):
+    plt.text(years[i], degree_counts[i], f'{int(txt):,}', ha='center', va='bottom', color='black')
+
+for i, txt in enumerate(occupation_counts):
+    plt.text(years[i], occupation_counts[i], f'{int(txt):,}', ha='center', va='bottom', color='black')
+
+# Labeling
+plt.title("Comparison of S&E Degrees vs. S&E Occupations for Women (1993-2019)")
+plt.xlabel("Year")
+plt.ylabel("Count of Women")
+
+# Adding commas to y-axis labels for readability
+plt.gca().yaxis.set_major_formatter(mtick.FuncFormatter(lambda x, _: f'{int(x):,}'))
+
+
+plt.legend(loc="upper left", title="Legend")
+plt.show()
+
+
+# In[41]:
 
 
 # Define the path to the file: Figure LBR-21 - Women with a bachelor's degree or higher in S&E and S&E-related occupations: Selected years, 1993–2019
@@ -1505,7 +1567,7 @@ print("S&E Degree Trends for Women DataFrame (with % values):")
 display(women_s_e_degree_trends_df)
 
 
-# In[40]:
+# In[42]:
 
 
 # Define the path to the file: Figure LBR-27 - Median annual salaries of full-time workers with highest degrees in S&E or S&E-related fields, by sex: Selected years, 1995, 2003, and 2019
@@ -1543,7 +1605,7 @@ display(median_salary_by_gender_df)
 # 
 # This interactive visualization highlights the long-standing and widening disparity in median salaries between genders. The unequal salary increases at crucial intervals have exacerbated the wage gap, emphasizing how systemic disparities in salary growth prevent women from closing the gap in career fields that require science and engineering degrees.
 
-# In[41]:
+# In[43]:
 
 
 # Filter only rows where Degree Field is "S&E"
@@ -1575,7 +1637,7 @@ fig.add_trace(go.Scatter(
     y=salary_melted_df[salary_melted_df["Gender"] == "Male"]["Median Salary"],
     mode="lines+markers+text",
     name="Male Salary",
-    line=dict(color="#8ad6cc"),
+    line=dict(color="slategray"),
     marker=dict(size=8),
     text=[f"{perc:.1f}% Increase" if not pd.isna(perc) else ""
           for perc in salary_melted_df[salary_melted_df["Gender"] == "Male"]["Percentage Increase"]],
@@ -1589,7 +1651,7 @@ fig.add_trace(go.Scatter(
     y=salary_melted_df[salary_melted_df["Gender"] == "Female"]["Median Salary"],
     mode="lines+markers+text",
     name="Female Salary",
-    line=dict(color="#f99192"),
+    line=dict(color="lightseagreen"),
     marker=dict(size=8),
     text=[f"{perc:.1f}% Increase" if not pd.isna(perc) else ""
           for perc in salary_melted_df[salary_melted_df["Gender"] == "Female"]["Percentage Increase"]],
@@ -1611,7 +1673,7 @@ fig.update_layout(
 fig.show()
 
 
-# In[42]:
+# In[44]:
 
 
 # Define the path to the file: Table SLBR-30 - Number and median salary of full-time workers with highest degree in S&E field, by sex and occupation: 2019
@@ -1647,7 +1709,7 @@ print("Combined DataFrame for Selected Occupations and Salaries:")
 display(employment_count_and_salary_by_occupation_and_gender_df)
 
 
-# In[43]:
+# In[45]:
 
 
 # Define the path to the file: Table SLBR-32 - Employed S&E highest degree holders, by sex, race or ethnicity, field of highest degree, and broad occupational category: 2019
@@ -1700,7 +1762,7 @@ display(se_degree_vs_occupation_by_gender_df)
 # #### Import Dataset 4: United States Census Bureau
 # - From College to Jobs: American Community Survey 2019
 
-# In[44]:
+# In[46]:
 
 
 # Define the directory to store the downloaded files
@@ -1738,7 +1800,7 @@ for file_name, url in urls.items():
 
 # **Extract the data for the men from the first Excel file to test processing**
 
-# In[45]:
+# In[47]:
 
 
 # Define the path to the file
@@ -1780,7 +1842,7 @@ print(df_men_all_ed_levels.tail())
 
 # #### Exploratory Data Analyis (EDA): Check the Data Types
 
-# In[46]:
+# In[48]:
 
 
 df_men_all_ed_levels.info()
@@ -1788,7 +1850,7 @@ df_men_all_ed_levels.info()
 
 # **Convert columns to correct data types (float64 to int64)**
 
-# In[47]:
+# In[49]:
 
 
 # Select numeric columns that need conversion to int64
@@ -1811,7 +1873,7 @@ print(df_men_all_ed_levels.info())
 
 # **Repeat the process for the women's data in the same file**
 
-# In[48]:
+# In[50]:
 
 
 # Define the path to the file
@@ -1883,7 +1945,7 @@ print(df_women_all_ed_levels.info())
 # - **Cross-Disciplinary Employment Trends:** The visualizations reveal that while men frequently cross into technical roles with non-STEM degrees, women tend to stay within fields closely aligned with their degree, such as **Education** and **Social Services**.
 # 
 
-# In[49]:
+# In[143]:
 
 
 # Define fields of degree columns
@@ -1901,7 +1963,7 @@ for field in fields:
     )
     bottom = df_men_all_ed_levels[fields[:list(fields).index(field)+1]].sum(axis=1)
 ax_men.set_title("Field of Degree Distribution by Occupation (Men)")
-ax_men.set_xlabel("Occupation")
+ax_men.set_xlabel("")
 ax_men.set_ylabel("Count")
 ax_men.legend(title="Field of Degree", bbox_to_anchor=(1.05, 1), loc='upper left')
 ax_men.set_xticks(range(len(df_men_all_ed_levels['Occupation'])))
@@ -1916,7 +1978,7 @@ for field in fields:
     )
     bottom = df_women_all_ed_levels[fields[:list(fields).index(field)+1]].sum(axis=1)
 ax_women.set_title("Field of Degree Distribution by Occupation (Women)")
-ax_women.set_xlabel("Occupation")
+ax_women.set_xlabel("")
 ax_women.set_xticks(range(len(df_women_all_ed_levels['Occupation'])))
 ax_women.set_xticklabels(df_women_all_ed_levels['Occupation'], rotation=45, ha='right')
 
@@ -1928,7 +1990,7 @@ plt.show()
 # #### Process the second xlsx file from the American Community Survey
 # - Recreate the steps used on the first file from the dataset
 
-# In[50]:
+# In[52]:
 
 
 # Define the path to the file
@@ -1982,7 +2044,7 @@ print(df_men_bach_degree.tail())
 print(df_men_bach_degree.info())
 
 
-# In[51]:
+# In[53]:
 
 
 # Define the path to the file
@@ -2039,7 +2101,7 @@ print(df_women_bach_degree.info())
 # #### Process the third xlsx file from the American Community Survey
 # - Recreate the steps used on the first and second files from the dataset
 
-# In[52]:
+# In[54]:
 
 
 # Define the path to the file
@@ -2093,7 +2155,7 @@ print(df_men_grad_degree.tail())
 print(df_men_grad_degree.info())
 
 
-# In[53]:
+# In[55]:
 
 
 # Define the path to the file
@@ -2149,7 +2211,7 @@ print(df_women_grad_degree.info())
 
 # #### Process the 4th xlsx file from the American Community Survey
 
-# In[54]:
+# In[102]:
 
 
 # Define the path to the file
@@ -2167,7 +2229,7 @@ columns = [
 
 # Load the data for men
 start_row_men = 16  
-num_rows_men = 7  # Number of rows for the men's data section
+num_rows_men = 6  # Number of rows for the men's data section
 male_median_earnings = pd.read_excel(file_path, skiprows=start_row_men, nrows=num_rows_men, usecols=selected_columns)
 male_median_earnings.columns = columns
 
@@ -2177,8 +2239,8 @@ male_median_earnings['Occupation'] = male_median_earnings['Occupation'].str.lstr
 male_median_earnings['Gender'] = 'Male'
 
 # Load the data for women
-start_row_women = start_row_men + num_rows_men + 2  
-num_rows_women = 7  # Number of rows for the women's data section
+start_row_women = start_row_men + num_rows_men + 3  
+num_rows_women = 6  # Number of rows for the women's data section
 female_median_earnings = pd.read_excel(file_path, skiprows=start_row_women, nrows=num_rows_women, usecols=selected_columns)
 female_median_earnings.columns = columns
 
@@ -2189,9 +2251,75 @@ female_median_earnings['Gender'] = 'Female'
 
 # Preview the results to confirm
 print("Men's Median Earnings DataFrame:")
-display(male_median_earnings.head(6))
+display(male_median_earnings)
 print("Women's Median Earnings DataFrame:")
-display(female_median_earnings.head(6))
+display(female_median_earnings)
+
+
+# In[103]:
+
+
+# Remove STEM Major All Degrees and non-STEM Major All Degrees from both dataframes since it is unneeded for analysis
+male_median_earnings = male_median_earnings.drop(columns=['STEM Major All Degrees', 'non-STEM Major All Degrees'])
+female_median_earnings = female_median_earnings.drop(columns=['STEM Major All Degrees', 'non-STEM Major All Degrees'])
+
+# Combine male and female earnings data into a single DataFrame for comparison
+combined_median_earnings_by_degree_and_occupation = pd.concat([male_median_earnings, female_median_earnings], ignore_index=True)
+
+# Display the resulting DataFrame to verify its structure 
+print("Combined DataFrame for Median Earnings by Degree and Occupation")
+display(combined_median_earnings_by_degree_and_occupation)
+
+
+# In[135]:
+
+
+# Reshape the DataFrame to long format for easier plotting
+df_long = combined_median_earnings_by_degree_and_occupation.melt(
+    id_vars=["Occupation", "Gender"],
+    value_vars=["STEM Major Bachelors", "non-STEM Major Bachelors", "STEM Major Graduate Degree", "non-STEM Major Graduate Degree"],
+    var_name="Degree Type",
+    value_name="Median Salary"
+)
+
+# Map degree types to more readable labels
+df_long['Degree Type'] = df_long['Degree Type'].replace({
+    "STEM Major Bachelors": "Bachelor's: STEM",
+    "non-STEM Major Bachelors": "Bachelor's: Non-STEM",
+    "STEM Major Graduate Degree": "Graduate Degree: STEM",
+    "non-STEM Major Graduate Degree": "Graduate Degree: Non-STEM"
+})
+
+# Create an interactive scatter plot with Plotly
+fig = px.scatter(
+    df_long,
+    x="Median Salary",
+    y="Occupation",
+    color="Gender",
+    symbol="Degree Type",
+    hover_data={
+        "Median Salary": True,  # Show Median Salary on hover
+        "Occupation": False,  # Hide Occupation as it's already on the y-axis
+        "Gender": False,  # Hide Gender as it's shown in the color
+        "Degree Type": False  # Hide Degree Type as it's shown in the symbol
+    },
+    color_discrete_map={"Male": "slategray", "Female": "lightseagreen"},
+    title="Median Earnings by Occupation, Degree Type, and Gender"
+)
+
+# Update marker settings for point size and transparency
+fig.update_traces(marker=dict(size=16, opacity=0.7))  # Increase size and set alpha to 0.7
+
+# Customize the layout
+fig.update_layout(
+    xaxis_title="Median Salary",
+    yaxis_title=None,
+    legend_title_text="Gender & Degree Type",
+    legend=dict(x=1, y=1, xanchor="left", yanchor="top")
+)
+
+# Show plot
+fig.show()
 
 
 # ## Resources and References
@@ -2210,9 +2338,9 @@ display(female_median_earnings.head(6))
 # - https://seaborn.pydata.org/generated/seaborn.FacetGrid.html to learn how to create and edit a seaborn FacetGrid
 # - ChatGPT to troubleshoot visualizations (such as legends not showing correctly, labels partially hidden, and correcting sort order of categorical data)
 # - https://stackoverflow.com/questions/1388450/giving-graphs-a-subtitle to learn how to add titles and subtitles to matplotlib visualizations
-# - https://www.color-hex.com/color-palettes/ to choose consistent color palette for visualizations
+# - https://matplotlib.org/stable/gallery/color/named_colors.html to choose consistent color palette for visualizations
 
-# In[55]:
+# In[57]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
