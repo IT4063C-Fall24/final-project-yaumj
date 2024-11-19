@@ -16,14 +16,14 @@
 # *This is not the same as the questions you ask to limit the scope of the project.*
 # 📝 <!-- Answer Below -->
 # 
-# How do salaries, workplace treatment, and job roles for women compare to those for men at similar career stages in the tech industry?
+# How do salaries, workplace treatment, and job roles for women compare to those for men with similar educational backgrounds and in comparable fields in the tech industry?
 
 # ## What would an answer look like?
 # *What is your hypothesized answer to your question?*
 # 📝 <!-- Answer Below -->
 # 
 # **Hypothesis:**  
-# In the tech industry, women with similar qualifications and experience as men earn lower salaries, face more challenges in workplace treatment, and are often relegated to less senior roles. These disparities are influenced by factors that disproportionately affect women, including gender-based discrimination and limited access to career advancement opportunities. As a result, women are less likely than men to achieve competitive salaries or reach senior positions, impacting their long-term career trajectories and earning potential in the industry.
+# In the tech industry, women with similar qualifications to men earn lower salaries, face more challenges in workplace treatment, and are often relegated to less senior roles. These disparities are influenced by factors that disproportionately affect women, including gender-based discrimination and limited access to career advancement opportunities. As a result, women are less likely than men to achieve competitive salaries or reach senior positions, impacting their long-term career trajectories and earning potential in the industry.
 
 # ## Data Sources
 # *What data sources have you identified for this project?*
@@ -36,6 +36,7 @@
 # - *NSF's National Center for Science and Engineering Statistics (Web-Scraped Tables):* Covering data over multiple years, ending in 2019, with an emphasis on STEM workforce statistics.  
 # - *NSF's National Center for Science and Engineering Statistics (zip folders with xlsx files):* A supplementary set of tables spanning several years, ending in 2019, offering additional STEM field statistics.  
 # - *From College to Jobs American Community Survey 2019 (U.S. Census Bureau xls files):* Detailed data about occupations, salaries, gender, and educational backgrounds for a comprehensive view of career outcomes. 
+# - *Stack Overflow Annual Developer Survey - 2017 (zip file):* Based on 2017 survey responses regarding salaries in the tech industry. Provides gender, salary, job title, job rank, years of experience in the industry, and years of experience with the specific employer.
 # 
 # **Relating the Data**  
 # - The datasets can be linked based on the several criteria for consistency:
@@ -69,7 +70,7 @@
 
 # #### Package Imports
 
-# In[61]:
+# In[1]:
 
 
 #import packages
@@ -377,7 +378,7 @@ criteria_percentages.index = criteria_percentages.index.map({1: 'Male', 2: 'Fema
 criteria_percentages = criteria_percentages.rename(columns=column_display_names)
 
 # Plotting the normalized stacked bar chart
-ax = criteria_percentages.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=['slategray', 'lightseagreen'])
+ax = criteria_percentages.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=['slategray', 'lightseagreen'], edgecolor='none')
 plt.suptitle('Job Choice Priorities by Gender (Normalized)')
 plt.title('HackerRank 2018 Developer Survey', fontsize=12, color='gray')
 plt.ylabel('Percentage of Respondents (%)')
@@ -539,7 +540,7 @@ filtered_us_dev_survey_values_df = filtered_us_dev_survey_values_df[
 print(f"Remaining responses after cleaning: {filtered_us_dev_survey_values_df.shape[0]}")
 
 
-# #### Data Visualization using Matplotlib Bar Graph
+# #### Matplotlib Bar Graph: Count of Workers by Age Group and Gender
 # **Purpose:** Provide an initial demographic breakdown of the HackerRank dataset by age and gender to establish a baseline understanding of workforce composition, which informs the need for further analysis on gender representation across job levels.
 # 
 # **Insights:**
@@ -610,20 +611,20 @@ with pd.option_context('display.max_rows', None):
     display(role_level_counts)
 
 
-# #### Data Visualization using Seaborn Box Plot
-# **Purpose:** Demonstrate how gender may impact job levels within specific career roles, in this case, "Development Operations Engineer." This is to support the use of a machine learning approach to populate empty fields. Machine learning can adapt to demographic differences, rather than relying on single-point estimates like the mean or median for classification.
+# #### Seaborn Box Plot: Job Levels for a Specific Career Role, Divided by Gender
+# **Purpose:** Demonstrate how gender may impact job levels within specific career roles, in this case, *Development Operations Engineer*. This is to support the use of a machine learning approach to populate empty fields. Machine learning can adapt to demographic differences, rather than relying on single-point estimates like the mean or median for classification.
 # 
 # **Insights:**
 # - **Gender-based Distribution Differences:** 
-#     - The box plot shows a significant disparity in job level distribution by gender within the "Development Operations Engineer" role. 
-#     - **Male Distribution:** Males exhibit a broader range of job levels, with a median at the Senior Developer level. This distribution includes representation across higher job levels, such as Principal Engineer and Engineering Manager, suggesting greater advancement opportunities or a wider presence in senior roles for men within this career path. 
-#     - **Female Distribution:** Females, on the other hand, are primarily clustered at the Level 1 Developer (junior) level, with no representation above the Freelancer level in this role. This limited range could indicate barriers to progression or underrepresentation in senior positions, reflecting broader industry challenges women face in advancing within technical roles.
+#     - The box plot shows a significant disparity in job level distribution by gender within the *Development Operations Engineer* role. 
+#     - **Male Distribution:** Males exhibit a broader range of job levels, with a median at the *Senior Developer* level. This distribution includes representation across higher job levels, such as *Principal Engineer* and *Engineering Manager*, suggesting greater advancement opportunities or a wider presence in senior roles for men within this career path. 
+#     - **Female Distribution:** Females, on the other hand, are primarily clustered at the *Level 1 Developer (junior)* level, with no representation above the *Freelancer* level in this role. This limited range could indicate barriers to progression or underrepresentation in senior positions, reflecting broader industry challenges women face in advancing within technical roles.
 # 
 # - **Rationale for Machine Learning Approach:** 
 #     - Given these clear disparities in job level distribution by gender, a machine learning model like K-Nearest Neighbors (KNN) is well-suited for predicting job levels. KNN can capture complex relationships between demographic features (such as gender) and job levels, providing a more nuanced prediction than simple averages or medians.
 #     - By considering demographic factors, this approach enables the model to better reflect real-world patterns of representation and career advancement, offering a data-driven perspective on disparities within roles across the dataset.
 
-# In[136]:
+# In[19]:
 
 
 # Define the desired order for job levels from junior to senior based on numeric dataset mapping
@@ -741,7 +742,7 @@ display(filtered_us_dev_survey_values_df.head(5))
 # 
 # **Summary:** The visualization highlights potential gender-based differences in career progression. Women in the 25–34 age group appear to be underrepresented in higher roles, with the disparity becoming more pronounced in later career stages (45–54 and 55–64 age groups). This analysis suggests that women in tech may face challenges in advancing to senior positions as they progress in their careers, potentially reflecting systemic barriers to higher-level roles.
 
-# In[137]:
+# In[22]:
 
 
 # Define the desired order for job levels and age groups
@@ -1274,7 +1275,7 @@ criteria_percentages_pew_weighted.index = criteria_percentages_pew_weighted.inde
 criteria_percentages_pew_weighted = criteria_percentages_pew_weighted.rename(columns=column_display_names_pew)
 
 # Plotting the weighted normalized stacked bar chart
-ax = criteria_percentages_pew_weighted.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=['slategray', 'lightseagreen'])
+ax = criteria_percentages_pew_weighted.T.plot(kind='bar', stacked=True, figsize=(14, 8), color=['slategray', 'lightseagreen'], edgecolor='none')
 plt.suptitle('Job Choice Priorities by Gender (Weighted and Normalized)')
 plt.title('Pew Research Center Data with Applied Weighting', fontsize=12, color='gray')
 plt.ylabel('Percentage of Respondents (%)')
@@ -1305,7 +1306,7 @@ plt.show()
 # 
 # **Summary:** The analysis reveals that younger and mid-career women (ages 25–44) encounter the highest concentration of discrimination experiences, especially in terms of earning disparities, microaggressions, and perceived incompetence. These trends emphasize the need for supportive and equitable workplace cultures, as these factors likely influence why women place high value on company culture when considering job opportunities in STEM fields.
 
-# In[138]:
+# In[36]:
 
 
 # Define the age group labels only for ages 25-34, 35-44, 45-54, and 55-64
@@ -1927,25 +1928,24 @@ print(df_women_all_ed_levels.tail())
 print(df_women_all_ed_levels.info())
 
 
-# #### Generate a Stacked Bar Chart using Matplotlib to compare the dataframes
-# **Purpose:** Analyze the distribution of fields of degree by occupation across genders, focusing on the highest concentrations of careers and how degree backgrounds vary between men and women.
+# #### Matplotlib Stacked Bar Chart Analysis: Field of Degree by Occupation and Gender
+# **Purpose:** Examine the distribution of fields of degree across occupations for men and women, highlighting patterns in career concentration and the alignment between degree backgrounds and career paths.
 # 
 # **Insights:**
+# - **Gendered Career Concentrations:**
+#   - *Men* show the highest representation in *Managerial (Non-STEM)* roles, suggesting a strong presence in leadership positions outside traditional science and engineering fields.
+#   - *Women* are most concentrated in *Education*, with substantial representation in *Healthcare* as well. This indicates these areas as primary career paths for women, aligning with broader trends in occupational distribution by gender.
 # 
-# - **Career Concentration by Gender:**
-#   - For **men**, the occupation with the highest representation is **Managers (Non-STEM)**, highlighting a strong presence in managerial roles outside of science and engineering fields.
-#   - For **women**, **Education** has the highest concentration, with a significant representation also seen in **Healthcare** roles, underscoring these fields as primary career paths for women in the dataset.
+# - **STEM Occupation Disparities:** 
+#   - *Men* are much more likely to be employed as *Computer Workers* and *Engineers*, even when they hold degrees seemingly unrelated to these fields, such as *Liberal Arts and History*. This pattern may reflect broader hiring practices favoring men in technical roles, regardless of their degree background.
+#   - *Women* show a much lower representation in technical fields like *Computer Work* and *Engineering*. This may indicate potential barriers to entry or differing career choices despite educational background.
 # 
-# - **Gender Disparities in STEM Roles:** 
-#   - **Men** are much more likely to be employed as **Computer Workers** and **Engineers**, even when they hold degrees seemingly unrelated to these fields, such as **Liberal Arts and History**. This suggests a broader acceptance or hiring trend for men in technical roles, regardless of their field of study.
-#   - **Women** have comparatively lower representation in technical fields like Computer Work and Engineering, which may indicate potential barriers to entry or differing career choices despite educational background.
+# - **Healthcare Sector Dominance by Women:** Women overwhelmingly dominate roles in *Healthcare*, aligning with the degree distributions in fields like *Biological, Environmental, and Agricultural Sciences*. This reflects an ongoing trend where women with science-related degrees often pursue healthcare-related careers.
 # 
-# - **Healthcare Sector Dominance by Women:** Women overwhelmingly dominate roles in **Healthcare**, aligning with the degree distributions in fields like **Biological, Environmental, and Agricultural Sciences**. This suggests a continued trend of women pursuing healthcare-related careers.
-# 
-# - **Cross-Disciplinary Employment Trends:** The visualizations reveal that while men frequently cross into technical roles with non-STEM degrees, women tend to stay within fields closely aligned with their degree, such as **Education** and **Social Services**.
+# - **Cross-Disciplinary Employment Trends:** While men more commonly cross into technical roles with non-STEM degrees, women tend to remain in roles closely related to their field of study, particularly in Education and Social Services.
 # 
 
-# In[143]:
+# In[51]:
 
 
 # Define fields of degree columns
@@ -1954,14 +1954,21 @@ fields = df_men_all_ed_levels.columns[1:-1]  # Excluding 'Occupation' and 'Gende
 # Set up the figure with two subplots
 fig, (ax_men, ax_women) = plt.subplots(1, 2, figsize=(18, 10), sharey=True)
 
+# Define a custom color palette
+custom_palette = sns.color_palette("deep", len(fields))
+
+# Remove scientific notation by setting a scalar formatter
+for ax in [ax_men, ax_women]:
+    ax.get_yaxis().get_major_formatter().set_scientific(False)
+
 # Plot for Men
 bottom = None
-for field in fields:
+for idx, field in enumerate(fields):
     ax_men.bar(
         df_men_all_ed_levels['Occupation'], df_men_all_ed_levels[field],
-        label=field, bottom=bottom
+        label=field, bottom=bottom, color=custom_palette[idx]
     )
-    bottom = df_men_all_ed_levels[fields[:list(fields).index(field)+1]].sum(axis=1)
+    bottom = df_men_all_ed_levels[fields[:list(fields).index(field) + 1]].sum(axis=1)
 ax_men.set_title("Field of Degree Distribution by Occupation (Men)")
 ax_men.set_xlabel("")
 ax_men.set_ylabel("Count")
@@ -1971,12 +1978,12 @@ ax_men.set_xticklabels(df_men_all_ed_levels['Occupation'], rotation=45, ha='righ
 
 # Plot for Women
 bottom = None
-for field in fields:
+for idx, field in enumerate(fields):
     ax_women.bar(
         df_women_all_ed_levels['Occupation'], df_women_all_ed_levels[field],
-        label=field, bottom=bottom
+        label=field, bottom=bottom, color=custom_palette[idx]
     )
-    bottom = df_women_all_ed_levels[fields[:list(fields).index(field)+1]].sum(axis=1)
+    bottom = df_women_all_ed_levels[fields[:list(fields).index(field) + 1]].sum(axis=1)
 ax_women.set_title("Field of Degree Distribution by Occupation (Women)")
 ax_women.set_xlabel("")
 ax_women.set_xticks(range(len(df_women_all_ed_levels['Occupation'])))
@@ -1984,6 +1991,13 @@ ax_women.set_xticklabels(df_women_all_ed_levels['Occupation'], rotation=45, ha='
 
 # Adjust layout and show plot
 plt.tight_layout()
+
+# Removing edge color from bars to eliminate white lines
+for ax in [ax_men, ax_women]:
+    for bar in ax.containers:
+        for patch in bar:
+            patch.set_edgecolor('none')
+
 plt.show()
 
 
@@ -2211,7 +2225,7 @@ print(df_women_grad_degree.info())
 
 # #### Process the 4th xlsx file from the American Community Survey
 
-# In[102]:
+# In[56]:
 
 
 # Define the path to the file
@@ -2256,7 +2270,7 @@ print("Women's Median Earnings DataFrame:")
 display(female_median_earnings)
 
 
-# In[103]:
+# In[57]:
 
 
 # Remove STEM Major All Degrees and non-STEM Major All Degrees from both dataframes since it is unneeded for analysis
@@ -2271,7 +2285,29 @@ print("Combined DataFrame for Median Earnings by Degree and Occupation")
 display(combined_median_earnings_by_degree_and_occupation)
 
 
-# In[135]:
+# #### Plotly Interactive Scatter Plot: Median Earnings by Occupation, Degree Type, and Gender
+# **Purpose:** This interactive scatter plot visualizes median earnings by occupation, degree type, and gender within the tech industry. The objective is to demonstrate that, despite similar educational backgrounds and occupational fields, men frequently earn higher median salaries than women. By allowing users to hover over data points to view specific salary values, this plot highlights areas where men out-earn women with equivalent or even higher qualifications, underscoring the persistent gender disparities in earnings.
+# 
+# **Insights:**
+# - **Engineers: Salary Disparity Despite Equal or Higher Qualifications for Women:** 
+#     - Among *engineers*, *women with STEM graduate degrees* earn $91,300, whereas *men with STEM graduate degrees* earn a significantly higher $121,300, resulting in a wage gap of approximately 25% even with identical educational qualifications.
+#     - This disparity is compounded by the fact that men with only a STEM bachelor’s degree earn $100,000—about 10% more than women with a higher-level STEM graduate degree. Additionally, men with non-STEM graduate degrees earn $106,400, further illustrating that women must attain advanced qualifications simply to approach salaries earned by men with lesser degrees.
+# 
+# - **Computer Workers: Higher Qualifications Don’t Close the Salary Gap:** 
+#     - For *computer-related roles*, *women with STEM graduate degrees* earn $101,800, while *men with STEM bachelor’s degrees* earn nearly the same at $101,300—despite the men holding lower-level qualifications.
+#     - *Men with non-STEM graduate degrees* make $107,100, outpacing *women with STEM graduate degrees* by over 5%. In a field where relevant STEM qualifications would seem essential, the data shows that women’s higher education still doesn’t yield comparable earnings to men’s lesser degrees.
+# 
+# - **Social Scientists: Persistent Gaps at Both Bachelor’s and Graduate Levels:** 
+#     - In *social science roles*, *women with STEM bachelor’s degrees* earn $69,560, whereas men with equivalent STEM bachelor’s degrees earn $80,070, creating a wage gap of around 13% despite equal educational backgrounds.
+#     - At the graduate level, the pattern persists. *Women with STEM graduate degrees* earn $80,070, while *men with non-STEM graduate degrees* earn $85,070. The top salary here goes to *men with STEM graduate degrees*, earning $100,200--25% more than their female counterparts with the same qualifications.
+# 
+# - **Physical Scientists: Women’s Earnings Outpaced by Men’s Lesser Degrees:** 
+#     - In *physical science roles*, *women with STEM graduate degrees* earn $86,430, while *men with non-STEM graduate degrees* earn $89,050—a difference of about 3% in favor of men with less relevant qualifications.
+#     - The gap becomes even more pronounced when comparing *women with STEM graduate degrees* ($86,430) to *men with STEM graduate degrees*, who earn $102,100. This equates to a wage disparity of approximately 18%, showing that even with equivalent qualifications, women’s earnings lag significantly behind their male counterparts.
+# 
+# **Summary:** This interactive scatter plot brings attention to the pervasive wage disparities between men and women in the tech industry. The visualization highlights that even when women attain higher qualifications—such as a *STEM graduate degree*—they are often out-earned by men with lower or unrelated qualifications. This pattern emerges across multiple fields, from *engineering* to *social science*, showing that women’s qualifications yield a lesser financial return than men’s. This data underscores a systemic issue within tech fields, pointing to potential structural barriers that prevent equitable compensation for women, even when they achieve the same or higher qualifications as their male counterparts.
+
+# In[58]:
 
 
 # Reshape the DataFrame to long format for easier plotting
@@ -2322,16 +2358,305 @@ fig.update_layout(
 fig.show()
 
 
+# ## Machine Learning Plan for Checkpoint 3
+# 
+# #### What type of machine learning model are you planning to use? 📝
+# 
+# Linear regression is appropriate for this analysis because the target variable (salary) is continuous. The model will quantify the impact of gender, education, occupation, and years of experience on salaries while highlighting disparities.
+# 
+# If the relationships between variables appear non-linear, I may explore polynomial regression to better capture more complex patterns in the data.
+
+# #### What are the challenges have you identified/are you anticipating in building your machine learning model? 📝
+# #### How are you planning to address these challenges? 📝
+#  
+# **Challenges and Solutions:**  
+# 1. **Ambiguous or Conflicting Data:**  
+#    - Some columns, such as *DeveloperType*, *MobileDeveloperType*, and *NonDeveloperType*, contain multiple values per record, or entries that conflict with other responses (e.g., someone identifying as a *"Mobile Developer"* but having *NA* in *MobileDeveloperType*).  
+#    - **Mitigation:** I will clean up these columns by separating multiple values into their own features and identifying any inconsistencies. These issues will be handled by either imputing the data with logical defaults or removing problematic records where necessary.
+# 
+# 2. **Excessive and Irrelevant Features:**  
+#    - The dataset contains far more columns than necessary for the analysis, which could introduce noise and make the model more complex than required.  
+#    - **Mitigation:** I will focus on features most relevant to salary prediction (e.g., gender, education, occupation type) and remove extraneous columns that are unrelated to the target variable.  
+# 
+# 3. **Filtering for Relevant Responses:**  
+#    - The dataset includes responses that may not align with the analysis, such as students, unemployed individuals, or genders other than male and female. These records are not relevant to the analysis question.  
+#    - **Mitigation:** I will filter out records that do not meet the analysis criteria, ensuring only relevant data is included.  
+# 
+# 4. **Imbalanced Dataset:**  
+#    - The dataset may have significantly more male respondents than female respondents, which could bias predictions or skew results.  
+#    - **Mitigation:** I will normalize the data to ensure gender groups are proportionally represented. If necessary, stratified sampling will be applied when splitting the dataset into training and testing sets. Regression evaluation metrics like mean squared error (MSE) and R-squared (R²) will be used to assess model performance, focusing on minimizing bias in predictions.
+# 
+# 5. **Outliers in Salary Data:**  
+#    - Salary data likely contains extreme values due to self-reporting, which could disproportionately influence the regression model. Outliers may result from errors 
+#    (e.g., misplaced decimal points) or actual extremes in senior roles or low-paying positions.  
+#    - **Mitigation:** I will identify outliers using statistical methods such as interquartile range (IQR) or z-scores. Depending on the findings, I will handle these outliers by:
+#       - For genuine outliers: Retain them in both the training and testing sets but apply scaling or transformations (e.g., logarithmic scaling) to minimize their impact on the model.
+#       - For data entry errors or invalid outliers: Correct obvious errors where feasible. If correction is not possible, remove these records from both the training and testing sets to avoid distortion.
+#          
+# 6. **Ordinal vs. Nominal Categorical Data:**  
+#    - Certain categorical features, such as *Professional*, *DeveloperType*, *WebDeveloperType*, and *NonDeveloperType*, may not have a clear ordinal relationship. While some roles (e.g., *Full-Stack Developer* vs. *Front-End Developer*) may imply a difference in salary, others (e.g., *Application Developer* vs. *Full-Stack Developer*) may lack a consistent ranking.  
+#    - **Mitigation:** I will analyze salary trends within these columns to identify any patterns or relationships. For roles without clear ordinal relationships, one-hot encoding will be applied to prevent imposing an artificial hierarchy. For roles with observable ordinal trends, custom mappings will be created based on the data. 
+# 
+
+# ## Machine Learning Implementation Process  
+# 
+
+# #### Import Dataset: Stack Overflow Annual Developer Survey 2017
+
+# In[64]:
+
+
+# import zip file from Stack Overflow
+file_handle, _ = urlretrieve("https://survey.stackoverflow.co/datasets/stack-overflow-developer-survey-2017.zip")
+zipfile = ZipFile(file_handle, "r")
+zipfile.extractall("./data/Stack_Overflow_2017")
+zipfile.close()
+
+
+# In[82]:
+
+
+# Define the data directory
+stack_data_dir = './data/Stack_Overflow_2017'
+
+# Read each CSV file into its own DataFrame with meaningful names
+stack_overflow_results_df = pd.read_csv(os.path.join(stack_data_dir, 'survey_results_public.csv'))
+stack_overflow_schema_df = pd.read_csv(os.path.join(stack_data_dir, 'survey_results_schema.csv'))
+
+# Display the first 5 records from each DataFrame
+print("Stack Overflow Annual Developer Survey 2017 Results:")
+display(stack_overflow_results_df.head(5))
+display(stack_overflow_results_df.shape)
+print("Stack Overflow Annual Developer Survey 2017 Schema:")
+display(stack_overflow_schema_df.head(5))
+display(stack_overflow_schema_df.shape)
+
+
+# #### Exploratory Data Analysis (EDA): Perform initial dataset filtering for records and columns relevant to the scope of the project
+
+# In[83]:
+
+
+# Filter for the United States, respondents who chose male or female as the gender, and exclude anyone who is unemployed or a student
+stack_overflow_results_df = stack_overflow_results_df[
+    (stack_overflow_results_df['Country'] == 'United States') &
+    (stack_overflow_results_df['Professional'] != 'Student') &
+    (~stack_overflow_results_df['EmploymentStatus'].str.contains('Not employed', na=False)) &
+    (stack_overflow_results_df['Gender'].isin(['Male', 'Female']))
+]
+
+display(stack_overflow_results_df.head())
+display(stack_overflow_results_df.shape)
+
+
+# In[87]:
+
+
+# Keep only the specified columns
+stack_overflow_results_df = stack_overflow_results_df[['Respondent', 'Gender', 'Professional', 'University', 'EmploymentStatus', 'FormalEducation',
+                                                       'MajorUndergrad', 'HomeRemote', 'CompanySize', 'CompanyType', 'YearsProgram', 'YearsCodedJob',
+                                                       'YearsCodedJobPast', 'DeveloperType', 'WebDeveloperType', 'MobileDeveloperType', 'NonDeveloperType',
+                                                       'Currency', 'Overpaid', 'Salary']]
+
+# Check the dataframe structure
+display(stack_overflow_results_df.head())
+display(stack_overflow_results_df.shape)
+
+
+# In[94]:
+
+
+# Count unique values in each column
+unique_counts = stack_overflow_results_df.nunique().sort_values(ascending=False)
+print("Unique Values per Column:")
+print(unique_counts)
+
+
+# #### Exploratory Data Analysis: determine currencies and handle any that are not US Dollars
+
+# In[95]:
+
+
+# Count occurrences of each currency type (including NaN values)
+currency_counts = stack_overflow_results_df['Currency'].value_counts(dropna=False)
+
+# Display the results
+print("Counts of each currency type:")
+print(currency_counts)
+
+
+# In[96]:
+
+
+# Replace NaN values in the Currency column with 'U.S. dollars ($)'
+stack_overflow_results_df['Currency'] = stack_overflow_results_df['Currency'].fillna('U.S. dollars ($)')
+
+# Filter the dataset to keep only rows with 'U.S. dollars ($)'
+stack_overflow_results_df = stack_overflow_results_df[stack_overflow_results_df['Currency'] == 'U.S. dollars ($)']
+
+# Verify the results
+currency_counts = stack_overflow_results_df['Currency'].value_counts()
+print("Updated counts of each currency type:")
+print(currency_counts)
+
+
+# #### Exploratory Data Analysis: find what values are in EmploymentStatus column and determine how to handle them
+
+# In[97]:
+
+
+# Count occurrences of each EmploymentStatus (including NaN values)
+employment_status_counts = stack_overflow_results_df['EmploymentStatus'].value_counts(dropna=False)
+
+# Display the results
+print("Counts of each employment status value:")
+print(employment_status_counts)
+
+
+# In[98]:
+
+
+# Filter the dataset to keep only rows with 'Employed full-time' to be consistent with other datasets in the project
+stack_overflow_results_df = stack_overflow_results_df[stack_overflow_results_df['EmploymentStatus'] == 'Employed full-time']
+
+# Verify the results
+employment_status_counts = stack_overflow_results_df['EmploymentStatus'].value_counts()
+print("Updated counts of each employment status:")
+print(employment_status_counts)
+
+
+# #### Exploratory Data Analysis: find what values are in Professional column and determine how to handle them
+
+# In[99]:
+
+
+# Count occurrences of each value in Professional (including NaN values)
+professional_counts = stack_overflow_results_df['Professional'].value_counts(dropna=False)
+
+# Display the results
+print("Counts of each 'Professional' value:")
+print(professional_counts)
+
+
+# In[ ]:
+
+
+# Filter the dataset to remove rows where Professional is 'None of these' or 'Used to be a professional developer' 
+# and all fields that indicate developer/employment type are NA
+
+# Define the filter condition
+condition = (
+    (stack_overflow_results_df['Professional'].isin(["Used to be a professional developer", "None of these"])) &
+    (stack_overflow_results_df[['DeveloperType', 'WebDeveloperType', 'MobileDeveloperType', 'NonDeveloperType']].isna().all(axis=1))
+)
+
+# Apply the filter to remove rows matching the condition
+stack_overflow_results_df = stack_overflow_results_df[~condition]
+
+# Verify the filtering
+print("Remaining records after filtering:")
+print(stack_overflow_results_df['Professional'].value_counts())
+
+
+# #### Exploratory Data Analysis: examine values in remaining fields and choose how to encode them
+
+# In[105]:
+
+
+# List of columns to analyze
+columns_to_check = [
+    'DeveloperType', 'WebDeveloperType', 'MobileDeveloperType', 'NonDeveloperType',
+    'YearsCodedJob', 'YearsProgram', 'YearsCodedJobPast',
+    'MajorUndergrad', 'CompanyType', 'CompanySize',
+    'FormalEducation', 'HomeRemote', 'University'
+]
+
+# Iterate through each column and display unique values and their counts
+for column in columns_to_check:
+    print(f"Unique values in {column} and their counts:")
+    print(stack_overflow_results_df[column].value_counts(dropna=False))
+    print("\n")
+
+
+# #### Exploratory Data Analysis: map column values into bins so they can be compared to salary using correlation
+
+# In[103]:
+
+
+# Create a numerical mapping for CompanySize
+company_size_mapping = {
+    "Fewer than 10 employees": 5,
+    "10 to 19 employees": 15,
+    "20 to 99 employees": 50,
+    "100 to 499 employees": 300,
+    "500 to 999 employees": 750,
+    "1,000 to 4,999 employees": 3000,
+    "5,000 to 9,999 employees": 7500,
+    "10,000 or more employees": 15000,
+    "I don't know": None,
+    "I prefer not to answer": None,
+    None: None
+}
+
+# Map the values to numerical equivalents
+stack_overflow_results_df['CompanySizeNumeric'] = stack_overflow_results_df['CompanySize'].map(company_size_mapping)
+
+# Calculate the correlation matrix
+correlation_matrix = stack_overflow_results_df[['CompanySizeNumeric', 'Salary']].corr()
+print("Correlation matrix:")
+print(correlation_matrix)
+
+
+# In[106]:
+
+
+# Map MajorUndergrad to match American Community Survey degree categories
+major_to_acs_mapping = {
+    "Computer science or software engineering": "FoD-Computers_Math_Stats",
+    "Computer engineering or electrical/electronics engineering": "FoD-Engineering",
+    "A natural science": "FoD-Physical_Sciences",
+    "Computer programming or Web development": "FoD-Computers_Math_Stats",
+    "Mathematics or statistics": "FoD-Computers_Math_Stats",
+    "A non-computer-focused engineering discipline": "FoD-Engineering",
+    "A humanities discipline": "FoD-Literature_and_Languages",
+    "Information technology, networking, or system administration": "FoD-Computers_Math_Stats",
+    "Fine arts or performing arts": "FoD-Visual_and_Performing_Arts",
+    "Something else": "FoD-Other_EG_Criminal_Justice_or_Social_Work",
+    "Management information systems": "FoD-Computers_Math_Stats",
+    "A business discipline": "FoD-Business",
+    "A social science": "FoD-Social_Sciences",
+    "I never declared a major": "FoD-Multidiscipline",
+    "Psychology": "FoD-Psychology",
+    "A health science": "FoD-Biological_Environmental_Agricultural_Sciences"
+}
+
+# Create ACS_Major column
+stack_overflow_results_df['ACS_Major'] = stack_overflow_results_df['MajorUndergrad'].map(major_to_acs_mapping)
+
+# Define STEM vs. non-STEM categories
+stem_fields = [
+    "FoD-Computers_Math_Stats", "FoD-Engineering", "FoD-Physical_Sciences",
+    "FoD-Biological_Environmental_Agricultural_Sciences", "FoD-Science_and_Engineering_Related"
+]
+
+# Add STEM Degree column (binary)
+stack_overflow_results_df['STEM Degree'] = stack_overflow_results_df['ACS_Major'].apply(lambda x: 'Yes' if x in stem_fields else 'No')
+
+# Preview results
+print(stack_overflow_results_df[['MajorUndergrad', 'ACS_Major', 'STEM Degree']].head())
+
+
 # ## Resources and References
 # *What resources and references have you used for this project?*
 # 📝 <!-- Answer Below -->
 # 
 # - https://it4063c.github.io/course-notes/working-with-data/data-sources for methods to import the various data types  
-# - https://www.kaggle.com/datasets/hackerrank/developer-survey-2018/data for the Kaggle dataset 
+# - https://www.kaggle.com/datasets/hackerrank/developer-survey-2018/data for the HackerRank Survey Kaggle dataset 
 # - https://www.pewresearch.org/social-trends/2018/01/09/women-and-men-in-stem-often-at-odds-over-workplace-equity/  for the link to the Pew Research Survey
-# - https://ncses.nsf.gov/pubs/nsb20212/participation-of-demographic-groups-in-stem for the html scraped dataset
-# - https://ncses.nsf.gov/pubs/nsb20212/downloads for additional tables that were not part of the html scrape
+# - https://ncses.nsf.gov/pubs/nsb20212/participation-of-demographic-groups-in-stem for the NCSES html scraped dataset
+# - https://ncses.nsf.gov/pubs/nsb20212/downloads for additional NCSES tables that were not part of the html scrape
 # - https://www.census.gov/library/stories/2021/06/does-majoring-in-stem-lead-to-stem-job-after-graduation.html for the links to the American Community Survey 2019
+# - https://survey.stackoverflow.co/ for the Stack Overflow Annual Developer Survey
 # - IT4075 Applied Machine Learning zyBooks for data classification logic and code
 # - https://medium.com/@acceldia/python-101-reading-excel-and-spss-files-with-pandas-eed6d0441c0b to learn how to work with .sav files
 # - https://python-docx.readthedocs.io/en/latest/user/documents.html to learn how to work with .docx files inside Python
@@ -2340,7 +2665,7 @@ fig.show()
 # - https://stackoverflow.com/questions/1388450/giving-graphs-a-subtitle to learn how to add titles and subtitles to matplotlib visualizations
 # - https://matplotlib.org/stable/gallery/color/named_colors.html to choose consistent color palette for visualizations
 
-# In[57]:
+# In[ ]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
