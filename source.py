@@ -2387,7 +2387,7 @@ fig.show()
 #    - **Mitigation:** I will normalize the data to ensure gender groups are proportionally represented. If necessary, stratified sampling will be applied when splitting the dataset into training and testing sets. Regression evaluation metrics like mean squared error (MSE) and R-squared (R²) will be used to assess model performance, focusing on minimizing bias in predictions.
 # 
 # 5. **Outliers in Salary Data:**  
-#    - Salary data likely contains extreme values due to self-reporting, which could disproportionately influence the regression model. Outliers may result from errors 
+#    - Salary data may contain extreme values due to self-reporting, which could disproportionately influence the regression model. Outliers may result from errors 
 #    (e.g., misplaced decimal points) or actual extremes in senior roles or low-paying positions.  
 #    - **Mitigation:** I will identify outliers using statistical methods such as interquartile range (IQR) or z-scores. Depending on the findings, I will handle these outliers by:
 #       - For genuine outliers: Retain them in both the training and testing sets but apply scaling or transformations (e.g., logarithmic scaling) to minimize their impact on the model.
@@ -2403,7 +2403,7 @@ fig.show()
 
 # #### Import Dataset: Stack Overflow Annual Developer Survey 2017
 
-# In[64]:
+# In[59]:
 
 
 # import zip file from Stack Overflow
@@ -2413,7 +2413,7 @@ zipfile.extractall("./data/Stack_Overflow_2017")
 zipfile.close()
 
 
-# In[82]:
+# In[60]:
 
 
 # Define the data directory
@@ -2434,7 +2434,7 @@ display(stack_overflow_schema_df.shape)
 
 # #### Exploratory Data Analysis (EDA): Perform initial dataset filtering for records and columns relevant to the scope of the project
 
-# In[83]:
+# In[61]:
 
 
 # Filter for the United States, respondents who chose male or female as the gender, and exclude anyone who is unemployed or a student
@@ -2449,12 +2449,12 @@ display(stack_overflow_results_df.head())
 display(stack_overflow_results_df.shape)
 
 
-# In[87]:
+# In[136]:
 
 
 # Keep only the specified columns
 stack_overflow_results_df = stack_overflow_results_df[['Respondent', 'Gender', 'Professional', 'University', 'EmploymentStatus', 'FormalEducation',
-                                                       'MajorUndergrad', 'HomeRemote', 'CompanySize', 'CompanyType', 'YearsProgram', 'YearsCodedJob',
+                                                       'MajorUndergrad', 'HomeRemote', 'CompanySize', 'CompanyType', 'YearsCodedJob',
                                                        'YearsCodedJobPast', 'DeveloperType', 'WebDeveloperType', 'MobileDeveloperType', 'NonDeveloperType',
                                                        'Currency', 'Overpaid', 'Salary']]
 
@@ -2463,7 +2463,7 @@ display(stack_overflow_results_df.head())
 display(stack_overflow_results_df.shape)
 
 
-# In[94]:
+# In[137]:
 
 
 # Count unique values in each column
@@ -2473,8 +2473,16 @@ print(unique_counts)
 
 
 # #### Exploratory Data Analysis: determine currencies and handle any that are not US Dollars
+# - Non-US Currencies:
+#     - Only four respondents who reported working in the US selected non-US currencies.
+#     - These records were removed from the dataset due to their insignificance to the overall analysis.
+# 
+# - Missing Currency Values:
+#     - 2916 respondents did not specify a currency type.
+#     - Since these are American respondents, it was assumed their salary amounts are in US dollars.
+#     - Planned outlier detection and handling will address any inconsistencies or errors in these assumptions.
 
-# In[95]:
+# In[64]:
 
 
 # Count occurrences of each currency type (including NaN values)
@@ -2485,7 +2493,7 @@ print("Counts of each currency type:")
 print(currency_counts)
 
 
-# In[96]:
+# In[65]:
 
 
 # Replace NaN values in the Currency column with 'U.S. dollars ($)'
@@ -2501,8 +2509,10 @@ print(currency_counts)
 
 
 # #### Exploratory Data Analysis: find what values are in EmploymentStatus column and determine how to handle them
+# - Objective: Ensure consistency with the scope of the project and alignment with other datasets used in the analysis.
+# - Action Taken: All values in the EmploymentStatus column other than "Employed full-time" were removed.
 
-# In[97]:
+# In[66]:
 
 
 # Count occurrences of each EmploymentStatus (including NaN values)
@@ -2513,7 +2523,7 @@ print("Counts of each employment status value:")
 print(employment_status_counts)
 
 
-# In[98]:
+# In[67]:
 
 
 # Filter the dataset to keep only rows with 'Employed full-time' to be consistent with other datasets in the project
@@ -2526,8 +2536,20 @@ print(employment_status_counts)
 
 
 # #### Exploratory Data Analysis: find what values are in Professional column and determine how to handle them
+# - Objective: Refine the dataset by excluding irrelevant or inconsistent records in the Professional column.
+# 
+# - Insights:
+#     - The Professional column contains four distinct values:
+#         - Professional developer (5699 records)
+#         - Professional non-developer who sometimes writes code (678 records)
+#         - Used to be a professional developer (106 records)
+#         - None of these (33 records)
+# 
+# - Action Taken:
+#     - Rows where Professional is "Used to be a professional developer" or "None of these" were removed only if all related developer/employment type fields (DeveloperType, WebDeveloperType, MobileDeveloperType, NonDeveloperType) were also NaN.
+#     - This ensured that only meaningful and relevant professional data remained in the dataset.
 
-# In[99]:
+# In[68]:
 
 
 # Count occurrences of each value in Professional (including NaN values)
@@ -2538,7 +2560,7 @@ print("Counts of each 'Professional' value:")
 print(professional_counts)
 
 
-# In[ ]:
+# In[69]:
 
 
 # Filter the dataset to remove rows where Professional is 'None of these' or 'Used to be a professional developer' 
@@ -2558,15 +2580,22 @@ print("Remaining records after filtering:")
 print(stack_overflow_results_df['Professional'].value_counts())
 
 
-# #### Exploratory Data Analysis: examine values in remaining fields and choose how to encode them
+# #### Exploratory Data Analysis: examine values/missing values in remaining fields
 
-# In[105]:
+# In[90]:
+
+
+missing_salary_count = stack_overflow_results_df['Salary'].isna().sum()
+print(f"Number of missing Salary values: {missing_salary_count}")
+
+
+# In[139]:
 
 
 # List of columns to analyze
 columns_to_check = [
-    'DeveloperType', 'WebDeveloperType', 'MobileDeveloperType', 'NonDeveloperType',
-    'YearsCodedJob', 'YearsProgram', 'YearsCodedJobPast',
+    'DeveloperType', 'WebDeveloperType', 'MobileDeveloperType', 
+    'NonDeveloperType', 'YearsCodedJob', 'YearsCodedJobPast',
     'MajorUndergrad', 'CompanyType', 'CompanySize',
     'FormalEducation', 'HomeRemote', 'University'
 ]
@@ -2578,9 +2607,22 @@ for column in columns_to_check:
     print("\n")
 
 
-# #### Exploratory Data Analysis: map column values into bins so they can be compared to salary using correlation
+# #### Exploratory Data Analysis: Mapping and Analyzing CompanySize
+# - Objective: Determine whether the size of a respondent's company correlates with their reported salary.
+# 
+# - Steps Taken: 
+#     - Mapped CompanySize values into numerical equivalents based on the approximate median employee count in each category. For example:
+#         - "Fewer than 10 employees" mapped to 5.
+#         - "10 to 19 employees" mapped to 15.
+#         - "10,000 or more employees" mapped to 15000.
+#     - Excluded records where CompanySize or Salary was NaN
+#     - Calculated the correlation between CompanySizeNumeric and Salary.
+# 
+# - Results:
+#     - The positive correlation between CompanySizeNumeric and Salary is weak (correlation coefficient = 0.158).
+#     - This suggests that larger companies may pay slightly higher salaries, but the relationship is not strong enough to justify retaining CompanySize as a key feature for predictive modeling.
 
-# In[103]:
+# In[114]:
 
 
 # Create a numerical mapping for CompanySize
@@ -2601,13 +2643,34 @@ company_size_mapping = {
 # Map the values to numerical equivalents
 stack_overflow_results_df['CompanySizeNumeric'] = stack_overflow_results_df['CompanySize'].map(company_size_mapping)
 
-# Calculate the correlation matrix
-correlation_matrix = stack_overflow_results_df[['CompanySizeNumeric', 'Salary']].corr()
-print("Correlation matrix:")
+# Filter the dataset for rows where both Salary and CompanySizeNumeric are not NaN
+valid_data = stack_overflow_results_df[
+    stack_overflow_results_df['Salary'].notna() & stack_overflow_results_df['CompanySizeNumeric'].notna()
+]
+
+# Calculate the correlation matrix on the filtered data
+correlation_matrix = valid_data[['CompanySizeNumeric', 'Salary']].corr()
+
+# Print the correlation matrix
+print("Correlation matrix (only where Salary and CompanySizeNumeric are not NaN):")
 print(correlation_matrix)
 
+# Preview the filtered data for review
+print(valid_data[['CompanySize', 'CompanySizeNumeric', 'Salary']].head())
 
-# In[106]:
+
+# #### Exploratory Data Analysis: Mapping Undergraduate Majors to American Community Survey (ACS) Categories
+# - Objective: Align the MajorUndergrad field with the American Community Survey (ACS) categories for compatibility with existing datasets and for the purpose of STEM vs. non-STEM analysis.
+# 
+# - Steps Taken:
+#     - Mapped MajorUndergrad values into ACS categories:
+#         - For example: "Computer science or software engineering" = FoD-Computers_Math_Stats.
+#         - Uncommon or ambiguous responses, such as "Something else," were mapped to broader categories (e.g., FoD-Other_EG_Criminal_Justice_or_Social_Work).
+#     - Created a new column, ACS_Major, reflecting these mappings.
+#     - Defined STEM fields based on ACS categories, including: FoD-Computers_Math_Stats, FoD-Engineering, FoD-Physical_Sciences, etc.
+#     - Added a binary column, STEM Degree, indicating whether the major falls under STEM (Yes/No).
+
+# In[72]:
 
 
 # Map MajorUndergrad to match American Community Survey degree categories
@@ -2646,6 +2709,572 @@ stack_overflow_results_df['STEM Degree'] = stack_overflow_results_df['ACS_Major'
 print(stack_overflow_results_df[['MajorUndergrad', 'ACS_Major', 'STEM Degree']].head())
 
 
+# #### Exploratory Data Analysis: Median Salaries of STEM vs. Non-STEM Degree Earners
+# - Objective: Compare the median salaries of STEM and non-STEM degree earners to ensure consistency with trends observed in the NCSES and American Community Survey datasets.
+# 
+# - Methodology:
+#     - Filter out rows where the Salary field is NaN.
+#     - Group the remaining data by the STEM Degree field and calculate the median salary for each group.
+# 
+# - Findings: The median salary for respondents with a STEM degree is $95,000, and the median salary for respondents without a STEM degree is $90,000.
+# 
+# - Implications: This aligns with existing findings from other datasets that STEM degree holders typically earn higher salaries than non-STEM degree holders. However, the gap here appears relatively small, which could warrant further investigation into factors like occupation type and level of education.
+
+# In[95]:
+
+
+# Filter for rows where Salary is not NaN
+valid_salary_data = stack_overflow_results_df[stack_overflow_results_df['Salary'].notna()]
+
+# Group by STEM Degree and calculate median salary
+stem_salary_comparison = valid_salary_data.groupby('STEM Degree')['Salary'].median()
+
+# Display the comparison
+print("Median Salary for STEM vs. Non-STEM Degrees:")
+print(stem_salary_comparison)
+
+
+# #### Clean Dataset: Update and Consolidate Education Categories
+# - Removed records with education levels inconsistent with the project's focus:
+#   - I never completed any formal education
+#   - I prefer not to answer
+#   - Primary/elementary school
+#   - Secondary school
+#   - Professional degree
+#   - Some college/university study without earning a bachelor's degree
+# - Remaining education levels were mapped into three categories: *Bachelor's*, *Graduate*, and *Doctorate*.
+# - Combined these education levels with the STEM classification to create the following final categories:
+#   - Bachelor's - STEM
+#   - Bachelor's - Non-STEM
+#   - Graduate - STEM
+#   - Graduate - Non-STEM
+#   - Doctorate - STEM
+#   - Doctorate - Non-STEM
+
+# In[129]:
+
+
+# Define categories to remove
+categories_to_remove = [
+    "I never completed any formal education",
+    "I prefer not to answer",
+    "Primary/elementary school",
+    "Secondary school",
+    "Professional degree",
+    "Some college/university study without earning a bachelor's degree"
+]
+
+# Filter the dataset to exclude unwanted education levels
+stack_overflow_results_df = stack_overflow_results_df[
+    ~stack_overflow_results_df['FormalEducation'].isin(categories_to_remove)
+]
+
+# Map the remaining education levels to "Bachelor's" or "Graduate"
+education_mapping = {
+    "Bachelor's degree": "Bachelor's",
+    "Master's degree": "Graduate",
+    "Doctoral degree": "Doctorate"
+}
+
+# Apply the mapping
+stack_overflow_results_df['EducationLevel'] = stack_overflow_results_df['FormalEducation'].map(education_mapping)
+
+# Combine EducationLevel with STEM Degree to create final education categories
+stack_overflow_results_df['EducationCategory'] = stack_overflow_results_df.apply(
+    lambda x: f"{x['EducationLevel']} - {'STEM' if x['STEM Degree'] == 'Yes' else 'Non-STEM'}",
+    axis=1
+)
+
+# Display updated categories
+print("Updated Education Categories:")
+print(stack_overflow_results_df['EducationCategory'].value_counts())
+
+# Display the updated dataset size
+print("\nRemaining records:", len(stack_overflow_results_df))
+
+
+# #### Exploratory Data Analysis: Map Education Categories into Buckets for Correlation with Salary
+# - The *EducationCategory* column combines both education level and STEM/Non-STEM classification. 
+# - A numerical mapping was created to reflect the hierarchy of education levels, with higher values indicating higher education levels and STEM fields ranked above Non-STEM fields.
+# - The following mapping was applied:
+#   - Bachelor's - Non-STEM: 1
+#   - Bachelor's - STEM: 2
+#   - Graduate - Non-STEM: 3
+#   - Graduate - STEM: 4
+#   - Doctorate - Non-STEM: 5
+#   - Doctorate - STEM: 6
+# - Records with missing salary values were excluded before calculating the correlation.
+# 
+# **Correlation Matrix:**
+# - The correlation between *EducationCategoryNumeric* and *Salary* is 0.232, indicating a moderate positive relationship.
+# - This suggests that education level and STEM/Non-STEM classification contribute to salary, but other factors, such as job experience or job title, may have a more significant influence.
+
+# In[135]:
+
+
+# Define a numerical mapping for EducationCategory
+education_category_mapping = {
+    "Bachelor's - STEM": 2,
+    "Bachelor's - Non-STEM": 1,
+    "Graduate - STEM": 4,
+    "Graduate - Non-STEM": 3,
+    "Doctorate - STEM": 6,
+    "Doctorate - Non-STEM": 5
+}
+
+# Apply the mapping
+stack_overflow_results_df['EducationCategoryNumeric'] = stack_overflow_results_df['EducationCategory'].map(education_category_mapping)
+
+# Filter out rows where Salary is NaN
+valid_salary_data = stack_overflow_results_df.dropna(subset=['Salary'])
+
+# Calculate the correlation between EducationCategoryNumeric and Salary
+correlation_matrix = valid_salary_data[['EducationCategoryNumeric', 'Salary']].corr()
+
+# Display the correlation
+print("Correlation matrix:")
+print(correlation_matrix)
+
+# Preview the filtered dataset
+print(valid_salary_data[['EducationCategory', 'EducationCategoryNumeric', 'Salary']].head(10))
+
+
+# #### Exploratory Data Analysis: Identify Inconsistencies Between DeveloperType, WebDeveloperType, and MobileDeveloperType
+# - Objective: Verify consistency across developer-related columns (*DeveloperType*, *WebDeveloperType*, and *MobileDeveloperType*) to ensure data reliability.
+# 
+# - Steps:
+#   1. Check for Missing Related Fields:
+#       - Identified rows where *DeveloperType* has a value but both *WebDeveloperType* and *MobileDeveloperType* are NaN.
+#         - Total Inconsistent Records: 3629.
+#       - These inconsistencies suggest that specific developer roles (e.g., Web or Mobile) are not recorded in the corresponding fields.
+#   2. Check for Reverse Inconsistencies: Identified rows where *DeveloperType* is NaN but either *WebDeveloperType* or *MobileDeveloperType* has a value.
+#       - Total Reverse Inconsistent Records: 0.
+
+# In[115]:
+
+
+# Identify rows with DeveloperType having a value but related fields being NaN
+inconsistent_records = stack_overflow_results_df[
+    (stack_overflow_results_df['DeveloperType'].notna()) &
+    (stack_overflow_results_df['WebDeveloperType'].isna()) &
+    (stack_overflow_results_df['MobileDeveloperType'].isna())
+]
+
+# Display the inconsistent records
+print("Inconsistent records (DeveloperType has value, others are NaN):")
+print(inconsistent_records[['DeveloperType', 'WebDeveloperType', 'MobileDeveloperType']].head())
+
+# Count the number of inconsistent records
+print(f"Total inconsistent records: {len(inconsistent_records)}")
+
+
+# In[75]:
+
+
+# Display a random sample of inconsistent records
+sample_inconsistent_records = inconsistent_records[['DeveloperType', 'WebDeveloperType', 'MobileDeveloperType', 'NonDeveloperType']].sample(10)
+print(sample_inconsistent_records)
+
+
+# In[83]:
+
+
+# Filter for records where DeveloperType is NaN but either of the related columns have a value
+reverse_inconsistent_records = stack_overflow_results_df[
+    stack_overflow_results_df['DeveloperType'].isna() &
+    (
+        stack_overflow_results_df['WebDeveloperType'].notna() |
+        stack_overflow_results_df['MobileDeveloperType'].notna() 
+    )
+]
+
+# Count the records
+print(f"Number of reverse inconsistent records: {len(reverse_inconsistent_records)}")
+
+
+# #### Exploratory Data Analysis: Determine If There Is a Strong Correlation Between Mobile Developer Type and Salary to Decide Whether to Keep or Drop the Column
+# 
+# - Objective: Assess the correlation between *MobileDeveloperType* and *Salary* to determine if this feature is valuable for predictive modeling.
+# 
+# - Steps:
+#   1. Mapped *MobileDeveloperType* into ordinal numeric values to represent the level of expertise or range of platforms:
+#       - iOS; Android; Windows Phone: 3  
+#       - iOS; Android: 2  
+#       - iOS; Windows Phone: 2  
+#       - iOS or Android: 1  
+#       - NaN or missing values were retained as NaN.
+#   2. Filtered the dataset to include only rows where both *Salary* and *MobileDeveloperLevel* are not NaN.
+#   3. Calculated the correlation between *MobileDeveloperLevel* and *Salary*.
+# 
+# - Conclusion:
+#     - The correlation coefficient between MobileDeveloperLevel and Salary is approximately -0.0566, indicating no meaningful relationship.
+#     - Decision: Drop the MobileDeveloperType column from the dataset, as it does not contribute valuable predictive information.
+
+# In[113]:
+
+
+# Define the mapping
+mobile_developer_mapping = {
+    "iOS; Android; Windows Phone": 3,
+    "iOS; Android": 2,
+    "iOS; Windows Phone": 2,
+    "iOS": 1,
+    "Android": 1,
+    None: None  # Handle NaN values
+}
+
+# Apply the mapping to create a numerical column
+stack_overflow_results_df['MobileDeveloperLevel'] = stack_overflow_results_df['MobileDeveloperType'].map(mobile_developer_mapping)
+
+# Filter the dataset for non-NaN Salary and MobileDeveloperLevel
+valid_data = stack_overflow_results_df[
+    stack_overflow_results_df['Salary'].notna() & stack_overflow_results_df['MobileDeveloperLevel'].notna()
+]
+
+# Calculate correlation with salary
+correlation_matrix = valid_data[['MobileDeveloperLevel', 'Salary']].corr()
+
+# Display the correlation
+print("Correlation matrix (only where Salary and MobileDeveloperLevel are not NaN):")
+print(correlation_matrix)
+
+# Preview the updated dataset for valid rows
+print(valid_data[['MobileDeveloperType', 'MobileDeveloperLevel', 'Salary']].head())
+
+
+# #### Exploratory Data Analysis: Determine If There Is a Strong Correlation Between Web Developer Type and Salary to Decide Whether to Keep or Drop the Column
+# 
+# - Objective: Assess the correlation between *WebDeveloperType* and *Salary* to determine if this feature is valuable for predictive modeling.
+# 
+# - Steps:
+#   1. Mapped *WebDeveloperType* into ordinal numeric values to represent specialization levels:
+#       - Full stack Web developer: 3  
+#       - Back-end Web developer: 2  
+#       - Front-end Web developer: 1  
+#       - NaN or missing values were retained as NaN.
+#   2. Filtered the dataset to include only rows where both *Salary* and *WebDeveloperLevel* are not NaN.
+#   3. Calculated the correlation between *WebDeveloperLevel* and *Salary*.
+# 
+# - Conclusion:
+#     - The correlation coefficient between WebDeveloperLevel and Salary is approximately 0.0244, indicating no meaningful relationship.
+#     - Decision: Drop the WebDeveloperType column from the dataset, as it does not contribute valuable predictive information.
+
+# In[116]:
+
+
+# Map WebDeveloperType to numerical values
+web_developer_mapping = {
+    "Full stack Web developer": 3,
+    "Back-end Web developer": 2,
+    "Front-end Web developer": 1,
+    None: None  # Retain NaNs for now
+}
+
+# Apply the mapping
+stack_overflow_results_df['WebDeveloperLevel'] = stack_overflow_results_df['WebDeveloperType'].map(web_developer_mapping)
+
+# Filter out rows where Salary or WebDeveloperLevel is NaN
+valid_web_dev_data = stack_overflow_results_df.dropna(subset=['WebDeveloperLevel', 'Salary'])
+
+# Calculate the correlation matrix on filtered data
+correlation_matrix = valid_web_dev_data[['WebDeveloperLevel', 'Salary']].corr()
+
+# Display the correlation matrix
+print("Correlation matrix (only where Salary and WebDeveloperLevel are not NaN):")
+print(correlation_matrix)
+
+# Display sample records for review
+print(valid_web_dev_data[['WebDeveloperType', 'WebDeveloperLevel', 'Salary']].head(10))
+
+
+# #### Exploratory Data Analysis: Determine If There Is a Correlation Between Remote Work and Salary
+# 
+# - Objective: Assess the correlation between *HomeRemote* and *Salary* to determine if remote work arrangements influence salary levels.
+# 
+# - Steps:
+#   1. Mapped *HomeRemote* values into ordinal numeric levels to represent the degree of remote work:
+#       - All or almost all the time (I'm full-time remote): 6  
+#       - More than half, but not all, the time: 5  
+#       - About half the time: 4  
+#       - Less than half the time, but at least one day each week: 3  
+#       - A few days each month: 2  
+#       - Never: 1  
+#       - "It's complicated" and NaN values were retained as missing.
+#   2. Filtered the dataset to include only rows where both *Salary* and *HomeRemoteLevel* are not NaN.
+#   3. Calculated the correlation between *HomeRemoteLevel* and *Salary*.
+# 
+# - Conclusion:
+#     - The correlation coefficient between *HomeRemoteLevel* and *Salary* is approximately 0.1926, indicating a weak positive relationship.
+#     - Decision: Retain the *HomeRemote* column, as it may provide some predictive value in modeling.
+
+# In[119]:
+
+
+# Map HomeRemote to numerical values based on the provided ranking
+home_remote_mapping = {
+    "All or almost all the time (I'm full-time remote)": 6,
+    "More than half, but not all, the time": 5,
+    "About half the time": 4,
+    "Less than half the time, but at least one day each week": 3,
+    "A few days each month": 2,
+    "Never": 1,
+    "It's complicated": None,  # Treat as missing for now
+    None: None  # Leave NaNs as missing
+}
+
+# Apply the mapping
+stack_overflow_results_df['HomeRemoteLevel'] = stack_overflow_results_df['HomeRemote'].map(home_remote_mapping)
+
+# Filter out rows where Salary or HomeRemoteLevel is NaN
+valid_home_remote_data = stack_overflow_results_df.dropna(subset=['HomeRemoteLevel', 'Salary'])
+
+# Calculate the correlation matrix on filtered data
+correlation_matrix = valid_home_remote_data[['HomeRemoteLevel', 'Salary']].corr()
+
+# Display the correlation matrix
+print("Correlation matrix (only where Salary and HomeRemoteLevel are not NaN):")
+print(correlation_matrix)
+
+# Display sample records for review
+print(valid_home_remote_data[['HomeRemote', 'HomeRemoteLevel', 'Salary']].head(10))
+
+
+# #### Exploratory Data Analysis: Determine If There Is a Correlation Between Gender and Salary
+# 
+# - Objective: Assess the correlation between *Gender* and *Salary* to identify any potential gender-based salary disparities.
+# 
+# - Steps:
+#   1. Mapped *Gender* values into numeric levels:
+#       - Male: 1  
+#       - Female: 0  
+#   2. Filtered the dataset to include only rows where *Salary* is not NaN.
+#   3. Calculated the correlation between *GenderNumeric* and *Salary*.
+# 
+# - Conclusion:
+#     - The correlation coefficient between *GenderNumeric* and *Salary* is approximately 0.0667, indicating a negligible positive relationship.
+#     - Decision: While the correlation is weak, it is appropriate to retain *Gender* in the dataset for further analysis, as gender may interact with other features to influence salary.
+
+# In[122]:
+
+
+# Map Gender to numerical values
+gender_mapping = {
+    "Male": 1,
+    "Female": 0
+}
+
+# Apply the mapping
+stack_overflow_results_df['GenderNumeric'] = stack_overflow_results_df['Gender'].map(gender_mapping)
+
+# Filter out rows where Salary is NaN
+valid_salary_data = stack_overflow_results_df[stack_overflow_results_df['Salary'].notna()]
+
+# Calculate correlation with Salary
+correlation_matrix = valid_salary_data[['GenderNumeric', 'Salary']].corr()
+
+# Display the correlation matrix
+print("Correlation matrix:")
+print(correlation_matrix)
+
+# Display sample records for review
+print(valid_salary_data[['Gender', 'GenderNumeric', 'Salary']].head(10))
+
+
+# #### Exploratory Data Analysis: Determine If There Is a Correlation Between University Enrollment and Salary
+# - Objective: Evaluate whether current university enrollment status is correlated with salary.
+# 
+# - Steps:
+#     1. Mapped the *University* column to numerical values:
+#         - Yes, full-time or Yes, part-time: 1 (Enrolled)
+#         - No or I prefer not to say: 0 (Not enrolled).
+#     2. Filtered the dataset to include only rows where *Salary* is not NaN.
+#     3. Calculated the correlation between *UniversityEnrolled* and *Salary*.
+# 
+# - Conclusion:
+#     - The correlation coefficient between *University Enrollment* and *Salary* is approximately -0.134, indicating a weak negative relationship.
+#     - Decision: The weak correlation suggests that *University Enrollment* may not significantly contribute to salary prediction. The feature will likely be dropped from the dataset to simplify the model.   
+
+# In[125]:
+
+
+# Define the mapping for University column
+university_mapping = {
+    "Yes, full-time": 1,
+    "Yes, part-time": 1,
+    "No": 0,
+    "I prefer not to say": 0
+}
+
+# Apply the mapping
+stack_overflow_results_df['UniversityEnrolled'] = stack_overflow_results_df['University'].map(university_mapping)
+
+# Filter out rows where Salary is NaN
+valid_salary_data = stack_overflow_results_df[stack_overflow_results_df['Salary'].notna()]
+
+# Calculate the correlation matrix with salary
+correlation_matrix = valid_salary_data[['UniversityEnrolled', 'Salary']].corr()
+
+# Display the correlation matrix
+print("Correlation matrix:")
+print(correlation_matrix)
+
+# Preview the dataset to confirm changes
+print(stack_overflow_results_df[['University', 'UniversityEnrolled', 'Salary']].head(10))
+
+
+# #### Exploratory Data Analysis: Determine if There Is a Correlation Between Years Coding Professionally and Salary
+# - Objective: Assess the correlation between *YearsCodedJob* and *Salary* to evaluate its predictive value for salary modeling.
+# 
+# - Steps:
+#     1. Mapped the *YearsCodedJob* values into ordinal numeric values representing the number of years coded professionally.
+#     2. Filtered the dataset to include only rows where both *YearsCodedJobNumeric* and *Salary* are not NaN.
+#     3. Calculated the correlation between *YearsCodedJobNumeric* and *Salary*.
+# 
+# - Findings::
+#     - Correlation coefficient: 0.5176, indicating a moderate-to-strong positive relationship.
+#     - This is the strongest correlation observed so far in this analysis and will be retained in the dataset. 
+
+# In[140]:
+
+
+# Define the mapping for YearsCodedJob
+years_coded_job_mapping = {
+    "Less than a year": 0,
+    "1 to 2 years": 1,
+    "2 to 3 years": 2,
+    "3 to 4 years": 3,
+    "4 to 5 years": 4,
+    "5 to 6 years": 5,
+    "6 to 7 years": 6,
+    "7 to 8 years": 7,
+    "8 to 9 years": 8,
+    "9 to 10 years": 9,
+    "10 to 11 years": 10,
+    "11 to 12 years": 11,
+    "12 to 13 years": 12,
+    "13 to 14 years": 13,
+    "14 to 15 years": 14,
+    "15 to 16 years": 15,
+    "16 to 17 years": 16,
+    "17 to 18 years": 17,
+    "18 to 19 years": 18,
+    "19 to 20 years": 19,
+    "20 or more years": 20,
+    None: None  # Handle NaN values
+}
+
+# Apply the mapping to create a numerical column
+stack_overflow_results_df['YearsCodedJobNumeric'] = stack_overflow_results_df['YearsCodedJob'].map(years_coded_job_mapping)
+
+# Filter the dataset for rows where both YearsCodedJobNumeric and Salary are not NaN
+valid_years_coded_job_data = stack_overflow_results_df.dropna(subset=['YearsCodedJobNumeric', 'Salary'])
+
+# Calculate the correlation matrix on filtered data
+correlation_matrix = valid_years_coded_job_data[['YearsCodedJobNumeric', 'Salary']].corr()
+
+# Display the correlation matrix
+print("Correlation matrix (only where Salary and YearsCodedJobNumeric are not NaN):")
+print(correlation_matrix)
+
+# Display sample records for review
+print(valid_years_coded_job_data[['YearsCodedJob', 'YearsCodedJobNumeric', 'Salary']].head(10))
+
+
+# #### Exploratory Data Analysis: Determine If There Is a Correlation Between Company Type and Salary
+# - Objective: Assess the correlation between *CompanyType* and *Salary* to determine if *CompanyType* is a meaningful predictor.
+# 
+# - Steps:
+#     1. Mapped CompanyType to ordinal numeric values reflecting the potential salary hierarchy:
+#         - Publicly-traded corporation: 8
+#         - Privately-held limited company: 7
+#         - Venture-funded startup: 6
+#         - Government agency or public school/university: 5
+#         - State-owned company: 4
+#         - Non-profit organization or private school/university: 3
+#         - Sole proprietorship or partnership: 2
+#         - Pre-series A startup: 1
+#         - Other or unknown values (e.g., "I don't know"): excluded.
+#     2. Filtered for rows where both *Salary* and *CompanyTypeNumeric* are not NaN.
+#     3. Calculated the correlation between *CompanyTypeNumeric* and *Salary*.
+# 
+# - Findings::
+#     - Correlation coefficient: 0.1996, indicating a moderate positive relationship.
+
+# In[141]:
+
+
+# Display unique values and counts in the CompanyType column
+company_type_summary = stack_overflow_results_df['CompanyType'].value_counts(dropna=False)
+print(company_type_summary)
+
+
+# In[143]:
+
+
+# Define mapping for CompanyType
+company_type_mapping = {
+    "Publicly-traded corporation": 8,
+    "Privately-held limited company, not in startup mode": 7,
+    "Venture-funded startup": 6,
+    "Government agency or public school/university": 5,
+    "State-owned company": 4,
+    "Non-profit/non-governmental organization or private school/university": 3,
+    "Sole proprietorship or partnership, not in startup mode": 2,
+    "Pre-series A startup": 1,
+    "I don't know": None,
+    "I prefer not to answer": None,
+    "Something else": None,
+    None: None
+}
+
+# Apply the mapping
+stack_overflow_results_df['CompanyTypeNumeric'] = stack_overflow_results_df['CompanyType'].map(company_type_mapping)
+
+# Filter out rows where Salary or CompanyTypeNumeric is NaN
+valid_company_data = stack_overflow_results_df.dropna(subset=['Salary', 'CompanyTypeNumeric'])
+
+# Calculate correlation matrix
+correlation_matrix = valid_company_data[['CompanyTypeNumeric', 'Salary']].corr()
+
+# Display correlation matrix
+print("Correlation matrix (only where Salary and CompanyTypeNumeric are not NaN):")
+print(correlation_matrix)
+
+# Display sample records for review
+print(valid_company_data[['CompanyType', 'CompanyTypeNumeric', 'Salary']].head(10))
+
+
+# #### Exploratory Data Analysis: Evaluate NonDeveloperType Column for Usefulness in Salary Prediction
+# - Objective: Assess whether *NonDeveloperType* provides meaningful data for salary prediction.
+# 
+# - Steps:
+#     1. Attempted to calculate a correlation between *NonDeveloperType* (mapped to numeric values) and *Salary*. The correlation matrix consistently returned NaN values.
+#     2. Investigated whether any records in *NonDeveloperType* also had corresponding values in *Salary*:
+#         - Number of *NonDeveloperType* records with a valid *Salary*: 0
+#         - Without salary data, the *NonDeveloperType* field provides no basis for predictive modeling.
+#     3. Checked for overlap between *NonDeveloperType* and *DeveloperType*:
+#         - Confirmed no records exist in both columns, verifying they represent distinct groups.
+# 
+# - Findings:
+#     - The lack of salary data makes the *NonDeveloperType* column irrelevant for modeling.
+#     - Action: Drop the *NonDeveloperType* column from the dataset.
+
+# In[147]:
+
+
+# Check for NonDeveloperType records with a valid Salary
+nondeveloper_with_salary = stack_overflow_results_df[
+    stack_overflow_results_df['NonDeveloperType'].notna() & stack_overflow_results_df['Salary'].notna()
+]
+
+# Count the number of records
+print(f"Number of NonDeveloperType records with a valid Salary: {len(nondeveloper_with_salary)}")
+
+# Display sample records with NonDeveloperType and Salary
+print("Sample records with NonDeveloperType and Salary:")
+print(nondeveloper_with_salary[['NonDeveloperType', 'Salary']].head(10))
+
+
 # ## Resources and References
 # *What resources and references have you used for this project?*
 # 📝 <!-- Answer Below -->
@@ -2665,7 +3294,7 @@ print(stack_overflow_results_df[['MajorUndergrad', 'ACS_Major', 'STEM Degree']].
 # - https://stackoverflow.com/questions/1388450/giving-graphs-a-subtitle to learn how to add titles and subtitles to matplotlib visualizations
 # - https://matplotlib.org/stable/gallery/color/named_colors.html to choose consistent color palette for visualizations
 
-# In[ ]:
+# In[73]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
