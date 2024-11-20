@@ -2449,7 +2449,7 @@ display(stack_overflow_results_df.head())
 display(stack_overflow_results_df.shape)
 
 
-# In[136]:
+# In[62]:
 
 
 # Keep only the specified columns
@@ -2463,7 +2463,7 @@ display(stack_overflow_results_df.head())
 display(stack_overflow_results_df.shape)
 
 
-# In[137]:
+# In[63]:
 
 
 # Count unique values in each column
@@ -2582,14 +2582,14 @@ print(stack_overflow_results_df['Professional'].value_counts())
 
 # #### Exploratory Data Analysis: examine values/missing values in remaining fields
 
-# In[90]:
+# In[70]:
 
 
 missing_salary_count = stack_overflow_results_df['Salary'].isna().sum()
 print(f"Number of missing Salary values: {missing_salary_count}")
 
 
-# In[139]:
+# In[71]:
 
 
 # List of columns to analyze
@@ -2622,7 +2622,7 @@ for column in columns_to_check:
 #     - The positive correlation between CompanySizeNumeric and Salary is weak (correlation coefficient = 0.158).
 #     - This suggests that larger companies may pay slightly higher salaries, but the relationship is not strong enough to justify retaining CompanySize as a key feature for predictive modeling.
 
-# In[114]:
+# In[72]:
 
 
 # Create a numerical mapping for CompanySize
@@ -2670,7 +2670,7 @@ print(valid_data[['CompanySize', 'CompanySizeNumeric', 'Salary']].head())
 #     - Defined STEM fields based on ACS categories, including: FoD-Computers_Math_Stats, FoD-Engineering, FoD-Physical_Sciences, etc.
 #     - Added a binary column, STEM Degree, indicating whether the major falls under STEM (Yes/No).
 
-# In[72]:
+# In[73]:
 
 
 # Map MajorUndergrad to match American Community Survey degree categories
@@ -2720,7 +2720,7 @@ print(stack_overflow_results_df[['MajorUndergrad', 'ACS_Major', 'STEM Degree']].
 # 
 # - Implications: This aligns with existing findings from other datasets that STEM degree holders typically earn higher salaries than non-STEM degree holders. However, the gap here appears relatively small, which could warrant further investigation into factors like occupation type and level of education.
 
-# In[95]:
+# In[74]:
 
 
 # Filter for rows where Salary is not NaN
@@ -2751,7 +2751,7 @@ print(stem_salary_comparison)
 #   - Doctorate - STEM
 #   - Doctorate - Non-STEM
 
-# In[129]:
+# In[75]:
 
 
 # Define categories to remove
@@ -2809,7 +2809,7 @@ print("\nRemaining records:", len(stack_overflow_results_df))
 # - The correlation between *EducationCategoryNumeric* and *Salary* is 0.232, indicating a moderate positive relationship.
 # - This suggests that education level and STEM/Non-STEM classification contribute to salary, but other factors, such as job experience or job title, may have a more significant influence.
 
-# In[135]:
+# In[76]:
 
 
 # Define a numerical mapping for EducationCategory
@@ -2850,7 +2850,7 @@ print(valid_salary_data[['EducationCategory', 'EducationCategoryNumeric', 'Salar
 #   2. Check for Reverse Inconsistencies: Identified rows where *DeveloperType* is NaN but either *WebDeveloperType* or *MobileDeveloperType* has a value.
 #       - Total Reverse Inconsistent Records: 0.
 
-# In[115]:
+# In[77]:
 
 
 # Identify rows with DeveloperType having a value but related fields being NaN
@@ -2868,7 +2868,7 @@ print(inconsistent_records[['DeveloperType', 'WebDeveloperType', 'MobileDevelope
 print(f"Total inconsistent records: {len(inconsistent_records)}")
 
 
-# In[75]:
+# In[78]:
 
 
 # Display a random sample of inconsistent records
@@ -2876,7 +2876,7 @@ sample_inconsistent_records = inconsistent_records[['DeveloperType', 'WebDevelop
 print(sample_inconsistent_records)
 
 
-# In[83]:
+# In[79]:
 
 
 # Filter for records where DeveloperType is NaN but either of the related columns have a value
@@ -2910,7 +2910,7 @@ print(f"Number of reverse inconsistent records: {len(reverse_inconsistent_record
 #     - The correlation coefficient between MobileDeveloperLevel and Salary is approximately -0.0566, indicating no meaningful relationship.
 #     - Decision: Drop the MobileDeveloperType column from the dataset, as it does not contribute valuable predictive information.
 
-# In[113]:
+# In[80]:
 
 
 # Define the mapping
@@ -2959,7 +2959,7 @@ print(valid_data[['MobileDeveloperType', 'MobileDeveloperLevel', 'Salary']].head
 #     - The correlation coefficient between WebDeveloperLevel and Salary is approximately 0.0244, indicating no meaningful relationship.
 #     - Decision: Drop the WebDeveloperType column from the dataset, as it does not contribute valuable predictive information.
 
-# In[116]:
+# In[81]:
 
 
 # Map WebDeveloperType to numerical values
@@ -3007,7 +3007,7 @@ print(valid_web_dev_data[['WebDeveloperType', 'WebDeveloperLevel', 'Salary']].he
 #     - The correlation coefficient between *HomeRemoteLevel* and *Salary* is approximately 0.1926, indicating a weak positive relationship.
 #     - Decision: Retain the *HomeRemote* column, as it may provide some predictive value in modeling.
 
-# In[119]:
+# In[82]:
 
 
 # Map HomeRemote to numerical values based on the provided ranking
@@ -3054,7 +3054,7 @@ print(valid_home_remote_data[['HomeRemote', 'HomeRemoteLevel', 'Salary']].head(1
 #     - The correlation coefficient between *GenderNumeric* and *Salary* is approximately 0.0667, indicating a negligible positive relationship.
 #     - Decision: While the correlation is weak, it is appropriate to retain *Gender* in the dataset for further analysis, as gender may interact with other features to influence salary.
 
-# In[122]:
+# In[83]:
 
 
 # Map Gender to numerical values
@@ -3094,7 +3094,7 @@ print(valid_salary_data[['Gender', 'GenderNumeric', 'Salary']].head(10))
 #     - The correlation coefficient between *University Enrollment* and *Salary* is approximately -0.134, indicating a weak negative relationship.
 #     - Decision: The weak correlation suggests that *University Enrollment* may not significantly contribute to salary prediction. The feature will likely be dropped from the dataset to simplify the model.   
 
-# In[125]:
+# In[84]:
 
 
 # Define the mapping for University column
@@ -3134,7 +3134,7 @@ print(stack_overflow_results_df[['University', 'UniversityEnrolled', 'Salary']].
 #     - Correlation coefficient: 0.5176, indicating a moderate-to-strong positive relationship.
 #     - This is the strongest correlation observed so far in this analysis and will be retained in the dataset. 
 
-# In[140]:
+# In[85]:
 
 
 # Define the mapping for YearsCodedJob
@@ -3200,7 +3200,7 @@ print(valid_years_coded_job_data[['YearsCodedJob', 'YearsCodedJobNumeric', 'Sala
 # - Findings::
 #     - Correlation coefficient: 0.1996, indicating a moderate positive relationship.
 
-# In[141]:
+# In[86]:
 
 
 # Display unique values and counts in the CompanyType column
@@ -3208,7 +3208,7 @@ company_type_summary = stack_overflow_results_df['CompanyType'].value_counts(dro
 print(company_type_summary)
 
 
-# In[143]:
+# In[87]:
 
 
 # Define mapping for CompanyType
@@ -3259,7 +3259,7 @@ print(valid_company_data[['CompanyType', 'CompanyTypeNumeric', 'Salary']].head(1
 #     - The lack of salary data makes the *NonDeveloperType* column irrelevant for modeling.
 #     - Action: Drop the *NonDeveloperType* column from the dataset.
 
-# In[147]:
+# In[88]:
 
 
 # Check for NonDeveloperType records with a valid Salary
@@ -3273,6 +3273,81 @@ print(f"Number of NonDeveloperType records with a valid Salary: {len(nondevelope
 # Display sample records with NonDeveloperType and Salary
 print("Sample records with NonDeveloperType and Salary:")
 print(nondeveloper_with_salary[['NonDeveloperType', 'Salary']].head(10))
+
+
+# #### Exploratory Data Analysis: Determine If There Is a Correlation Between DeveloperType and Salary
+# - Objective: Assess the correlation between *DeveloperType* and *Salary* to understand whether this field has predictive value in its current form.
+# 
+# - Steps:
+#     1. Assigned ranks to each developer role based on industry salary trends:
+#         - Machine learning specialist: 14  
+#         - Data scientist: 13  
+#         - Embedded applications/devices developer: 12  
+#         - Graphics programmer: 11  
+#         - DevOps specialist: 10  
+#         - Web developer: 9  
+#         - Systems administrator: 8  
+#         - Database administrator: 7  
+#         - Desktop applications developer: 6  
+#         - Mobile developer: 5  
+#         - Graphic designer: 4  
+#         - Quality assurance engineer: 3  
+#         - Something else: 1  
+#     2. Mapped the highest-ranking role for each respondent in the *DeveloperType* field to a numeric value.
+#     3. Calculated the correlation between the primary role rank and salary.
+# 
+# - Findings:
+#     - Correlation coefficient: 0.0563, indicating an extremely weak relationship in the current implementation.
+#     - Despite this weak correlation, real-world evidence demonstrates that salaries differ significantly across roles. Therefore, this field has potential value when combined with other features in later modeling steps.
+#     - Next Steps: Explore more sophisticated methods, such as weighted combinations of roles or one-hot encoding, to better capture the impact of developer roles on salary.
+
+# In[91]:
+
+
+# Define the ranking for DeveloperType roles
+developer_role_ranking = {
+    "Machine learning specialist": 14,
+    "Data scientist": 13,
+    "Embedded applications/devices developer": 12,
+    "Graphics programmer": 11,
+    "DevOps specialist": 10,
+    "Web developer": 9,
+    "Systems administrator": 8,
+    "Database administrator": 7,
+    "Desktop applications developer": 6,
+    "Mobile developer": 5,
+    "Graphic designer": 4,
+    "Quality assurance engineer": 3,
+    "Something else": 1
+}
+
+# Extract the primary role from DeveloperType based on the highest rank
+def get_primary_role(dev_type):
+    for role, rank in sorted(developer_role_ranking.items(), key=lambda x: x[1], reverse=True):
+        if role in dev_type:
+            return role
+    return None
+
+# Apply the primary role extraction
+stack_overflow_results_df['PrimaryRole'] = stack_overflow_results_df['DeveloperType'].apply(
+    lambda x: get_primary_role(str(x)) if pd.notna(x) else None
+)
+
+# Map the primary role to numeric values
+stack_overflow_results_df['PrimaryRoleNumeric'] = stack_overflow_results_df['PrimaryRole'].map(developer_role_ranking)
+
+# Filter for rows where Salary and PrimaryRoleNumeric are not NaN
+valid_primary_role_data = stack_overflow_results_df.dropna(subset=['PrimaryRoleNumeric', 'Salary'])
+
+# Calculate correlation between PrimaryRoleNumeric and Salary
+correlation_matrix = valid_primary_role_data[['PrimaryRoleNumeric', 'Salary']].corr()
+
+# Display the correlation matrix
+print("Correlation matrix (only where Salary and PrimaryRoleNumeric are not NaN):")
+print(correlation_matrix)
+
+# Preview the valid data
+print(valid_primary_role_data[['DeveloperType', 'PrimaryRole', 'PrimaryRoleNumeric', 'Salary']].head())
 
 
 # ## Resources and References
@@ -3294,7 +3369,7 @@ print(nondeveloper_with_salary[['NonDeveloperType', 'Salary']].head(10))
 # - https://stackoverflow.com/questions/1388450/giving-graphs-a-subtitle to learn how to add titles and subtitles to matplotlib visualizations
 # - https://matplotlib.org/stable/gallery/color/named_colors.html to choose consistent color palette for visualizations
 
-# In[73]:
+# In[90]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
