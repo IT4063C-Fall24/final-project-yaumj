@@ -70,7 +70,7 @@
 
 # #### Package Imports
 
-# In[1]:
+# In[257]:
 
 
 #import packages
@@ -97,7 +97,7 @@ from bs4 import BeautifulSoup
 
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, OrdinalEncoder
 from sklearn.metrics import classification_report, confusion_matrix
 
 from mpl_toolkits.mplot3d import Axes3D
@@ -107,7 +107,7 @@ from docx import Document
 
 # #### Import Dataset 1: HackerRank Developer Survey Published in 2018 that covered 2017 Questionnaire Responses
 
-# In[2]:
+# In[111]:
 
 
 # import dataset from Kaggle using URL 
@@ -117,7 +117,7 @@ od.download(dataset_url, data_dir="./data")
 
 # #### Convert dataset to a pandas dataframe and inspect data for Exploratory Data Analysis (EDA)
 
-# In[3]:
+# In[112]:
 
 
 # Define the data directory
@@ -151,7 +151,7 @@ display(dev_survey_values_df.head(5))
 # - There are outliers in this data as far as what can be directly related to my other datasets and my hypothesis for the purpose of analysis.
 #     - Age ranges will need to be limited to match what is available in the datasets from other sources to make "apples to apples" comparisons.
 
-# In[4]:
+# In[113]:
 
 
 # Find United States in the country_code_df to use for filtering purposes
@@ -168,7 +168,7 @@ display(us_country_code_df)
 
 # #### Filtered dataframe to include only respondents in the United States
 
-# In[5]:
+# In[114]:
 
 
 # Filter the DataFrame for United States questionnaire responses
@@ -185,7 +185,7 @@ display(us_dev_survey_numeric_df.head(5))
 # #### Reduce dataframe columns to only those relevant to supporting or disproving my hypothesis
 # - fields such as date survey was completed and questions about the HackerRank survey were removed from dataframe for simplification
 
-# In[6]:
+# In[115]:
 
 
 # List of relevant columns to keep
@@ -221,7 +221,7 @@ display(filtered_us_dev_survey_numeric_df.head(5))
 # #### Check for Duplicate Records
 # - Some records will be similar, but all records should have a unique RespondentID
 
-# In[7]:
+# In[116]:
 
 
 # Check for duplicates in the RespondentID field
@@ -243,7 +243,7 @@ else:
 # - Remove ages over 64 years old (coded as q2Age: 8 or 9)
 # - Remove non-binary respondents (coded as q3Gender: 3)
 
-# In[8]:
+# In[117]:
 
 
 # Summary of counts for each value in q2Age
@@ -257,7 +257,7 @@ print("\nSummary of counts for each value in q3Gender:")
 print(gender_summary)
 
 
-# In[9]:
+# In[118]:
 
 
 # Remove records where q2Age is #NULL!, 1, 2, 3, 8, or 9
@@ -290,7 +290,7 @@ print(gender_summary)
 # - The numeric dataframe should consist entirely of int64 data types, yet the majority have an "object" data type instead.
 #     - These datatypes will need to be converted for certain types of analysis like a correlation matrix.
 
-# In[10]:
+# In[119]:
 
 
 # Rename columns
@@ -338,7 +338,7 @@ display(filtered_us_dev_survey_numeric_df.head(5))
 # 
 # **Summary:** The findings reinforce the hypothesis that women in tech value career advancement opportunities, inclusive workplace culture, and work-life balance over compensation alone. These insights highlight the importance of creating growth-oriented, flexible, and supportive environments to retain female talent in the technology industry.
 
-# In[11]:
+# In[120]:
 
 
 # Define a dictionary mapping the actual DataFrame column names to the desired display names
@@ -397,7 +397,7 @@ plt.show()
 # - Both datasets contain the same records, but one has numeric codes for all responses and the other has plain language values for all responses 
 # so the same logic can be used for both dataframes.
 
-# In[12]:
+# In[121]:
 
 
 # Filter the DataFrame for CountryNumeric2 = "United States"
@@ -411,7 +411,7 @@ display(f"Number of records: {num_records_values}")
 display(us_dev_survey_values_df.head(5))
 
 
-# In[13]:
+# In[122]:
 
 
 # Reduce dataframe columns to only those relevant to supporting or disproving my hypothesis
@@ -453,7 +453,7 @@ display(filtered_us_dev_survey_values_df.head(5))
 # - Filtered out records where the age is null because both age and gender are necessary to determine job level comparisons.
 # 
 
-# In[14]:
+# In[123]:
 
 
 # Create a copy to work on and avoid SettingWithCopyWarning
@@ -498,7 +498,7 @@ print(gender_summary)
 # - Filtered out records where both the Job Level and Current Role were NaN because there is no way to determine values for the field if both are blank.
 # 
 
-# In[15]:
+# In[124]:
 
 
 # Rename columns
@@ -548,7 +548,7 @@ print(f"Remaining responses after cleaning: {filtered_us_dev_survey_values_df.sh
 # - **Gender Disparity in Age Groups**: Male respondents dominate all age groups, particularly in the 25–34 range, indicating a potential gender imbalance that could influence job levels and advancement opportunities.
 # - **Next Steps in Analysis:** Given the evident gender imbalance, further analysis will explore how this demographic distribution correlates with job levels. Examining job levels across genders and age groups can identify whether disproportionate career progression patterns exist. Additional visualizations, such as a stacked bar chart by job level and gender or a heatmap for job level concentration, will deepen the understanding of gender-based trends in career advancement.
 
-# In[16]:
+# In[125]:
 
 
 # Group the data by Age Group and Gender, and count occurrences
@@ -576,7 +576,7 @@ plt.show()
 # - Look for records where the Job Level is NaN but the Current Role is not NaN.
 #     - These records can be used with machine learning classification to populate missing values.
 
-# In[17]:
+# In[126]:
 
 
 # Review dataset to determine what data is relevant
@@ -600,7 +600,7 @@ display(nan_job_level_current_role_df[['Job Level', 'Current Role']])
 # #### More Exploratory Data Analysis (EDA)
 # - Check if there is a dominant job level associated with the Current Role field that could be used to populate empty fields.
 
-# In[18]:
+# In[127]:
 
 
 # Group by Current Role and Job Level, and count occurrences
@@ -624,7 +624,7 @@ with pd.option_context('display.max_rows', None):
 #     - Given these clear disparities in job level distribution by gender, a machine learning model like K-Nearest Neighbors (KNN) is well-suited for predicting job levels. KNN can capture complex relationships between demographic features (such as gender) and job levels, providing a more nuanced prediction than simple averages or medians.
 #     - By considering demographic factors, this approach enables the model to better reflect real-world patterns of representation and career advancement, offering a data-driven perspective on disparities within roles across the dataset.
 
-# In[19]:
+# In[128]:
 
 
 # Define the desired order for job levels from junior to senior based on numeric dataset mapping
@@ -661,7 +661,7 @@ plt.show()
 
 # #### Use Machine Learning to Populate NaN Job Level Records
 
-# In[20]:
+# In[129]:
 
 
 # Use KNearestNeighbors to determine most likely Job Level based on age, gender, and current role
@@ -715,7 +715,7 @@ print("Predicted Job Levels for records with NaN Job Level:")
 display(predict_df[['Age', 'Gender', 'Current Role', 'Predicted Job Level']])
 
 
-# In[21]:
+# In[130]:
 
 
 #Update Job Level field with predictions and verify changes
@@ -742,7 +742,7 @@ display(filtered_us_dev_survey_values_df.head(5))
 # 
 # **Summary:** The visualization highlights potential gender-based differences in career progression. Women in the 25–34 age group appear to be underrepresented in higher roles, with the disparity becoming more pronounced in later career stages (45–54 and 55–64 age groups). This analysis suggests that women in tech may face challenges in advancing to senior positions as they progress in their careers, potentially reflecting systemic barriers to higher-level roles.
 
-# In[22]:
+# In[131]:
 
 
 # Define the desired order for job levels and age groups
@@ -787,7 +787,7 @@ plt.show()
 
 # #### Import Dataset 2: 2017 Pew Research Center STEM Survey
 
-# In[23]:
+# In[132]:
 
 
 # import zip file from Pew Research
@@ -799,7 +799,7 @@ zipfile.close()
 
 # #### Examine contents of .sav file
 
-# In[24]:
+# In[133]:
 
 
 file_path = 'data/materials for public release/2017 Pew Research Center STEM survey.sav'
@@ -819,7 +819,7 @@ print(prc_stem_df.tail())
 # #### Read the .docx file
 # - Read the Pew Research Center files associated with the .sav file and convert them into .txt files to understand the codes used.
 
-# In[25]:
+# In[134]:
 
 
 # Load the Questionnaire document
@@ -876,7 +876,7 @@ print(prc_codebook_text[:400])
 # #### Display All Column Names in Dataframe
 # - Reading the column names with the new context of the Questionnaire and Codebook file will help to determine which columns are needed for analysis
 
-# In[26]:
+# In[135]:
 
 
 # Display all column names in the DataFrame
@@ -887,7 +887,7 @@ for col in prc_stem_df.columns:
 
 # #### Convert CaseID from float to int64
 
-# In[27]:
+# In[136]:
 
 
 # Convert 'CaseID' to int64
@@ -901,7 +901,7 @@ print(prc_stem_df.dtypes)
 # #### Exploratory Data Analysis (EDA)
 # - Search for null values or refused responses in fields required for analysis.
 
-# In[28]:
+# In[137]:
 
 
 # Summary of counts for each value in WORK_1
@@ -955,7 +955,7 @@ print("\nSummary of counts for each value in STEM_DEGREE:")
 print(prc_stem_degree)
 
 
-# In[29]:
+# In[138]:
 
 
 # Convert specified columns to int64
@@ -984,7 +984,7 @@ print(prc_stem_df.info())
 # - Eliminate fields not needed for hypothesis
 # - Rename columns to more meaningful names
 
-# In[30]:
+# In[139]:
 
 
 # List of columns to exclude
@@ -1141,7 +1141,7 @@ for col in pew_research_numeric.columns:
 #     - Respondents who are only self-employed are not useful to my hypothesis so they can be filtered out from the dataset
 # 
 
-# In[31]:
+# In[140]:
 
 
 # Count of respondents who are both self-employed part-time and employed by a company
@@ -1162,7 +1162,7 @@ print("Count of respondents who are both self-employed part-time and employed by
 print("Count of respondents who are self-employed part-time and not employed by a company:", self_employed_full_time_only_count)
 
 
-# In[32]:
+# In[141]:
 
 
 # Count of respondents who are both self-employed full-time and employed by a company
@@ -1183,7 +1183,7 @@ print("Count of respondents who are both self-employed full-time and employed by
 print("Count of respondents who are self-employed full-time and not employed by a company:", self_employed_full_time_only_count)
 
 
-# In[33]:
+# In[142]:
 
 
 # Filter to retain only records where the respondent is employed by a company, has Employment Status = 1, and is a STEM Worker
@@ -1202,7 +1202,7 @@ remaining_stem_employed_count
 # **Find values for "Job Choice" columns**
 # - The Job Choice columns were coded with numbers in the original survey as a single column. I need to know if the split columns have 0 and 1 or 1 and 2 as Yes/No representation to create visualizations.
 
-# In[34]:
+# In[143]:
 
 
 # List of job choice columns to check value counts
@@ -1237,7 +1237,7 @@ for column in job_choice_columns:
 # 
 # **Summary:** This analysis of the Pew Research Center data generally supports the trends observed in the HackerRank survey, particularly around work-life balance and company culture. However, the contrasting findings for professional growth and the emphasis on helping others and societal contribution underscore that motivations can vary widely across STEM fields. These insights emphasize the importance of creating flexible, purpose-driven, and growth-oriented workplaces to effectively retain a diverse workforce in technology and STEM.
 
-# In[35]:
+# In[144]:
 
 
 # Define a dictionary mapping the Pew Research column names to display names
@@ -1306,7 +1306,7 @@ plt.show()
 # 
 # **Summary:** The analysis reveals that younger and mid-career women (ages 25–44) encounter the highest concentration of discrimination experiences, especially in terms of earning disparities, microaggressions, and perceived incompetence. These trends emphasize the need for supportive and equitable workplace cultures, as these factors likely influence why women place high value on company culture when considering job opportunities in STEM fields.
 
-# In[36]:
+# In[145]:
 
 
 # Define the age group labels only for ages 25-34, 35-44, 45-54, and 55-64
@@ -1370,7 +1370,7 @@ plt.show()
 # - Data was compiled by the NCSES from the U.S. Census Bureau, American Community Survey, National Center for Science and Engineering Statistics, and more
 # - For the full list of compiled sources: https://ncses.nsf.gov/pubs/nsb20212/data#source-block 
 
-# In[37]:
+# In[146]:
 
 
 # scrape HTML file to extract tables
@@ -1416,7 +1416,7 @@ for i in range(len(tables)):
 # **Import Additional Resources From National Center for Science and Engineering Statistics (NCSES)**
 # - The Report titled *"The STEM Labor Force of Today: Scientists, Engineers, and Skilled Technical Workers"* spans several pages and has supplemental tables that are not included on any of the pages. 
 
-# In[38]:
+# In[147]:
 
 
 # import data-tables zip file from NCSES
@@ -1440,7 +1440,7 @@ zipfile.close()
 
 # **Convert relevant xlsx files into pandas dataframes**
 
-# In[39]:
+# In[148]:
 
 
 # Define the path to the file: Table LBR-7 - Women with a bachelor's degree or above, by broad occupational group and highest degree: 1993, 2003, 2019
@@ -1497,7 +1497,7 @@ display(ncses_women_science_and_engineering_ed_vs_employment_df)
 # 
 # **Summary:** This area chart emphasizes the challenge of translating educational advancements for women in S&E into equivalent representation in S&E occupations. Although women are earning degrees in S&E fields at increasing rates, this academic progress does not appear to be fully mirrored in workforce participation. This demonstrates that many women are encountering barriers to even entering into S&E fields, impacting their long-term career trajectories in the Science and Engineering Industry. These findings underscore the need for supportive, equitable workplace practices to bridge the gap between education and career progression for women in S&E.
 
-# In[40]:
+# In[149]:
 
 
 # Filter data for S&E category only and pivot it for plotting
@@ -1544,7 +1544,7 @@ plt.legend(loc="upper left", title="Legend")
 plt.show()
 
 
-# In[41]:
+# In[150]:
 
 
 # Define the path to the file: Figure LBR-21 - Women with a bachelor's degree or higher in S&E and S&E-related occupations: Selected years, 1993–2019
@@ -1568,7 +1568,7 @@ print("S&E Degree Trends for Women DataFrame (with % values):")
 display(women_s_e_degree_trends_df)
 
 
-# In[42]:
+# In[151]:
 
 
 # Define the path to the file: Figure LBR-27 - Median annual salaries of full-time workers with highest degrees in S&E or S&E-related fields, by sex: Selected years, 1995, 2003, and 2019
@@ -1606,7 +1606,7 @@ display(median_salary_by_gender_df)
 # 
 # This interactive visualization highlights the long-standing and widening disparity in median salaries between genders. The unequal salary increases at crucial intervals have exacerbated the wage gap, emphasizing how systemic disparities in salary growth prevent women from closing the gap in career fields that require science and engineering degrees.
 
-# In[43]:
+# In[152]:
 
 
 # Filter only rows where Degree Field is "S&E"
@@ -1674,7 +1674,7 @@ fig.update_layout(
 fig.show()
 
 
-# In[44]:
+# In[153]:
 
 
 # Define the path to the file: Table SLBR-30 - Number and median salary of full-time workers with highest degree in S&E field, by sex and occupation: 2019
@@ -1710,7 +1710,7 @@ print("Combined DataFrame for Selected Occupations and Salaries:")
 display(employment_count_and_salary_by_occupation_and_gender_df)
 
 
-# In[45]:
+# In[154]:
 
 
 # Define the path to the file: Table SLBR-32 - Employed S&E highest degree holders, by sex, race or ethnicity, field of highest degree, and broad occupational category: 2019
@@ -1763,7 +1763,7 @@ display(se_degree_vs_occupation_by_gender_df)
 # #### Import Dataset 4: United States Census Bureau
 # - From College to Jobs: American Community Survey 2019
 
-# In[46]:
+# In[155]:
 
 
 # Define the directory to store the downloaded files
@@ -1801,7 +1801,7 @@ for file_name, url in urls.items():
 
 # **Extract the data for the men from the first Excel file to test processing**
 
-# In[47]:
+# In[156]:
 
 
 # Define the path to the file
@@ -1843,7 +1843,7 @@ print(df_men_all_ed_levels.tail())
 
 # #### Exploratory Data Analyis (EDA): Check the Data Types
 
-# In[48]:
+# In[157]:
 
 
 df_men_all_ed_levels.info()
@@ -1851,7 +1851,7 @@ df_men_all_ed_levels.info()
 
 # **Convert columns to correct data types (float64 to int64)**
 
-# In[49]:
+# In[158]:
 
 
 # Select numeric columns that need conversion to int64
@@ -1874,7 +1874,7 @@ print(df_men_all_ed_levels.info())
 
 # **Repeat the process for the women's data in the same file**
 
-# In[50]:
+# In[159]:
 
 
 # Define the path to the file
@@ -1945,7 +1945,7 @@ print(df_women_all_ed_levels.info())
 # - **Cross-Disciplinary Employment Trends:** While men more commonly cross into technical roles with non-STEM degrees, women tend to remain in roles closely related to their field of study, particularly in Education and Social Services.
 # 
 
-# In[51]:
+# In[160]:
 
 
 # Define fields of degree columns
@@ -2004,7 +2004,7 @@ plt.show()
 # #### Process the second xlsx file from the American Community Survey
 # - Recreate the steps used on the first file from the dataset
 
-# In[52]:
+# In[161]:
 
 
 # Define the path to the file
@@ -2058,7 +2058,7 @@ print(df_men_bach_degree.tail())
 print(df_men_bach_degree.info())
 
 
-# In[53]:
+# In[162]:
 
 
 # Define the path to the file
@@ -2115,7 +2115,7 @@ print(df_women_bach_degree.info())
 # #### Process the third xlsx file from the American Community Survey
 # - Recreate the steps used on the first and second files from the dataset
 
-# In[54]:
+# In[163]:
 
 
 # Define the path to the file
@@ -2169,7 +2169,7 @@ print(df_men_grad_degree.tail())
 print(df_men_grad_degree.info())
 
 
-# In[55]:
+# In[164]:
 
 
 # Define the path to the file
@@ -2225,7 +2225,7 @@ print(df_women_grad_degree.info())
 
 # #### Process the 4th xlsx file from the American Community Survey
 
-# In[56]:
+# In[165]:
 
 
 # Define the path to the file
@@ -2270,7 +2270,7 @@ print("Women's Median Earnings DataFrame:")
 display(female_median_earnings)
 
 
-# In[57]:
+# In[166]:
 
 
 # Remove STEM Major All Degrees and non-STEM Major All Degrees from both dataframes since it is unneeded for analysis
@@ -2307,7 +2307,7 @@ display(combined_median_earnings_by_degree_and_occupation)
 # 
 # **Summary:** This interactive scatter plot brings attention to the pervasive wage disparities between men and women in the tech industry. The visualization highlights that even when women attain higher qualifications—such as a *STEM graduate degree*—they are often out-earned by men with lower or unrelated qualifications. This pattern emerges across multiple fields, from *engineering* to *social science*, showing that women’s qualifications yield a lesser financial return than men’s. This data underscores a systemic issue within tech fields, pointing to potential structural barriers that prevent equitable compensation for women, even when they achieve the same or higher qualifications as their male counterparts.
 
-# In[58]:
+# In[167]:
 
 
 # Reshape the DataFrame to long format for easier plotting
@@ -2403,7 +2403,7 @@ fig.show()
 
 # #### Import Dataset: Stack Overflow Annual Developer Survey 2017
 
-# In[59]:
+# In[215]:
 
 
 # import zip file from Stack Overflow
@@ -2413,7 +2413,7 @@ zipfile.extractall("./data/Stack_Overflow_2017")
 zipfile.close()
 
 
-# In[60]:
+# In[216]:
 
 
 # Define the data directory
@@ -2434,7 +2434,7 @@ display(stack_overflow_schema_df.shape)
 
 # #### Exploratory Data Analysis (EDA): Perform initial dataset filtering for records and columns relevant to the scope of the project
 
-# In[61]:
+# In[217]:
 
 
 # Filter for the United States, respondents who chose male or female as the gender, and exclude anyone who is unemployed or a student
@@ -2449,7 +2449,7 @@ display(stack_overflow_results_df.head())
 display(stack_overflow_results_df.shape)
 
 
-# In[62]:
+# In[218]:
 
 
 # Keep only the specified columns
@@ -2463,7 +2463,7 @@ display(stack_overflow_results_df.head())
 display(stack_overflow_results_df.shape)
 
 
-# In[63]:
+# In[219]:
 
 
 # Count unique values in each column
@@ -2482,7 +2482,7 @@ print(unique_counts)
 #     - Since these are American respondents, it was assumed their salary amounts are in US dollars.
 #     - Planned outlier detection and handling will address any inconsistencies or errors in these assumptions.
 
-# In[64]:
+# In[220]:
 
 
 # Count occurrences of each currency type (including NaN values)
@@ -2493,7 +2493,7 @@ print("Counts of each currency type:")
 print(currency_counts)
 
 
-# In[65]:
+# In[221]:
 
 
 # Replace NaN values in the Currency column with 'U.S. dollars ($)'
@@ -2512,7 +2512,7 @@ print(currency_counts)
 # - Objective: Ensure consistency with the scope of the project and alignment with other datasets used in the analysis.
 # - Action Taken: All values in the EmploymentStatus column other than "Employed full-time" were removed.
 
-# In[66]:
+# In[222]:
 
 
 # Count occurrences of each EmploymentStatus (including NaN values)
@@ -2523,7 +2523,7 @@ print("Counts of each employment status value:")
 print(employment_status_counts)
 
 
-# In[67]:
+# In[223]:
 
 
 # Filter the dataset to keep only rows with 'Employed full-time' to be consistent with other datasets in the project
@@ -2549,7 +2549,7 @@ print(employment_status_counts)
 #     - Rows where Professional is "Used to be a professional developer" or "None of these" were removed only if all related developer/employment type fields (DeveloperType, WebDeveloperType, MobileDeveloperType, NonDeveloperType) were also NaN.
 #     - This ensured that only meaningful and relevant professional data remained in the dataset.
 
-# In[68]:
+# In[224]:
 
 
 # Count occurrences of each value in Professional (including NaN values)
@@ -2560,7 +2560,7 @@ print("Counts of each 'Professional' value:")
 print(professional_counts)
 
 
-# In[69]:
+# In[225]:
 
 
 # Filter the dataset to remove rows where Professional is 'None of these' or 'Used to be a professional developer' 
@@ -2582,14 +2582,14 @@ print(stack_overflow_results_df['Professional'].value_counts())
 
 # #### Exploratory Data Analysis: examine values/missing values in remaining fields
 
-# In[70]:
+# In[226]:
 
 
 missing_salary_count = stack_overflow_results_df['Salary'].isna().sum()
 print(f"Number of missing Salary values: {missing_salary_count}")
 
 
-# In[71]:
+# In[228]:
 
 
 # List of columns to analyze
@@ -2619,10 +2619,9 @@ for column in columns_to_check:
 #     - Calculated the correlation between CompanySizeNumeric and Salary.
 # 
 # - Results:
-#     - The positive correlation between CompanySizeNumeric and Salary is weak (correlation coefficient = 0.158).
-#     - This suggests that larger companies may pay slightly higher salaries, but the relationship is not strong enough to justify retaining CompanySize as a key feature for predictive modeling.
+#     - The positive correlation between CompanySizeNumeric and Salary is weak (correlation coefficient = 0.158), suggesting that larger companies may pay slightly higher salaries.
 
-# In[72]:
+# In[229]:
 
 
 # Create a numerical mapping for CompanySize
@@ -2670,7 +2669,7 @@ print(valid_data[['CompanySize', 'CompanySizeNumeric', 'Salary']].head())
 #     - Defined STEM fields based on ACS categories, including: FoD-Computers_Math_Stats, FoD-Engineering, FoD-Physical_Sciences, etc.
 #     - Added a binary column, STEM Degree, indicating whether the major falls under STEM (Yes/No).
 
-# In[73]:
+# In[230]:
 
 
 # Map MajorUndergrad to match American Community Survey degree categories
@@ -2720,7 +2719,7 @@ print(stack_overflow_results_df[['MajorUndergrad', 'ACS_Major', 'STEM Degree']].
 # 
 # - Implications: This aligns with existing findings from other datasets that STEM degree holders typically earn higher salaries than non-STEM degree holders. However, the gap here appears relatively small, which could warrant further investigation into factors like occupation type and level of education.
 
-# In[74]:
+# In[231]:
 
 
 # Filter for rows where Salary is not NaN
@@ -2751,7 +2750,7 @@ print(stem_salary_comparison)
 #   - Doctorate - STEM
 #   - Doctorate - Non-STEM
 
-# In[75]:
+# In[232]:
 
 
 # Define categories to remove
@@ -2809,7 +2808,7 @@ print("\nRemaining records:", len(stack_overflow_results_df))
 # - The correlation between *EducationCategoryNumeric* and *Salary* is 0.232, indicating a moderate positive relationship.
 # - This suggests that education level and STEM/Non-STEM classification contribute to salary, but other factors, such as job experience or job title, may have a more significant influence.
 
-# In[76]:
+# In[233]:
 
 
 # Define a numerical mapping for EducationCategory
@@ -2850,7 +2849,7 @@ print(valid_salary_data[['EducationCategory', 'EducationCategoryNumeric', 'Salar
 #   2. Check for Reverse Inconsistencies: Identified rows where *DeveloperType* is NaN but either *WebDeveloperType* or *MobileDeveloperType* has a value.
 #       - Total Reverse Inconsistent Records: 0.
 
-# In[77]:
+# In[234]:
 
 
 # Identify rows with DeveloperType having a value but related fields being NaN
@@ -2868,7 +2867,7 @@ print(inconsistent_records[['DeveloperType', 'WebDeveloperType', 'MobileDevelope
 print(f"Total inconsistent records: {len(inconsistent_records)}")
 
 
-# In[78]:
+# In[235]:
 
 
 # Display a random sample of inconsistent records
@@ -2876,7 +2875,7 @@ sample_inconsistent_records = inconsistent_records[['DeveloperType', 'WebDevelop
 print(sample_inconsistent_records)
 
 
-# In[79]:
+# In[236]:
 
 
 # Filter for records where DeveloperType is NaN but either of the related columns have a value
@@ -2910,7 +2909,7 @@ print(f"Number of reverse inconsistent records: {len(reverse_inconsistent_record
 #     - The correlation coefficient between MobileDeveloperLevel and Salary is approximately -0.0566, indicating no meaningful relationship.
 #     - Decision: Drop the MobileDeveloperType column from the dataset, as it does not contribute valuable predictive information.
 
-# In[80]:
+# In[237]:
 
 
 # Define the mapping
@@ -2959,7 +2958,7 @@ print(valid_data[['MobileDeveloperType', 'MobileDeveloperLevel', 'Salary']].head
 #     - The correlation coefficient between WebDeveloperLevel and Salary is approximately 0.0244, indicating no meaningful relationship.
 #     - Decision: Drop the WebDeveloperType column from the dataset, as it does not contribute valuable predictive information.
 
-# In[81]:
+# In[238]:
 
 
 # Map WebDeveloperType to numerical values
@@ -3004,10 +3003,10 @@ print(valid_web_dev_data[['WebDeveloperType', 'WebDeveloperLevel', 'Salary']].he
 #   3. Calculated the correlation between *HomeRemoteLevel* and *Salary*.
 # 
 # - Conclusion:
-#     - The correlation coefficient between *HomeRemoteLevel* and *Salary* is approximately 0.1926, indicating a weak positive relationship.
+#     - The correlation coefficient between *HomeRemoteLevel* and *Salary* is approximately 0.1719, indicating a weak positive relationship.
 #     - Decision: Retain the *HomeRemote* column, as it may provide some predictive value in modeling.
 
-# In[82]:
+# In[239]:
 
 
 # Map HomeRemote to numerical values based on the provided ranking
@@ -3054,7 +3053,7 @@ print(valid_home_remote_data[['HomeRemote', 'HomeRemoteLevel', 'Salary']].head(1
 #     - The correlation coefficient between *GenderNumeric* and *Salary* is approximately 0.0667, indicating a negligible positive relationship.
 #     - Decision: While the correlation is weak, it is appropriate to retain *Gender* in the dataset for further analysis, as gender may interact with other features to influence salary.
 
-# In[83]:
+# In[240]:
 
 
 # Map Gender to numerical values
@@ -3094,7 +3093,7 @@ print(valid_salary_data[['Gender', 'GenderNumeric', 'Salary']].head(10))
 #     - The correlation coefficient between *University Enrollment* and *Salary* is approximately -0.134, indicating a weak negative relationship.
 #     - Decision: The weak correlation suggests that *University Enrollment* may not significantly contribute to salary prediction. The feature will likely be dropped from the dataset to simplify the model.   
 
-# In[84]:
+# In[241]:
 
 
 # Define the mapping for University column
@@ -3134,7 +3133,7 @@ print(stack_overflow_results_df[['University', 'UniversityEnrolled', 'Salary']].
 #     - Correlation coefficient: 0.5176, indicating a moderate-to-strong positive relationship.
 #     - This is the strongest correlation observed so far in this analysis and will be retained in the dataset. 
 
-# In[85]:
+# In[242]:
 
 
 # Define the mapping for YearsCodedJob
@@ -3200,7 +3199,7 @@ print(valid_years_coded_job_data[['YearsCodedJob', 'YearsCodedJobNumeric', 'Sala
 # - Findings::
 #     - Correlation coefficient: 0.1996, indicating a moderate positive relationship.
 
-# In[86]:
+# In[243]:
 
 
 # Display unique values and counts in the CompanyType column
@@ -3208,7 +3207,7 @@ company_type_summary = stack_overflow_results_df['CompanyType'].value_counts(dro
 print(company_type_summary)
 
 
-# In[87]:
+# In[244]:
 
 
 # Define mapping for CompanyType
@@ -3259,7 +3258,7 @@ print(valid_company_data[['CompanyType', 'CompanyTypeNumeric', 'Salary']].head(1
 #     - The lack of salary data makes the *NonDeveloperType* column irrelevant for modeling.
 #     - Action: Drop the *NonDeveloperType* column from the dataset.
 
-# In[88]:
+# In[245]:
 
 
 # Check for NonDeveloperType records with a valid Salary
@@ -3301,7 +3300,7 @@ print(nondeveloper_with_salary[['NonDeveloperType', 'Salary']].head(10))
 #     - Despite this weak correlation, real-world evidence demonstrates that salaries differ significantly across roles. Therefore, this field has potential value when combined with other features in later modeling steps.
 #     - Next Steps: Explore more sophisticated methods, such as weighted combinations of roles or one-hot encoding, to better capture the impact of developer roles on salary.
 
-# In[91]:
+# In[246]:
 
 
 # Define the ranking for DeveloperType roles
@@ -3350,6 +3349,508 @@ print(correlation_matrix)
 print(valid_primary_role_data[['DeveloperType', 'PrimaryRole', 'PrimaryRoleNumeric', 'Salary']].head())
 
 
+# ### Narrowing Down the Dataset
+# 
+# - Objective: Reduce the dataset to include only the most relevant columns for machine learning modeling. 
+# 
+# - Steps:
+#     1. Displayed a random sample of the dataset and the column names to review the current structure.
+#     2. Defined a list of columns to retain based on the findings from exploratory data analysis:
+#         - *Gender*: Retained for potential influence on salary.
+#         - *Professional*: Retained to distinguish between developer and non-developer roles.
+#         - *HomeRemote*: Retained despite a weak correlation, as remote work trends may still influence salary predictions.
+#         - *CompanySize*: Retained despite a weak correlation, as company size trends may still influence salary predictions.
+#         - *CompanyType*: Retained to evaluate its moderate correlation with salary.
+#         - *YearsCodedJobNumeric*: Retained as it showed the strongest correlation with salary.
+#         - *EducationCategoryNumeric*: Retained for its hierarchical structure related to salary.
+#         - *DeveloperType*: Retained for potential predictive power once properly encoded.
+#         - *Salary*: Target variable for prediction.
+#     3. Filtered the dataset to include only these columns.
+# 
+# - Next Steps:
+#     - Review the refined dataset structure to confirm accuracy.
+#     - Proceed with preprocessing, including encoding and scaling, to prepare the dataset for machine learning modeling.
+
+# In[247]:
+
+
+display(stack_overflow_results_df.sample(10))
+
+display(list(stack_overflow_results_df.columns))
+
+
+# In[248]:
+
+
+# Define columns to keep
+columns_to_keep = [
+    'Gender',
+    'Professional',
+    'HomeRemote',
+    'CompanySize',
+    'CompanyType',
+    'YearsCodedJobNumeric',
+    'EducationCategoryNumeric',
+    'DeveloperType',
+    'Salary'
+]
+
+# Narrow down the dataset
+stack_overflow_results_df = stack_overflow_results_df[columns_to_keep]
+
+# Display the new dataframe's structure
+print("Updated dataframe columns:")
+display(list(stack_overflow_results_df.columns))
+print("\nRemaining records:", len(stack_overflow_results_df))
+display(stack_overflow_results_df.head())
+
+
+# #### Refining the Dataset for Salary Prediction
+# - Objective: Ensure that the dataset is properly filtered and structured for accurate feature analysis and predictive modeling.
+# 
+# - Steps:
+#    1. Filtered Out Rows Without Developer Roles
+#       - Removed rows where *DeveloperType* was *NaN* to ensure only respondents with relevant roles are included.
+#       - This step prevents irrelevant or missing roles from skewing analysis or predictions.
+#    2. Reassessed Data Distribution
+#       - Reviewed the unique values and distributions for key features
+#       - Identified imbalances (e.g., overwhelming representation of males in *Gender*), which may need to be addressed during modeling.
+#    3. Dropped Irrelevant Column:
+#       - Removed the *Professional* column as it was no longer needed after filtering for relevant developer roles.
+#    4. Evaluated Multiple Roles in *DeveloperType*
+#       - Calculated the number of roles listed for each respondent in the DeveloperType field.
+#       - Filtered rows where respondents listed multiple roles (e.g., "Web developer; Mobile developer").
+#       - Checked for rows with multiple roles that also had valid salary values to evaluate their relevance:
+#          - Identified 1,355 rows where multiple roles were listed along with valid salary data.
+#       
+# Findings:
+# - The dataset now focuses exclusively on respondents with valid developer roles.
+# - *DeveloperType* requires further refinement to handle multiple roles effectively in the next steps.
+# 
+# Next Steps:
+# - Explore options for handling multiple roles in DeveloperType (e.g., selecting a primary role, creating a composite score, or applying one-hot encoding).
+# - Recalculate correlations for refined and encoded features.
+# - Prepare the dataset for machine learning by encoding categorical fields and applying normalization or scaling.
+
+# In[249]:
+
+
+# Filter out rows where DeveloperType is NaN
+stack_overflow_results_df = stack_overflow_results_df[
+    stack_overflow_results_df['DeveloperType'].notna()
+]
+
+# Check the updated record count
+print(f"Remaining records after filtering out rows with no DeveloperType: {len(stack_overflow_results_df)}")
+
+
+# In[250]:
+
+
+display(stack_overflow_results_df['Gender'].value_counts())
+display(stack_overflow_results_df['Professional'].value_counts())
+display(stack_overflow_results_df['HomeRemote'].value_counts())
+display(stack_overflow_results_df['CompanySize'].value_counts())
+display(stack_overflow_results_df['CompanyType'].value_counts())
+display(stack_overflow_results_df['YearsCodedJobNumeric'].value_counts())
+display(stack_overflow_results_df['EducationCategoryNumeric'].value_counts())
+display(stack_overflow_results_df['DeveloperType'].value_counts())
+
+
+# In[251]:
+
+
+# Drop the Professional column
+stack_overflow_results_df.drop(columns=['Professional'], inplace=True)
+display(list(stack_overflow_results_df.columns))
+
+
+# In[252]:
+
+
+# Identify rows with multiple roles in DeveloperType
+stack_overflow_results_df['RoleCount'] = stack_overflow_results_df['DeveloperType'].apply(
+    lambda x: len(str(x).split("; ")) if pd.notna(x) else 0
+)
+
+# Filter rows with multiple roles
+multiple_roles = stack_overflow_results_df[stack_overflow_results_df['RoleCount'] > 1]
+
+# Check if any rows with multiple roles have a valid Salary
+multiple_roles_with_salary = multiple_roles[multiple_roles['Salary'].notna()]
+print(f"Number of rows with multiple DeveloperType roles and a valid Salary: {len(multiple_roles_with_salary)}")
+
+# Display a sample of rows with multiple roles and Salary
+if not multiple_roles_with_salary.empty:
+    display(multiple_roles_with_salary[['DeveloperType', 'Salary']].head())
+else:
+    print("No rows with multiple DeveloperType roles have a valid Salary.")
+
+
+# ### Encode Categorical Features
+
+# In[253]:
+
+
+# Extract the Gender column
+gender_data = stack_overflow_results_df[['Gender']]
+
+# Initialize OneHotEncoder
+one_hot_encoder = OneHotEncoder()
+
+# Fit and transform the Gender column
+gender_encoded = one_hot_encoder.fit_transform(gender_data)
+
+# Convert the encoded data to a DataFrame
+gender_encoded_df = pd.DataFrame(
+    gender_encoded.toarray(), 
+    columns=one_hot_encoder.get_feature_names_out(['Gender'])
+)
+
+# Concatenate the encoded Gender columns with the main DataFrame
+encoded_stack_overflow_df = pd.concat(
+    [stack_overflow_results_df.reset_index(drop=True), gender_encoded_df], 
+    axis=1
+)
+
+# Drop the original Gender column
+encoded_stack_overflow_df.drop(columns=['Gender'], inplace=True)
+
+# Display the updated DataFrame
+print("Updated DataFrame columns after encoding Gender:")
+print(list(encoded_stack_overflow_df.columns))
+
+# Preview the updated DataFrame
+display(encoded_stack_overflow_df.sample(10))
+
+
+# **Calculate mean, median, and count of *HomeRemote* to determine how to encode the values**
+
+# In[262]:
+
+
+# Replace NaN with 'Unknown' in HomeRemote
+encoded_stack_overflow_df['HomeRemote'] = encoded_stack_overflow_df['HomeRemote'].fillna('Unknown')
+
+# Calculate mean, median, and count for each HomeRemote category
+home_remote_salary = encoded_stack_overflow_df.groupby('HomeRemote')['Salary'].agg(['mean', 'median', 'count']).sort_index()
+
+# Display results
+display(home_remote_salary)
+
+
+# In[263]:
+
+
+# Combine "About half the time," "Less than half the time, but at least one day each week," 
+# and "More than half, but not all, the time" into "Partial Remote"
+encoded_stack_overflow_df['HomeRemote'] = encoded_stack_overflow_df['HomeRemote'].replace(
+    {
+        "About half the time": "Partial Remote",
+        "Less than half the time, but at least one day each week": "Partial Remote",
+        "More than half, but not all, the time": "Partial Remote"
+    }
+)
+
+# Drop the 'Unknown' category
+encoded_stack_overflow_df = encoded_stack_overflow_df[encoded_stack_overflow_df['HomeRemote'] != "Unknown"]
+
+# Define the categories in the order of their desired ranking
+home_remote_categories = [
+    "Never",
+    "It's complicated",
+    "A few days each month",
+    "Partial Remote",
+    "All or almost all the time (I'm full-time remote)"
+]
+
+# Initialize the OrdinalEncoder
+ordinal_encoder = OrdinalEncoder(categories=[home_remote_categories])
+
+# Apply ordinal encoding directly to HomeRemote column
+encoded_stack_overflow_df['HomeRemoteEncoded'] = ordinal_encoder.fit_transform(
+    encoded_stack_overflow_df[['HomeRemote']]
+)
+
+# Verify the encoding and display the results
+display(encoded_stack_overflow_df[['HomeRemote', 'HomeRemoteEncoded']].head())
+
+
+# **Calculate mean, median, and count of *CompanySize* to determine how to encode the values**
+
+# In[264]:
+
+
+# Replace NaN with 'Unknown' in CompanySize
+encoded_stack_overflow_df['CompanySize'] = encoded_stack_overflow_df['CompanySize'].fillna('Unknown')
+
+# Calculate mean, median, and count for each CompanySize category
+company_size_salary = encoded_stack_overflow_df.groupby('CompanySize')['Salary'].agg(['mean', 'median', 'count']).sort_index()
+
+# Display results
+display(company_size_salary)
+
+
+# In[265]:
+
+
+# Combine "100 to 499 employees" and "500 to 999 employees" into "Mid-Sized"
+encoded_stack_overflow_df['CompanySize'] = encoded_stack_overflow_df['CompanySize'].replace(
+    {
+        "100 to 499 employees": "Mid-Sized",
+        "500 to 999 employees": "Mid-Sized"
+    }
+)
+
+# Drop ambiguous categories: "Unknown," "I prefer not to answer"
+encoded_stack_overflow_df = encoded_stack_overflow_df[
+    ~encoded_stack_overflow_df['CompanySize'].isin(["Unknown", "I prefer not to answer"])
+]
+
+# Rank "I don't know" lowest to retain those records
+encoded_stack_overflow_df['CompanySize'] = encoded_stack_overflow_df['CompanySize'].replace(
+    {"I don't know": "Lowest Rank"}
+)
+
+# Define the categories in the order of their desired ranking
+company_size_categories = [
+    "Lowest Rank",  
+    "Fewer than 10 employees",
+    "10 to 19 employees",
+    "20 to 99 employees",
+    "Mid-Sized",
+    "1,000 to 4,999 employees",
+    "5,000 to 9,999 employees",
+    "10,000 or more employees"
+]
+
+# Initialize the OrdinalEncoder
+ordinal_encoder = OrdinalEncoder(categories=[company_size_categories])
+
+# Apply ordinal encoding directly to CompanySize column
+encoded_stack_overflow_df['CompanySizeEncoded'] = ordinal_encoder.fit_transform(
+    encoded_stack_overflow_df[['CompanySize']]
+)
+
+# Verify the encoding and display the results
+display(encoded_stack_overflow_df[['CompanySize', 'CompanySizeEncoded']].head())
+
+
+# **Calculate mean, median, and count of *CompanyType* to determine how to encode the values**
+
+# In[ ]:
+
+
+# Replace NaN with 'Unknown' in CompanyType
+encoded_stack_overflow_df['CompanyType'] = encoded_stack_overflow_df['CompanyType'].fillna('Unknown')
+
+# Calculate mean, median, and count for each CompanyType category
+company_type_salary = encoded_stack_overflow_df.groupby('CompanyType')['Salary'].agg(['mean', 'median', 'count']).sort_index()
+
+# Display results
+display(company_type_salary)
+
+
+# In[269]:
+
+
+# Combine "Pre-series A startup" and "Privately-held limited company" into "Privately-held or Pre-series A"
+encoded_stack_overflow_df['CompanyType'] = encoded_stack_overflow_df['CompanyType'].replace(
+    {
+        "Pre-series A startup": "Privately-held or Pre-series A",
+        "Privately-held limited company, not in startup mode": "Privately-held or Pre-series A",
+    }
+)
+
+# Combine "Non-profit" and "Sole Proprietorship" into "Non-profit or Sole Proprietorship"
+encoded_stack_overflow_df['CompanyType'] = encoded_stack_overflow_df['CompanyType'].replace(
+    {
+        "Non-profit/non-governmental organization or private school/university": "Non-profit or Sole Proprietorship",
+        "Sole proprietorship or partnership, not in startup mode": "Non-profit or Sole Proprietorship",
+    }
+)
+
+# Drop ambiguous categories: "Unknown," "I prefer not to answer", and "Something else"
+encoded_stack_overflow_df = encoded_stack_overflow_df[
+    ~encoded_stack_overflow_df['CompanyType'].isin(["Unknown", "I prefer not to answer", "Something else"])
+]
+
+# Rank "I don't know" lowest to retain those records
+encoded_stack_overflow_df['CompanyType'] = encoded_stack_overflow_df['CompanyType'].replace(
+    {"I don't know": "Lowest Rank"}
+)
+
+# Define the categories in the order of their desired ranking
+company_type_categories = [
+    "Lowest Rank",  
+    "State-owned company",
+    "Government agency or public school/university",
+    "Non-profit or Sole Proprietorship",
+    "Privately-held or Pre-series A",
+    "Venture-funded startup",
+    "Publicly-traded corporation"
+]
+
+# Initialize the OrdinalEncoder
+ordinal_encoder = OrdinalEncoder(categories=[company_type_categories])
+
+# Apply ordinal encoding directly to CompanyType column
+encoded_stack_overflow_df['CompanyTypeEncoded'] = ordinal_encoder.fit_transform(
+    encoded_stack_overflow_df[['CompanyType']]
+)
+
+# Verify the encoding and display the results
+display(encoded_stack_overflow_df[['CompanyType', 'CompanyTypeEncoded']].head())
+
+
+# **Calculate mean, median, and count of *EducationCategory* to verify numeric mapping is accurately ordered**
+# - Although the mean and median of category 5 (Master's Degree: Non-STEM) is slightly lower than that of category 4 (Bachelor's Degree: STEM), the sample size is very small. Maintaining the existing order is consistent with the trends observed in other datasets with larger sample sizes.
+
+# In[270]:
+
+
+# Replace NaN with 'Unknown' in EducationCategory
+encoded_stack_overflow_df['EducationCategoryNumeric'] = encoded_stack_overflow_df['EducationCategoryNumeric'].fillna('Unknown')
+
+# Calculate mean, median, and count for each EducationCategoryNumeric category
+education_salary = encoded_stack_overflow_df.groupby('EducationCategoryNumeric')['Salary'].agg(['mean', 'median', 'count']).sort_index()
+
+# Display results
+display(education_salary)
+
+
+# In[271]:
+
+
+# Sort roles alphabetically within each response
+encoded_stack_overflow_df['SortedDeveloperType'] = (
+    encoded_stack_overflow_df['DeveloperType']
+    .dropna()  # Handle NaN values
+    .apply(lambda x: "; ".join(sorted(x.split("; "))))
+)
+
+# Count occurrences of the standardized combinations
+sorted_developer_type_counts = (
+    encoded_stack_overflow_df['SortedDeveloperType']
+    .value_counts()
+    .reset_index()
+    .rename(columns={'index': 'SortedDeveloperType', 'SortedDeveloperType': 'Count'})
+)
+
+display(sorted_developer_type_counts)
+
+
+# In[292]:
+
+
+# Count occurrences of each unique DeveloperType combination
+developer_type_counts = (
+    encoded_stack_overflow_df['DeveloperType']
+    .value_counts()
+    .reset_index()
+    .rename(columns={0: 'count', 'index': 'DeveloperType'})
+)
+
+# Verify the structure of the resulting DataFrame
+print(developer_type_counts.head())
+
+# Filter combinations with more than 10 responses
+more_than_ten = developer_type_counts[developer_type_counts['count'] > 10]
+
+# Display the number of combinations with more than 10 responses
+print(f"Number of unique DeveloperType combinations with more than 10 responses: {len(more_than_ten)}")
+
+# Display the filtered DataFrame
+display(more_than_ten)
+
+
+# In[291]:
+
+
+# Alphabetize roles within each DeveloperType response
+encoded_stack_overflow_df['DeveloperTypeAlphabetized'] = (
+    encoded_stack_overflow_df['DeveloperType']
+    .apply(lambda x: "; ".join(sorted(x.split("; "))) if pd.notna(x) else x)
+)
+
+# Count occurrences of each unique DeveloperType combination
+alphabetized_counts = (
+    encoded_stack_overflow_df['DeveloperTypeAlphabetized']
+    .value_counts()
+    .reset_index()
+    .rename(columns={0: 'count', 'index': 'DeveloperTypeAlphabetized'})
+)
+
+# Filter combinations with more than 10 responses
+more_than_ten_alphabetized = alphabetized_counts[alphabetized_counts['count'] > 10]
+
+# Display the results
+print(f"Number of unique alphabetized DeveloperType combinations with more than 10 responses: {len(more_than_ten_alphabetized)}")
+display(more_than_ten_alphabetized)
+
+
+# In[294]:
+
+
+# Identify rows where only a single job role is chosen
+encoded_stack_overflow_df['RoleCount'] = encoded_stack_overflow_df['DeveloperType'].apply(
+    lambda x: len(str(x).split("; ")) if pd.notna(x) else 0
+)
+
+# Filter rows where only one role is present
+single_role_df = encoded_stack_overflow_df[encoded_stack_overflow_df['RoleCount'] == 1]
+
+# Calculate mean, median, and count for each single job role
+single_role_salary = single_role_df.groupby('DeveloperType')['Salary'].agg(['mean', 'median', 'count']).sort_index()
+
+# Display results
+display(single_role_salary)
+
+
+# In[298]:
+
+
+# Filter for rows with exactly two roles
+two_role_rows = encoded_stack_overflow_df[
+    encoded_stack_overflow_df['DeveloperType'].str.contains("; ") & 
+    (encoded_stack_overflow_df['DeveloperType'].str.count("; ") == 1)
+].copy()  # Create a copy to avoid the warning
+
+# Sort roles alphabetically within each row
+two_role_rows.loc[:, 'DeveloperTypeSorted'] = two_role_rows['DeveloperType'].apply(
+    lambda x: "; ".join(sorted(x.split("; "))) if pd.notna(x) else x
+)
+
+# Calculate mean, median, and count for each two-role combination
+two_role_stats = two_role_rows.groupby('DeveloperTypeSorted')['Salary'].agg(['mean', 'median', 'count']).sort_values('count', ascending=False)
+
+# Filter for combinations with at least 10 occurrences
+filtered_two_role_stats = two_role_stats[two_role_stats['count'] >= 10]
+display(filtered_two_role_stats)
+
+
+# In[299]:
+
+
+# Filter for rows with exactly two roles
+three_role_rows = encoded_stack_overflow_df[
+    encoded_stack_overflow_df['DeveloperType'].str.contains("; ") & 
+    (encoded_stack_overflow_df['DeveloperType'].str.count("; ") == 2)
+].copy()  # Create a copy to avoid the warning
+
+# Sort roles alphabetically within each row
+three_role_rows.loc[:, 'DeveloperTypeSorted'] = three_role_rows['DeveloperType'].apply(
+    lambda x: "; ".join(sorted(x.split("; "))) if pd.notna(x) else x
+)
+
+# Calculate mean, median, and count for each two-role combination
+three_role_stats = three_role_rows.groupby('DeveloperTypeSorted')['Salary'].agg(['mean', 'median', 'count']).sort_values('count', ascending=False)
+
+# Filter for combinations with at least 10 occurrences
+filtered_three_role_stats = three_role_stats[three_role_stats['count'] >= 10]
+display(filtered_three_role_stats)
+
+
 # ## Resources and References
 # *What resources and references have you used for this project?*
 # 📝 <!-- Answer Below -->
@@ -3369,7 +3870,7 @@ print(valid_primary_role_data[['DeveloperType', 'PrimaryRole', 'PrimaryRoleNumer
 # - https://stackoverflow.com/questions/1388450/giving-graphs-a-subtitle to learn how to add titles and subtitles to matplotlib visualizations
 # - https://matplotlib.org/stable/gallery/color/named_colors.html to choose consistent color palette for visualizations
 
-# In[90]:
+# In[201]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
