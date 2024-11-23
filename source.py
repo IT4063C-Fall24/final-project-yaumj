@@ -46,7 +46,6 @@
 #     - Only data where the individual works in a STEM career will be included.
 #     - Ages will be limited to the 25 - 64 range to match the American Community Survey data, ensuring consistency across employment data.
 #     - The analysis will focus on individuals who were employed at the time of each survey, and each dataset will be filtered accordingly.
-# 
 
 # ## Approach and Analysis
 # *What is your approach to answering your project question?*
@@ -70,7 +69,7 @@
 
 # #### Package Imports
 
-# In[257]:
+# In[246]:
 
 
 #import packages
@@ -91,23 +90,34 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 
+import warnings
+
 from zipfile import ZipFile
 from urllib.request import urlretrieve
 from bs4 import BeautifulSoup
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder, OrdinalEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, OrdinalEncoder, MultiLabelBinarizer, StandardScaler, PolynomialFeatures
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.compose import make_column_selector
+from sklearn.tree import DecisionTreeRegressor
 
 from mpl_toolkits.mplot3d import Axes3D
+
+from pandas.plotting import scatter_matrix
 
 from docx import Document
 
 
 # #### Import Dataset 1: HackerRank Developer Survey Published in 2018 that covered 2017 Questionnaire Responses
 
-# In[111]:
+# In[2]:
 
 
 # import dataset from Kaggle using URL 
@@ -117,7 +127,7 @@ od.download(dataset_url, data_dir="./data")
 
 # #### Convert dataset to a pandas dataframe and inspect data for Exploratory Data Analysis (EDA)
 
-# In[112]:
+# In[3]:
 
 
 # Define the data directory
@@ -151,7 +161,7 @@ display(dev_survey_values_df.head(5))
 # - There are outliers in this data as far as what can be directly related to my other datasets and my hypothesis for the purpose of analysis.
 #     - Age ranges will need to be limited to match what is available in the datasets from other sources to make "apples to apples" comparisons.
 
-# In[113]:
+# In[4]:
 
 
 # Find United States in the country_code_df to use for filtering purposes
@@ -168,7 +178,7 @@ display(us_country_code_df)
 
 # #### Filtered dataframe to include only respondents in the United States
 
-# In[114]:
+# In[5]:
 
 
 # Filter the DataFrame for United States questionnaire responses
@@ -185,7 +195,7 @@ display(us_dev_survey_numeric_df.head(5))
 # #### Reduce dataframe columns to only those relevant to supporting or disproving my hypothesis
 # - fields such as date survey was completed and questions about the HackerRank survey were removed from dataframe for simplification
 
-# In[115]:
+# In[6]:
 
 
 # List of relevant columns to keep
@@ -221,7 +231,7 @@ display(filtered_us_dev_survey_numeric_df.head(5))
 # #### Check for Duplicate Records
 # - Some records will be similar, but all records should have a unique RespondentID
 
-# In[116]:
+# In[7]:
 
 
 # Check for duplicates in the RespondentID field
@@ -243,7 +253,7 @@ else:
 # - Remove ages over 64 years old (coded as q2Age: 8 or 9)
 # - Remove non-binary respondents (coded as q3Gender: 3)
 
-# In[117]:
+# In[8]:
 
 
 # Summary of counts for each value in q2Age
@@ -257,7 +267,7 @@ print("\nSummary of counts for each value in q3Gender:")
 print(gender_summary)
 
 
-# In[118]:
+# In[9]:
 
 
 # Remove records where q2Age is #NULL!, 1, 2, 3, 8, or 9
@@ -290,7 +300,7 @@ print(gender_summary)
 # - The numeric dataframe should consist entirely of int64 data types, yet the majority have an "object" data type instead.
 #     - These datatypes will need to be converted for certain types of analysis like a correlation matrix.
 
-# In[119]:
+# In[10]:
 
 
 # Rename columns
@@ -338,7 +348,7 @@ display(filtered_us_dev_survey_numeric_df.head(5))
 # 
 # **Summary:** The findings reinforce the hypothesis that women in tech value career advancement opportunities, inclusive workplace culture, and work-life balance over compensation alone. These insights highlight the importance of creating growth-oriented, flexible, and supportive environments to retain female talent in the technology industry.
 
-# In[120]:
+# In[11]:
 
 
 # Define a dictionary mapping the actual DataFrame column names to the desired display names
@@ -397,7 +407,7 @@ plt.show()
 # - Both datasets contain the same records, but one has numeric codes for all responses and the other has plain language values for all responses 
 # so the same logic can be used for both dataframes.
 
-# In[121]:
+# In[12]:
 
 
 # Filter the DataFrame for CountryNumeric2 = "United States"
@@ -411,7 +421,7 @@ display(f"Number of records: {num_records_values}")
 display(us_dev_survey_values_df.head(5))
 
 
-# In[122]:
+# In[13]:
 
 
 # Reduce dataframe columns to only those relevant to supporting or disproving my hypothesis
@@ -453,7 +463,7 @@ display(filtered_us_dev_survey_values_df.head(5))
 # - Filtered out records where the age is null because both age and gender are necessary to determine job level comparisons.
 # 
 
-# In[123]:
+# In[14]:
 
 
 # Create a copy to work on and avoid SettingWithCopyWarning
@@ -498,7 +508,7 @@ print(gender_summary)
 # - Filtered out records where both the Job Level and Current Role were NaN because there is no way to determine values for the field if both are blank.
 # 
 
-# In[124]:
+# In[15]:
 
 
 # Rename columns
@@ -548,7 +558,7 @@ print(f"Remaining responses after cleaning: {filtered_us_dev_survey_values_df.sh
 # - **Gender Disparity in Age Groups**: Male respondents dominate all age groups, particularly in the 25–34 range, indicating a potential gender imbalance that could influence job levels and advancement opportunities.
 # - **Next Steps in Analysis:** Given the evident gender imbalance, further analysis will explore how this demographic distribution correlates with job levels. Examining job levels across genders and age groups can identify whether disproportionate career progression patterns exist. Additional visualizations, such as a stacked bar chart by job level and gender or a heatmap for job level concentration, will deepen the understanding of gender-based trends in career advancement.
 
-# In[125]:
+# In[16]:
 
 
 # Group the data by Age Group and Gender, and count occurrences
@@ -576,7 +586,7 @@ plt.show()
 # - Look for records where the Job Level is NaN but the Current Role is not NaN.
 #     - These records can be used with machine learning classification to populate missing values.
 
-# In[126]:
+# In[17]:
 
 
 # Review dataset to determine what data is relevant
@@ -600,7 +610,7 @@ display(nan_job_level_current_role_df[['Job Level', 'Current Role']])
 # #### More Exploratory Data Analysis (EDA)
 # - Check if there is a dominant job level associated with the Current Role field that could be used to populate empty fields.
 
-# In[127]:
+# In[18]:
 
 
 # Group by Current Role and Job Level, and count occurrences
@@ -624,7 +634,7 @@ with pd.option_context('display.max_rows', None):
 #     - Given these clear disparities in job level distribution by gender, a machine learning model like K-Nearest Neighbors (KNN) is well-suited for predicting job levels. KNN can capture complex relationships between demographic features (such as gender) and job levels, providing a more nuanced prediction than simple averages or medians.
 #     - By considering demographic factors, this approach enables the model to better reflect real-world patterns of representation and career advancement, offering a data-driven perspective on disparities within roles across the dataset.
 
-# In[128]:
+# In[19]:
 
 
 # Define the desired order for job levels from junior to senior based on numeric dataset mapping
@@ -661,7 +671,7 @@ plt.show()
 
 # #### Use Machine Learning to Populate NaN Job Level Records
 
-# In[129]:
+# In[20]:
 
 
 # Use KNearestNeighbors to determine most likely Job Level based on age, gender, and current role
@@ -715,7 +725,7 @@ print("Predicted Job Levels for records with NaN Job Level:")
 display(predict_df[['Age', 'Gender', 'Current Role', 'Predicted Job Level']])
 
 
-# In[130]:
+# In[21]:
 
 
 #Update Job Level field with predictions and verify changes
@@ -742,7 +752,7 @@ display(filtered_us_dev_survey_values_df.head(5))
 # 
 # **Summary:** The visualization highlights potential gender-based differences in career progression. Women in the 25–34 age group appear to be underrepresented in higher roles, with the disparity becoming more pronounced in later career stages (45–54 and 55–64 age groups). This analysis suggests that women in tech may face challenges in advancing to senior positions as they progress in their careers, potentially reflecting systemic barriers to higher-level roles.
 
-# In[131]:
+# In[22]:
 
 
 # Define the desired order for job levels and age groups
@@ -787,7 +797,7 @@ plt.show()
 
 # #### Import Dataset 2: 2017 Pew Research Center STEM Survey
 
-# In[132]:
+# In[23]:
 
 
 # import zip file from Pew Research
@@ -799,7 +809,7 @@ zipfile.close()
 
 # #### Examine contents of .sav file
 
-# In[133]:
+# In[24]:
 
 
 file_path = 'data/materials for public release/2017 Pew Research Center STEM survey.sav'
@@ -819,7 +829,7 @@ print(prc_stem_df.tail())
 # #### Read the .docx file
 # - Read the Pew Research Center files associated with the .sav file and convert them into .txt files to understand the codes used.
 
-# In[134]:
+# In[25]:
 
 
 # Load the Questionnaire document
@@ -876,7 +886,7 @@ print(prc_codebook_text[:400])
 # #### Display All Column Names in Dataframe
 # - Reading the column names with the new context of the Questionnaire and Codebook file will help to determine which columns are needed for analysis
 
-# In[135]:
+# In[26]:
 
 
 # Display all column names in the DataFrame
@@ -887,7 +897,7 @@ for col in prc_stem_df.columns:
 
 # #### Convert CaseID from float to int64
 
-# In[136]:
+# In[27]:
 
 
 # Convert 'CaseID' to int64
@@ -901,7 +911,7 @@ print(prc_stem_df.dtypes)
 # #### Exploratory Data Analysis (EDA)
 # - Search for null values or refused responses in fields required for analysis.
 
-# In[137]:
+# In[28]:
 
 
 # Summary of counts for each value in WORK_1
@@ -955,7 +965,7 @@ print("\nSummary of counts for each value in STEM_DEGREE:")
 print(prc_stem_degree)
 
 
-# In[138]:
+# In[29]:
 
 
 # Convert specified columns to int64
@@ -984,7 +994,7 @@ print(prc_stem_df.info())
 # - Eliminate fields not needed for hypothesis
 # - Rename columns to more meaningful names
 
-# In[139]:
+# In[30]:
 
 
 # List of columns to exclude
@@ -1141,7 +1151,7 @@ for col in pew_research_numeric.columns:
 #     - Respondents who are only self-employed are not useful to my hypothesis so they can be filtered out from the dataset
 # 
 
-# In[140]:
+# In[31]:
 
 
 # Count of respondents who are both self-employed part-time and employed by a company
@@ -1162,7 +1172,7 @@ print("Count of respondents who are both self-employed part-time and employed by
 print("Count of respondents who are self-employed part-time and not employed by a company:", self_employed_full_time_only_count)
 
 
-# In[141]:
+# In[32]:
 
 
 # Count of respondents who are both self-employed full-time and employed by a company
@@ -1183,7 +1193,7 @@ print("Count of respondents who are both self-employed full-time and employed by
 print("Count of respondents who are self-employed full-time and not employed by a company:", self_employed_full_time_only_count)
 
 
-# In[142]:
+# In[33]:
 
 
 # Filter to retain only records where the respondent is employed by a company, has Employment Status = 1, and is a STEM Worker
@@ -1202,7 +1212,7 @@ remaining_stem_employed_count
 # **Find values for "Job Choice" columns**
 # - The Job Choice columns were coded with numbers in the original survey as a single column. I need to know if the split columns have 0 and 1 or 1 and 2 as Yes/No representation to create visualizations.
 
-# In[143]:
+# In[34]:
 
 
 # List of job choice columns to check value counts
@@ -1237,7 +1247,7 @@ for column in job_choice_columns:
 # 
 # **Summary:** This analysis of the Pew Research Center data generally supports the trends observed in the HackerRank survey, particularly around work-life balance and company culture. However, the contrasting findings for professional growth and the emphasis on helping others and societal contribution underscore that motivations can vary widely across STEM fields. These insights emphasize the importance of creating flexible, purpose-driven, and growth-oriented workplaces to effectively retain a diverse workforce in technology and STEM.
 
-# In[144]:
+# In[35]:
 
 
 # Define a dictionary mapping the Pew Research column names to display names
@@ -1306,7 +1316,7 @@ plt.show()
 # 
 # **Summary:** The analysis reveals that younger and mid-career women (ages 25–44) encounter the highest concentration of discrimination experiences, especially in terms of earning disparities, microaggressions, and perceived incompetence. These trends emphasize the need for supportive and equitable workplace cultures, as these factors likely influence why women place high value on company culture when considering job opportunities in STEM fields.
 
-# In[145]:
+# In[36]:
 
 
 # Define the age group labels only for ages 25-34, 35-44, 45-54, and 55-64
@@ -1370,7 +1380,7 @@ plt.show()
 # - Data was compiled by the NCSES from the U.S. Census Bureau, American Community Survey, National Center for Science and Engineering Statistics, and more
 # - For the full list of compiled sources: https://ncses.nsf.gov/pubs/nsb20212/data#source-block 
 
-# In[146]:
+# In[37]:
 
 
 # scrape HTML file to extract tables
@@ -1416,7 +1426,7 @@ for i in range(len(tables)):
 # **Import Additional Resources From National Center for Science and Engineering Statistics (NCSES)**
 # - The Report titled *"The STEM Labor Force of Today: Scientists, Engineers, and Skilled Technical Workers"* spans several pages and has supplemental tables that are not included on any of the pages. 
 
-# In[147]:
+# In[38]:
 
 
 # import data-tables zip file from NCSES
@@ -1440,7 +1450,7 @@ zipfile.close()
 
 # **Convert relevant xlsx files into pandas dataframes**
 
-# In[148]:
+# In[39]:
 
 
 # Define the path to the file: Table LBR-7 - Women with a bachelor's degree or above, by broad occupational group and highest degree: 1993, 2003, 2019
@@ -1497,7 +1507,7 @@ display(ncses_women_science_and_engineering_ed_vs_employment_df)
 # 
 # **Summary:** This area chart emphasizes the challenge of translating educational advancements for women in S&E into equivalent representation in S&E occupations. Although women are earning degrees in S&E fields at increasing rates, this academic progress does not appear to be fully mirrored in workforce participation. This demonstrates that many women are encountering barriers to even entering into S&E fields, impacting their long-term career trajectories in the Science and Engineering Industry. These findings underscore the need for supportive, equitable workplace practices to bridge the gap between education and career progression for women in S&E.
 
-# In[149]:
+# In[40]:
 
 
 # Filter data for S&E category only and pivot it for plotting
@@ -1544,7 +1554,7 @@ plt.legend(loc="upper left", title="Legend")
 plt.show()
 
 
-# In[150]:
+# In[41]:
 
 
 # Define the path to the file: Figure LBR-21 - Women with a bachelor's degree or higher in S&E and S&E-related occupations: Selected years, 1993–2019
@@ -1568,7 +1578,7 @@ print("S&E Degree Trends for Women DataFrame (with % values):")
 display(women_s_e_degree_trends_df)
 
 
-# In[151]:
+# In[42]:
 
 
 # Define the path to the file: Figure LBR-27 - Median annual salaries of full-time workers with highest degrees in S&E or S&E-related fields, by sex: Selected years, 1995, 2003, and 2019
@@ -1606,7 +1616,7 @@ display(median_salary_by_gender_df)
 # 
 # This interactive visualization highlights the long-standing and widening disparity in median salaries between genders. The unequal salary increases at crucial intervals have exacerbated the wage gap, emphasizing how systemic disparities in salary growth prevent women from closing the gap in career fields that require science and engineering degrees.
 
-# In[152]:
+# In[43]:
 
 
 # Filter only rows where Degree Field is "S&E"
@@ -1674,7 +1684,7 @@ fig.update_layout(
 fig.show()
 
 
-# In[153]:
+# In[44]:
 
 
 # Define the path to the file: Table SLBR-30 - Number and median salary of full-time workers with highest degree in S&E field, by sex and occupation: 2019
@@ -1710,7 +1720,7 @@ print("Combined DataFrame for Selected Occupations and Salaries:")
 display(employment_count_and_salary_by_occupation_and_gender_df)
 
 
-# In[154]:
+# In[45]:
 
 
 # Define the path to the file: Table SLBR-32 - Employed S&E highest degree holders, by sex, race or ethnicity, field of highest degree, and broad occupational category: 2019
@@ -1763,7 +1773,7 @@ display(se_degree_vs_occupation_by_gender_df)
 # #### Import Dataset 4: United States Census Bureau
 # - From College to Jobs: American Community Survey 2019
 
-# In[155]:
+# In[46]:
 
 
 # Define the directory to store the downloaded files
@@ -1801,7 +1811,7 @@ for file_name, url in urls.items():
 
 # **Extract the data for the men from the first Excel file to test processing**
 
-# In[156]:
+# In[47]:
 
 
 # Define the path to the file
@@ -1843,7 +1853,7 @@ print(df_men_all_ed_levels.tail())
 
 # #### Exploratory Data Analyis (EDA): Check the Data Types
 
-# In[157]:
+# In[48]:
 
 
 df_men_all_ed_levels.info()
@@ -1851,7 +1861,7 @@ df_men_all_ed_levels.info()
 
 # **Convert columns to correct data types (float64 to int64)**
 
-# In[158]:
+# In[49]:
 
 
 # Select numeric columns that need conversion to int64
@@ -1874,7 +1884,7 @@ print(df_men_all_ed_levels.info())
 
 # **Repeat the process for the women's data in the same file**
 
-# In[159]:
+# In[50]:
 
 
 # Define the path to the file
@@ -1945,7 +1955,7 @@ print(df_women_all_ed_levels.info())
 # - **Cross-Disciplinary Employment Trends:** While men more commonly cross into technical roles with non-STEM degrees, women tend to remain in roles closely related to their field of study, particularly in Education and Social Services.
 # 
 
-# In[160]:
+# In[51]:
 
 
 # Define fields of degree columns
@@ -2004,7 +2014,7 @@ plt.show()
 # #### Process the second xlsx file from the American Community Survey
 # - Recreate the steps used on the first file from the dataset
 
-# In[161]:
+# In[52]:
 
 
 # Define the path to the file
@@ -2058,7 +2068,7 @@ print(df_men_bach_degree.tail())
 print(df_men_bach_degree.info())
 
 
-# In[162]:
+# In[53]:
 
 
 # Define the path to the file
@@ -2115,7 +2125,7 @@ print(df_women_bach_degree.info())
 # #### Process the third xlsx file from the American Community Survey
 # - Recreate the steps used on the first and second files from the dataset
 
-# In[163]:
+# In[54]:
 
 
 # Define the path to the file
@@ -2169,7 +2179,7 @@ print(df_men_grad_degree.tail())
 print(df_men_grad_degree.info())
 
 
-# In[164]:
+# In[55]:
 
 
 # Define the path to the file
@@ -2225,7 +2235,7 @@ print(df_women_grad_degree.info())
 
 # #### Process the 4th xlsx file from the American Community Survey
 
-# In[165]:
+# In[56]:
 
 
 # Define the path to the file
@@ -2270,7 +2280,7 @@ print("Women's Median Earnings DataFrame:")
 display(female_median_earnings)
 
 
-# In[166]:
+# In[57]:
 
 
 # Remove STEM Major All Degrees and non-STEM Major All Degrees from both dataframes since it is unneeded for analysis
@@ -2307,7 +2317,7 @@ display(combined_median_earnings_by_degree_and_occupation)
 # 
 # **Summary:** This interactive scatter plot brings attention to the pervasive wage disparities between men and women in the tech industry. The visualization highlights that even when women attain higher qualifications—such as a *STEM graduate degree*—they are often out-earned by men with lower or unrelated qualifications. This pattern emerges across multiple fields, from *engineering* to *social science*, showing that women’s qualifications yield a lesser financial return than men’s. This data underscores a systemic issue within tech fields, pointing to potential structural barriers that prevent equitable compensation for women, even when they achieve the same or higher qualifications as their male counterparts.
 
-# In[167]:
+# In[58]:
 
 
 # Reshape the DataFrame to long format for easier plotting
@@ -2396,14 +2406,13 @@ fig.show()
 # 6. **Ordinal vs. Nominal Categorical Data:**  
 #    - Certain categorical features, such as *Professional*, *DeveloperType*, *WebDeveloperType*, and *NonDeveloperType*, may not have a clear ordinal relationship. While some roles (e.g., *Full-Stack Developer* vs. *Front-End Developer*) may imply a difference in salary, others (e.g., *Application Developer* vs. *Full-Stack Developer*) may lack a consistent ranking.  
 #    - **Mitigation:** I will analyze salary trends within these columns to identify any patterns or relationships. For roles without clear ordinal relationships, one-hot encoding will be applied to prevent imposing an artificial hierarchy. For roles with observable ordinal trends, custom mappings will be created based on the data. 
-# 
 
 # ## Machine Learning Implementation Process  
 # 
 
 # #### Import Dataset: Stack Overflow Annual Developer Survey 2017
 
-# In[215]:
+# In[59]:
 
 
 # import zip file from Stack Overflow
@@ -2413,7 +2422,7 @@ zipfile.extractall("./data/Stack_Overflow_2017")
 zipfile.close()
 
 
-# In[216]:
+# In[60]:
 
 
 # Define the data directory
@@ -2434,7 +2443,7 @@ display(stack_overflow_schema_df.shape)
 
 # #### Exploratory Data Analysis (EDA): Perform initial dataset filtering for records and columns relevant to the scope of the project
 
-# In[217]:
+# In[61]:
 
 
 # Filter for the United States, respondents who chose male or female as the gender, and exclude anyone who is unemployed or a student
@@ -2449,7 +2458,7 @@ display(stack_overflow_results_df.head())
 display(stack_overflow_results_df.shape)
 
 
-# In[218]:
+# In[62]:
 
 
 # Keep only the specified columns
@@ -2463,7 +2472,7 @@ display(stack_overflow_results_df.head())
 display(stack_overflow_results_df.shape)
 
 
-# In[219]:
+# In[63]:
 
 
 # Count unique values in each column
@@ -2482,7 +2491,7 @@ print(unique_counts)
 #     - Since these are American respondents, it was assumed their salary amounts are in US dollars.
 #     - Planned outlier detection and handling will address any inconsistencies or errors in these assumptions.
 
-# In[220]:
+# In[64]:
 
 
 # Count occurrences of each currency type (including NaN values)
@@ -2493,7 +2502,7 @@ print("Counts of each currency type:")
 print(currency_counts)
 
 
-# In[221]:
+# In[65]:
 
 
 # Replace NaN values in the Currency column with 'U.S. dollars ($)'
@@ -2512,7 +2521,7 @@ print(currency_counts)
 # - Objective: Ensure consistency with the scope of the project and alignment with other datasets used in the analysis.
 # - Action Taken: All values in the EmploymentStatus column other than "Employed full-time" were removed.
 
-# In[222]:
+# In[66]:
 
 
 # Count occurrences of each EmploymentStatus (including NaN values)
@@ -2523,7 +2532,7 @@ print("Counts of each employment status value:")
 print(employment_status_counts)
 
 
-# In[223]:
+# In[67]:
 
 
 # Filter the dataset to keep only rows with 'Employed full-time' to be consistent with other datasets in the project
@@ -2549,7 +2558,7 @@ print(employment_status_counts)
 #     - Rows where Professional is "Used to be a professional developer" or "None of these" were removed only if all related developer/employment type fields (DeveloperType, WebDeveloperType, MobileDeveloperType, NonDeveloperType) were also NaN.
 #     - This ensured that only meaningful and relevant professional data remained in the dataset.
 
-# In[224]:
+# In[68]:
 
 
 # Count occurrences of each value in Professional (including NaN values)
@@ -2560,7 +2569,7 @@ print("Counts of each 'Professional' value:")
 print(professional_counts)
 
 
-# In[225]:
+# In[69]:
 
 
 # Filter the dataset to remove rows where Professional is 'None of these' or 'Used to be a professional developer' 
@@ -2582,14 +2591,14 @@ print(stack_overflow_results_df['Professional'].value_counts())
 
 # #### Exploratory Data Analysis: examine values/missing values in remaining fields
 
-# In[226]:
+# In[70]:
 
 
 missing_salary_count = stack_overflow_results_df['Salary'].isna().sum()
 print(f"Number of missing Salary values: {missing_salary_count}")
 
 
-# In[228]:
+# In[71]:
 
 
 # List of columns to analyze
@@ -2621,7 +2630,7 @@ for column in columns_to_check:
 # - Results:
 #     - The positive correlation between CompanySizeNumeric and Salary is weak (correlation coefficient = 0.158), suggesting that larger companies may pay slightly higher salaries.
 
-# In[229]:
+# In[72]:
 
 
 # Create a numerical mapping for CompanySize
@@ -2669,7 +2678,7 @@ print(valid_data[['CompanySize', 'CompanySizeNumeric', 'Salary']].head())
 #     - Defined STEM fields based on ACS categories, including: FoD-Computers_Math_Stats, FoD-Engineering, FoD-Physical_Sciences, etc.
 #     - Added a binary column, STEM Degree, indicating whether the major falls under STEM (Yes/No).
 
-# In[230]:
+# In[73]:
 
 
 # Map MajorUndergrad to match American Community Survey degree categories
@@ -2719,7 +2728,7 @@ print(stack_overflow_results_df[['MajorUndergrad', 'ACS_Major', 'STEM Degree']].
 # 
 # - Implications: This aligns with existing findings from other datasets that STEM degree holders typically earn higher salaries than non-STEM degree holders. However, the gap here appears relatively small, which could warrant further investigation into factors like occupation type and level of education.
 
-# In[231]:
+# In[74]:
 
 
 # Filter for rows where Salary is not NaN
@@ -2750,7 +2759,7 @@ print(stem_salary_comparison)
 #   - Doctorate - STEM
 #   - Doctorate - Non-STEM
 
-# In[232]:
+# In[75]:
 
 
 # Define categories to remove
@@ -2808,7 +2817,7 @@ print("\nRemaining records:", len(stack_overflow_results_df))
 # - The correlation between *EducationCategoryNumeric* and *Salary* is 0.232, indicating a moderate positive relationship.
 # - This suggests that education level and STEM/Non-STEM classification contribute to salary, but other factors, such as job experience or job title, may have a more significant influence.
 
-# In[233]:
+# In[76]:
 
 
 # Define a numerical mapping for EducationCategory
@@ -2849,7 +2858,7 @@ print(valid_salary_data[['EducationCategory', 'EducationCategoryNumeric', 'Salar
 #   2. Check for Reverse Inconsistencies: Identified rows where *DeveloperType* is NaN but either *WebDeveloperType* or *MobileDeveloperType* has a value.
 #       - Total Reverse Inconsistent Records: 0.
 
-# In[234]:
+# In[77]:
 
 
 # Identify rows with DeveloperType having a value but related fields being NaN
@@ -2867,7 +2876,7 @@ print(inconsistent_records[['DeveloperType', 'WebDeveloperType', 'MobileDevelope
 print(f"Total inconsistent records: {len(inconsistent_records)}")
 
 
-# In[235]:
+# In[78]:
 
 
 # Display a random sample of inconsistent records
@@ -2875,7 +2884,7 @@ sample_inconsistent_records = inconsistent_records[['DeveloperType', 'WebDevelop
 print(sample_inconsistent_records)
 
 
-# In[236]:
+# In[79]:
 
 
 # Filter for records where DeveloperType is NaN but either of the related columns have a value
@@ -2909,7 +2918,7 @@ print(f"Number of reverse inconsistent records: {len(reverse_inconsistent_record
 #     - The correlation coefficient between MobileDeveloperLevel and Salary is approximately -0.0566, indicating no meaningful relationship.
 #     - Decision: Drop the MobileDeveloperType column from the dataset, as it does not contribute valuable predictive information.
 
-# In[237]:
+# In[80]:
 
 
 # Define the mapping
@@ -2958,7 +2967,7 @@ print(valid_data[['MobileDeveloperType', 'MobileDeveloperLevel', 'Salary']].head
 #     - The correlation coefficient between WebDeveloperLevel and Salary is approximately 0.0244, indicating no meaningful relationship.
 #     - Decision: Drop the WebDeveloperType column from the dataset, as it does not contribute valuable predictive information.
 
-# In[238]:
+# In[81]:
 
 
 # Map WebDeveloperType to numerical values
@@ -3006,7 +3015,7 @@ print(valid_web_dev_data[['WebDeveloperType', 'WebDeveloperLevel', 'Salary']].he
 #     - The correlation coefficient between *HomeRemoteLevel* and *Salary* is approximately 0.1719, indicating a weak positive relationship.
 #     - Decision: Retain the *HomeRemote* column, as it may provide some predictive value in modeling.
 
-# In[239]:
+# In[82]:
 
 
 # Map HomeRemote to numerical values based on the provided ranking
@@ -3053,7 +3062,7 @@ print(valid_home_remote_data[['HomeRemote', 'HomeRemoteLevel', 'Salary']].head(1
 #     - The correlation coefficient between *GenderNumeric* and *Salary* is approximately 0.0667, indicating a negligible positive relationship.
 #     - Decision: While the correlation is weak, it is appropriate to retain *Gender* in the dataset for further analysis, as gender may interact with other features to influence salary.
 
-# In[240]:
+# In[83]:
 
 
 # Map Gender to numerical values
@@ -3093,7 +3102,7 @@ print(valid_salary_data[['Gender', 'GenderNumeric', 'Salary']].head(10))
 #     - The correlation coefficient between *University Enrollment* and *Salary* is approximately -0.134, indicating a weak negative relationship.
 #     - Decision: The weak correlation suggests that *University Enrollment* may not significantly contribute to salary prediction. The feature will likely be dropped from the dataset to simplify the model.   
 
-# In[241]:
+# In[84]:
 
 
 # Define the mapping for University column
@@ -3133,7 +3142,7 @@ print(stack_overflow_results_df[['University', 'UniversityEnrolled', 'Salary']].
 #     - Correlation coefficient: 0.5176, indicating a moderate-to-strong positive relationship.
 #     - This is the strongest correlation observed so far in this analysis and will be retained in the dataset. 
 
-# In[242]:
+# In[85]:
 
 
 # Define the mapping for YearsCodedJob
@@ -3199,7 +3208,7 @@ print(valid_years_coded_job_data[['YearsCodedJob', 'YearsCodedJobNumeric', 'Sala
 # - Findings::
 #     - Correlation coefficient: 0.1996, indicating a moderate positive relationship.
 
-# In[243]:
+# In[86]:
 
 
 # Display unique values and counts in the CompanyType column
@@ -3207,7 +3216,7 @@ company_type_summary = stack_overflow_results_df['CompanyType'].value_counts(dro
 print(company_type_summary)
 
 
-# In[244]:
+# In[87]:
 
 
 # Define mapping for CompanyType
@@ -3258,7 +3267,7 @@ print(valid_company_data[['CompanyType', 'CompanyTypeNumeric', 'Salary']].head(1
 #     - The lack of salary data makes the *NonDeveloperType* column irrelevant for modeling.
 #     - Action: Drop the *NonDeveloperType* column from the dataset.
 
-# In[245]:
+# In[88]:
 
 
 # Check for NonDeveloperType records with a valid Salary
@@ -3300,7 +3309,7 @@ print(nondeveloper_with_salary[['NonDeveloperType', 'Salary']].head(10))
 #     - Despite this weak correlation, real-world evidence demonstrates that salaries differ significantly across roles. Therefore, this field has potential value when combined with other features in later modeling steps.
 #     - Next Steps: Explore more sophisticated methods, such as weighted combinations of roles or one-hot encoding, to better capture the impact of developer roles on salary.
 
-# In[246]:
+# In[89]:
 
 
 # Define the ranking for DeveloperType roles
@@ -3371,7 +3380,7 @@ print(valid_primary_role_data[['DeveloperType', 'PrimaryRole', 'PrimaryRoleNumer
 #     - Review the refined dataset structure to confirm accuracy.
 #     - Proceed with preprocessing, including encoding and scaling, to prepare the dataset for machine learning modeling.
 
-# In[247]:
+# In[90]:
 
 
 display(stack_overflow_results_df.sample(10))
@@ -3379,7 +3388,7 @@ display(stack_overflow_results_df.sample(10))
 display(list(stack_overflow_results_df.columns))
 
 
-# In[248]:
+# In[91]:
 
 
 # Define columns to keep
@@ -3432,7 +3441,7 @@ display(stack_overflow_results_df.head())
 # - Recalculate correlations for refined and encoded features.
 # - Prepare the dataset for machine learning by encoding categorical fields and applying normalization or scaling.
 
-# In[249]:
+# In[92]:
 
 
 # Filter out rows where DeveloperType is NaN
@@ -3444,7 +3453,7 @@ stack_overflow_results_df = stack_overflow_results_df[
 print(f"Remaining records after filtering out rows with no DeveloperType: {len(stack_overflow_results_df)}")
 
 
-# In[250]:
+# In[93]:
 
 
 display(stack_overflow_results_df['Gender'].value_counts())
@@ -3457,7 +3466,7 @@ display(stack_overflow_results_df['EducationCategoryNumeric'].value_counts())
 display(stack_overflow_results_df['DeveloperType'].value_counts())
 
 
-# In[251]:
+# In[94]:
 
 
 # Drop the Professional column
@@ -3465,7 +3474,7 @@ stack_overflow_results_df.drop(columns=['Professional'], inplace=True)
 display(list(stack_overflow_results_df.columns))
 
 
-# In[252]:
+# In[95]:
 
 
 # Identify rows with multiple roles in DeveloperType
@@ -3489,7 +3498,7 @@ else:
 
 # ### Encode Categorical Features
 
-# In[253]:
+# In[96]:
 
 
 # Extract the Gender column
@@ -3526,7 +3535,7 @@ display(encoded_stack_overflow_df.sample(10))
 
 # **Calculate mean, median, and count of *HomeRemote* to determine how to encode the values**
 
-# In[262]:
+# In[97]:
 
 
 # Replace NaN with 'Unknown' in HomeRemote
@@ -3539,7 +3548,7 @@ home_remote_salary = encoded_stack_overflow_df.groupby('HomeRemote')['Salary'].a
 display(home_remote_salary)
 
 
-# In[263]:
+# In[98]:
 
 
 # Combine "About half the time," "Less than half the time, but at least one day each week," 
@@ -3578,7 +3587,7 @@ display(encoded_stack_overflow_df[['HomeRemote', 'HomeRemoteEncoded']].head())
 
 # **Calculate mean, median, and count of *CompanySize* to determine how to encode the values**
 
-# In[264]:
+# In[99]:
 
 
 # Replace NaN with 'Unknown' in CompanySize
@@ -3591,7 +3600,7 @@ company_size_salary = encoded_stack_overflow_df.groupby('CompanySize')['Salary']
 display(company_size_salary)
 
 
-# In[265]:
+# In[100]:
 
 
 # Combine "100 to 499 employees" and "500 to 999 employees" into "Mid-Sized"
@@ -3638,7 +3647,7 @@ display(encoded_stack_overflow_df[['CompanySize', 'CompanySizeEncoded']].head())
 
 # **Calculate mean, median, and count of *CompanyType* to determine how to encode the values**
 
-# In[ ]:
+# In[101]:
 
 
 # Replace NaN with 'Unknown' in CompanyType
@@ -3651,7 +3660,7 @@ company_type_salary = encoded_stack_overflow_df.groupby('CompanyType')['Salary']
 display(company_type_salary)
 
 
-# In[269]:
+# In[102]:
 
 
 # Combine "Pre-series A startup" and "Privately-held limited company" into "Privately-held or Pre-series A"
@@ -3706,7 +3715,7 @@ display(encoded_stack_overflow_df[['CompanyType', 'CompanyTypeEncoded']].head())
 # **Calculate mean, median, and count of *EducationCategory* to verify numeric mapping is accurately ordered**
 # - Although the mean and median of category 5 (Master's Degree: Non-STEM) is slightly lower than that of category 4 (Bachelor's Degree: STEM), the sample size is very small. Maintaining the existing order is consistent with the trends observed in other datasets with larger sample sizes.
 
-# In[270]:
+# In[103]:
 
 
 # Replace NaN with 'Unknown' in EducationCategory
@@ -3719,7 +3728,32 @@ education_salary = encoded_stack_overflow_df.groupby('EducationCategoryNumeric')
 display(education_salary)
 
 
-# In[271]:
+# #### Processing the *DeveloperType* Column
+# - Objective: Understand the complexity of the *DeveloperType* column to ensure it is appropriately represented in the dataset for analysis and modeling.
+# 
+# - Initial Exploration:
+#    - The *DeveloperType* column contains 517 unique combinations of roles, indicating significant diversity in the dataset.
+#    - With such a large number of combinations, initial analysis focused on identifying those with a sufficient sample size to draw meaningful conclusions for the type of encoding to use.
+#    - Filtering for combinations with more than 10 responses reduced the number of groups to 47.
+# 
+# - Alphabetization and Re-Evaluation:
+#    - Roles within each response were alphabetized to standardize combinations and eliminate duplicates caused by order differences.
+#    - Example: *"Mobile developer; Web developer"* and *"Web developer; Mobile developer"* were treated as the same group after sorting.
+#    - After alphabetization, the same 47 unique combinations with more than 10 responses were identified, confirming the output was processed correctly and that the role order did not affect grouping.
+# 
+# - Distribution Analysis:
+#    - The most common single role is *Web developer* (1,410 responses), followed by multi-role combinations involving *Desktop applications developer* and *Web developer*.
+#    - Many combinations occur infrequently, with a long-tail distribution of low-sample groups.
+# 
+# - Findings:
+#    - Filtering and alphabetization revealed that the role order in the *DeveloperType* column does not represent importance.
+#    - A focused subset of 47 combinations with sufficient sample sizes can be used for further analysis.
+# 
+# - Next Steps:
+#    - Explore strategies for encoding multi-role combinations effectively.
+#    - Consider methods for handling low-frequency combinations to prevent overfitting while preserving representation in the dataset.
+
+# In[104]:
 
 
 # Sort roles alphabetically within each response
@@ -3740,7 +3774,7 @@ sorted_developer_type_counts = (
 display(sorted_developer_type_counts)
 
 
-# In[292]:
+# In[105]:
 
 
 # Count occurrences of each unique DeveloperType combination
@@ -3764,7 +3798,7 @@ print(f"Number of unique DeveloperType combinations with more than 10 responses:
 display(more_than_ten)
 
 
-# In[291]:
+# In[106]:
 
 
 # Alphabetize roles within each DeveloperType response
@@ -3789,7 +3823,11 @@ print(f"Number of unique alphabetized DeveloperType combinations with more than 
 display(more_than_ten_alphabetized)
 
 
-# In[294]:
+# **Exploring Single Roles**
+# - Analyzed respondents with only one role in the *DeveloperType* column to identify base salary trends for individual roles.
+# - Findings: Salaries varied significantly by role, with *Web developer* being the most common single role (843 responses).
+
+# In[107]:
 
 
 # Identify rows where only a single job role is chosen
@@ -3800,14 +3838,18 @@ encoded_stack_overflow_df['RoleCount'] = encoded_stack_overflow_df['DeveloperTyp
 # Filter rows where only one role is present
 single_role_df = encoded_stack_overflow_df[encoded_stack_overflow_df['RoleCount'] == 1]
 
-# Calculate mean, median, and count for each single job role
+# Step 3: Calculate mean, median, and count for each single job role
 single_role_salary = single_role_df.groupby('DeveloperType')['Salary'].agg(['mean', 'median', 'count']).sort_index()
 
 # Display results
 display(single_role_salary)
 
 
-# In[298]:
+# **Exploring Two Roles**
+# - Examined combinations of exactly two roles to understand salary trends and sample sizes for multi-role respondents.
+# - Findings: 13 combinations had at least 10 responses, with salaries typically close to the corresponding single-role salaries.
+
+# In[108]:
 
 
 # Filter for rows with exactly two roles
@@ -3829,10 +3871,14 @@ filtered_two_role_stats = two_role_stats[two_role_stats['count'] >= 10]
 display(filtered_two_role_stats)
 
 
-# In[299]:
+# **Exploring Three Roles**
+# - Analyzed respondents with exactly three roles to determine salary trends and evaluate representation in the dataset.
+# - Findings: Nine combinations had at least 10 responses, with trends similar to those seen in two-role combinations.
+
+# In[109]:
 
 
-# Filter for rows with exactly two roles
+# Filter for rows with exactly three roles
 three_role_rows = encoded_stack_overflow_df[
     encoded_stack_overflow_df['DeveloperType'].str.contains("; ") & 
     (encoded_stack_overflow_df['DeveloperType'].str.count("; ") == 2)
@@ -3849,6 +3895,1328 @@ three_role_stats = three_role_rows.groupby('DeveloperTypeSorted')['Salary'].agg(
 # Filter for combinations with at least 10 occurrences
 filtered_three_role_stats = three_role_stats[three_role_stats['count'] >= 10]
 display(filtered_three_role_stats)
+
+
+# **Comparing Multi-Role Salaries to Single Roles**
+# - Compared the average salary of respondents with multi-role combinations to the average salary of the highest-paying single role included in the combination.
+# - Findings: Multi-role salaries often showed decreases compared to the average salary of the most lucrative single role in the combination.
+# - Summary statistics of percentage change: 
+#   - Mean: -7.54%
+#   - Median: -9.01%
+#   - Standard deviation: 27.76%.
+
+# In[110]:
+
+
+# Filter single-role statistics to exclude rows with NaN mean salary
+single_role_salary_filtered = single_role_salary.dropna(subset=['mean'])
+
+# Extract single-role statistics as a dictionary
+single_role_stats_dict = single_role_salary_filtered['mean'].to_dict()
+
+# Combine two-role and three-role datasets, excluding rows with NaN mean salary
+two_role_stats_filtered = two_role_stats.dropna(subset=['mean'])
+three_role_stats_filtered = three_role_stats.dropna(subset=['mean'])
+
+multi_role_stats_combined = pd.concat([two_role_stats_filtered.reset_index(), three_role_stats_filtered.reset_index()])
+multi_role_stats_combined = multi_role_stats_combined.rename(columns={"mean": "ActualMeanSalary"})
+
+# Calculate the maximum base salary for each multi-role combination
+def calculate_max_single_role_salary(roles):
+    role_list = roles.split("; ")
+    return max([single_role_stats_dict.get(role, 0) for role in role_list])
+
+multi_role_stats_combined['MaxBaseSalary'] = multi_role_stats_combined['DeveloperTypeSorted'].apply(calculate_max_single_role_salary)
+
+# Exclude rows where MaxBaseSalary is 0 (indicating no matching single-role stats)
+multi_role_stats_combined = multi_role_stats_combined[multi_role_stats_combined['MaxBaseSalary'] > 0]
+
+# Calculate the percentage increase
+multi_role_stats_combined['PercentageChange'] = (
+    (multi_role_stats_combined['ActualMeanSalary'] - multi_role_stats_combined['MaxBaseSalary']) / 
+    multi_role_stats_combined['MaxBaseSalary']
+) * 100
+
+# Aggregate results
+percentage_change_summary = multi_role_stats_combined['PercentageChange'].agg(['mean', 'median', 'std'])
+
+# Display results
+print("Percentage Change Summary:")
+print(percentage_change_summary)
+
+# Display the combined dataset for review
+display(multi_role_stats_combined[['DeveloperTypeSorted', 'ActualMeanSalary', 'MaxBaseSalary', 'PercentageChange']])
+
+
+# **Verifying Columns Before Encoding**
+# - Verified the structure of the dataset, including all relevant columns, before proceeding to encode the *DeveloperType* column.
+
+# In[111]:
+
+
+display(list(encoded_stack_overflow_df.columns))
+
+
+# #### Encoding the *DeveloperType* Column
+# - Objective: Encode the *DeveloperType* column to represent multi-role combinations effectively in the dataset, ensuring compatibility with machine learning models.
+# 
+# - Rationale for Chosen Encoding Method:
+#    - Ordinal encoding is not suitable due to the lack of a meaningful ranking or hierarchy among roles.
+#    - One-hot encoding is an effective method for capturing the presence or absence of each role without implying a ranking.
+#    - Encoding approach:
+#       - Each role is represented by a binary field (e.g., *Web Developer*, *Mobile Developer*).
+#       - A value of 1 indicates that the respondent has listed the role, and 0 indicates otherwise.
+#       - For example:
+#          - A respondent with the role *Web Developer* will have *Web Developer* = 1 and all other fields = 0.
+#          - A respondent with the roles *Web Developer* and *Mobile Developer* will have both *Web Developer* and *Mobile Developer* = 1, with all other fields = 0.
+
+# In[112]:
+
+
+# Split the DeveloperType column into individual roles
+all_roles = (
+    encoded_stack_overflow_df['DeveloperType']
+    .dropna()  # Exclude NaN values
+    .apply(lambda x: x.split("; "))  # Split roles
+)
+
+# Flatten the list of all roles and find unique values
+unique_roles = set(role for sublist in all_roles for role in sublist)
+
+# Create binary columns for each unique role
+for role in unique_roles:
+    encoded_stack_overflow_df[role] = encoded_stack_overflow_df['DeveloperType'].apply(
+        lambda x: 1 if pd.notna(x) and role in x.split("; ") else 0
+    )
+
+# Verify the new columns
+print("Columns added for individual roles:")
+display(list(unique_roles))
+
+# Check the resulting DataFrame shape to ensure the expected number of columns
+print(f"DataFrame shape after encoding DeveloperType: {encoded_stack_overflow_df.shape}")
+
+
+# In[113]:
+
+
+# Display a few rows with the original DeveloperType and the new columns
+display(encoded_stack_overflow_df[['DeveloperType'] + list(unique_roles)].head(10))
+
+
+# #### Preparing the Dataset for Machine Learning
+# - Objective: Finalize the dataset for machine learning by removing unnecessary columns, retaining only numeric features, and exploring correlations to identify relationships among variables.
+
+# **Dropping the *DeveloperType* Column**
+# - The *DeveloperType* column was removed after encoding its values into binary columns representing individual roles.
+# - A new DataFrame, *numeric_stack_overflow_df*, was created to retain the updated structure without modifying the dataset used for encoding.
+
+# In[114]:
+
+
+# Create a new DataFrame with the DeveloperType column removed
+numeric_stack_overflow_df = encoded_stack_overflow_df.drop(columns=['DeveloperType'])
+
+# Verify the new DataFrame structure
+print("Columns in numeric_stack_overflow_df:")
+display(list(numeric_stack_overflow_df.columns))
+
+# Check the shape of the new DataFrame
+print(f"Shape of numeric_stack_overflow_df: {numeric_stack_overflow_df.shape}")
+
+
+# In[115]:
+
+
+print(numeric_stack_overflow_df.dtypes)
+
+
+# **Filtering for Numeric Columns**
+# - The dataset was filtered to retain only numeric columns using the *select_dtypes* method.
+# - This ensures compatibility with machine learning models, which typically require numerical inputs.
+
+# In[116]:
+
+
+# Filter only numeric columns from the DataFrame
+numeric_stack_overflow_df = numeric_stack_overflow_df.select_dtypes(include=['number'])
+
+# Verify the resulting columns and DataFrame shape
+print("Columns in numeric_stack_overflow_df after selecting only numeric types:")
+display(list(numeric_stack_overflow_df.columns))
+
+print(f"Shape of numeric_stack_overflow_df after selecting numeric types: {numeric_stack_overflow_df.shape}")
+
+
+# ### Prepare the Data
+# 
+# #### Split the Dataset into Training and Test Sets
+# - Objective: Split the dataset into training and test sets to ensure that the model can be evaluated effectively while maintaining proportional representation of key variables.
+# 
+# - Methodology:
+#     - The dataset was split into training (80%) and test (20%) sets.
+#     - Stratification was applied based on the *Gender_Female* column to preserve the proportional representation of men and women in both sets.
+# 
+# Justification for Stratified Sampling:
+#     - Gender is a critical variable in this analysis, as the project investigates salary disparities between men and women in the tech industry.
+#     - The dataset contains significantly more men than women. Without stratification, women may be underrepresented in the test set, leading to biased model evaluation.
+#     - Stratification ensures that the gender distribution in both the training and test sets reflects the original dataset.
+
+# In[181]:
+
+
+# Define features and target
+X = numeric_stack_overflow_df.drop(columns=['Salary'])  # Features
+y = numeric_stack_overflow_df['Salary']                # Target variable
+
+# Perform train/test split, stratified by Gender_Female
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=X['Gender_Female']
+)
+
+# Verify distributions
+print("Training set Gender distribution:")
+print(X_train['Gender_Female'].value_counts(normalize=True))
+print("\nTest set Gender distribution:")
+print(X_test['Gender_Female'].value_counts(normalize=True))
+
+
+# #### Validating the Stratified Train/Test Split
+# - Objective: Verify that the stratified split preserved the gender distribution from the original dataset.
+# - Methodology:
+#   - Compared gender proportions in the overall dataset, stratified test set, and a random sample for evaluation.
+#   - Calculated percentage errors to assess differences between the splits.
+# - Results:
+#   - The stratified split perfectly maintained the original gender proportions (0% error).
+#   - The random split introduced a 15% overrepresentation of women and a 1.91% underrepresentation of men, confirming the need for stratification.
+
+# In[182]:
+
+
+# Function to calculate gender proportions
+def gender_proportions(data):
+    return data['Gender_Female'].value_counts(normalize=True)
+
+# Compare proportions
+compare_props = pd.DataFrame({
+    "Overall": gender_proportions(numeric_stack_overflow_df),
+    "Stratified": gender_proportions(X_test),
+    "Random": gender_proportions(X.sample(frac=0.2, random_state=42))  # Random sample for comparison
+}).sort_index()
+
+# Calculate percentage errors
+compare_props["Rand. %error"] = 100 * (compare_props["Random"] / compare_props["Overall"] - 1)
+compare_props["Strat. %error"] = 100 * (compare_props["Stratified"] / compare_props["Overall"] - 1)
+
+print(compare_props)
+
+
+# #### Exploring Feature Correlations
+# To better understand the relationships between numerical features and the target variable (*Salary*), several analyses were conducted to guide feature selection for scaling, normalization, and inclusion in the regression model:
+# 
+# 1. **Correlation Matrix**:
+#    - A correlation matrix was generated to quantify the relationships between features and *Salary*.
+#    - Key Observations:
+#      - *Salary* shows moderate positive correlations with:
+#        - *YearsCodedJobNumeric* (0.517).
+#        - *CompanyTypeEncoded* (0.312).
+#        - *EducationCategoryNumeric* (0.237).
+#      - Weak or negligible correlations were observed between *Salary* and most role-based features (e.g., *Web Developer*: -0.102, *Mobile Developer*: 0.030).
+#      - *Gender_Female* displayed a weak negative correlation with *Salary* (-0.066), indicating a slight inverse relationship.
+# 
+# 2. **Heatmap Visualization**:
+#    - A heatmap of the correlation matrix was created to provide a visual summary of the relationships between features.
+#    - This visualization highlighted moderate correlations between *Salary* and select features, as well as inter-feature correlations that may require consideration during modeling.
+# 
+# 3. **Scatter Matrix**:
+#    - A scatter matrix was generated to visualize pairwise relationships between *Salary* and key features, including:
+#      - *YearsCodedJobNumeric*
+#      - *EducationCategoryNumeric*
+#      - *CompanyTypeEncoded*
+#      - *CompanySizeEncoded*
+#      - *HomeRemoteEncoded*
+#    - Observations:
+#      - The scatter plots revealed trends between *Salary* and *YearsCodedJobNumeric*, with a general positive relationship.
+#      - Histograms on the diagonal provided insights into feature distributions, such as the skewed distribution of *Salary*.
+#      - While the scatter matrix offers a broad overview, targeted scatter plots may be more effective for interpreting specific relationships.
+
+# In[183]:
+
+
+stack_overflow_corr = numeric_stack_overflow_df.corr()
+
+stack_overflow_corr['Salary'].sort_values(ascending=False)
+
+
+# In[184]:
+
+
+sns.heatmap(stack_overflow_corr, annot=False, cmap="coolwarm")
+
+plt.show()
+
+
+# In[185]:
+
+
+# Select key numerical features for the scatter matrix
+selected_features = [
+    'Salary', 
+    'YearsCodedJobNumeric', 
+    'EducationCategoryNumeric', 
+    'CompanyTypeEncoded', 
+    'CompanySizeEncoded',
+    'HomeRemoteEncoded'
+]
+
+# Generate the scatter matrix
+scatter_matrix(numeric_stack_overflow_df[selected_features], figsize=(20, 16), alpha=0.2, diagonal='hist')
+plt.show()
+
+
+# **Remove Rows with Missing Key Values**
+# - Rows where both *YearsCodedJobNumeric* and *Salary* were missing were removed to ensure that the dataset only includes records with sufficient information for meaningful analysis and salary prediction. This step minimizes noise and preserves data integrity.
+
+# In[186]:
+
+
+# Remove rows where both YearsCodedJobNumeric and Salary are missing
+cleaned_stack_overflow_df = numeric_stack_overflow_df.dropna(subset=['YearsCodedJobNumeric', 'Salary'], how='all').copy()
+
+# Verify the shape of the cleaned dataset
+print(f"Shape of dataset after removing rows with both YearsCodedJobNumeric and Salary missing: {cleaned_stack_overflow_df.shape}")
+
+# Count rows removed
+rows_removed = numeric_stack_overflow_df.shape[0] - cleaned_stack_overflow_df.shape[0]
+print(f"Number of rows removed: {rows_removed}")
+
+
+# #### Investigating Developer Roles and Their Impact on Salary
+# The relationship between developer roles and salary was explored to determine whether roles should be included as features in the salary prediction model. Specifically, this analysis evaluated whether combining roles with years of coding experience (*YearsCodedJobNumeric*) provided meaningful insights or predictive power.
+# 
+# **Why This Was Done**:
+# - Developer roles might influence salary, but the relationship is not straightforward due to respondents often listing multiple roles.
+# - Combining developer roles with *YearsCodedJobNumeric* could highlight salary trends that are specific to particular roles and levels of experience.
+# - The analysis was conducted to determine whether role-based features add enough value to justify their inclusion in the final dataset.
+# 
+# **Steps Taken**:
+# 1. Interaction terms were generated by combining developer roles with *YearsCodedJobNumeric* to assess whether the combination strengthened their correlation with salary.
+# 2. A baseline analysis was performed using *YearsCodedJobNumeric* alone to compare its predictive power against the interaction model.
+# 
+# **Key Findings**:
+# - *YearsCodedJobNumeric* as a standalone feature explained 26.78% of the variance in salary (R² = 0.2678).
+# - Adding interaction terms for developer roles increased the R² to 29.63%, representing a minimal improvement of 2.85%.
+# - The small improvement suggests that roles, even when combined with years of coding, contribute limited additional predictive value relative to experience alone.
+
+# In[187]:
+
+
+# Create interaction terms between developer roles and YearsCodedJobNumeric
+role_columns = [
+    'Web developer', 'Mobile developer', 'DevOps specialist', 
+    'Database administrator', 'Embedded applications/devices developer', 
+    'Quality assurance engineer', 'Desktop applications developer', 
+    'Machine learning specialist', 'Developer with a statistics or mathematics background',
+    'Other', 'Graphic designer', 'Systems administrator', 'Data scientist', 'Graphics programming'
+]
+
+# Create a temporary dataset meeting the specified criteria
+temp_df = cleaned_stack_overflow_df[
+    (cleaned_stack_overflow_df[role_columns].sum(axis=1) > 0) &  # At least one role is present
+    cleaned_stack_overflow_df['Salary'].notna() &               # Salary is not NaN
+    cleaned_stack_overflow_df['YearsCodedJobNumeric'].notna()   # YearsCodedJobNumeric is not NaN
+].copy()
+
+# Verify the shape of the temporary dataset
+print(f"Shape of temporary dataset: {temp_df.shape}")
+
+
+# In[188]:
+
+
+# Create interaction terms between developer roles and YearsCodedJobNumeric
+role_columns = [
+    'Web developer', 'Mobile developer', 'DevOps specialist', 
+    'Database administrator', 'Embedded applications/devices developer', 
+    'Quality assurance engineer', 'Desktop applications developer', 
+    'Machine learning specialist', 'Developer with a statistics or mathematics background',
+    'Other', 'Graphic designer', 'Systems administrator', 'Data scientist', 'Graphics programming'
+]
+
+# Generate interaction terms
+for role in role_columns:
+    temp_df[f'{role}_YearsCoded'] = (
+        temp_df[role] * temp_df['YearsCodedJobNumeric']
+    )
+
+# Calculate correlations between interaction terms and Salary
+interaction_corr = temp_df.corr()['Salary'].sort_values(ascending=False)
+
+# Display correlations for interaction terms
+print(interaction_corr[interaction_corr.index.str.contains('_YearsCoded')])
+
+
+# In[189]:
+
+
+# Define the target variable
+y = temp_df['Salary']
+
+# Baseline Model: YearsCodedJobNumeric only
+X_baseline = temp_df[['YearsCodedJobNumeric']]
+baseline_model = LinearRegression()
+baseline_model.fit(X_baseline, y)
+baseline_r2 = r2_score(y, baseline_model.predict(X_baseline))
+print(f"Baseline Model R² (YearsCodedJobNumeric only): {baseline_r2:.4f}")
+
+# Interaction Model: YearsCodedJobNumeric + Role Interaction Terms
+role_interaction_columns = [f'{role}_YearsCoded' for role in role_columns]
+X_interaction = temp_df[['YearsCodedJobNumeric'] + role_interaction_columns]
+interaction_model = LinearRegression()
+interaction_model.fit(X_interaction, y)
+interaction_r2 = r2_score(y, interaction_model.predict(X_interaction))
+print(f"Interaction Model R² (YearsCodedJobNumeric + Role Interactions): {interaction_r2:.4f}")
+
+# Compare R² values
+r2_difference = interaction_r2 - baseline_r2
+print(f"Increase in R² from adding role interactions: {r2_difference:.4f}")
+
+
+# ### Feature Reduction: Dropping Developer Role Features
+# - Objective: Simplify the dataset by removing developer role features that added complexity without significantly improving the model's performance.
+# 
+# - Method:
+#   - A pipeline was used to drop all developer role columns, including interaction terms between roles and *YearsCodedJobNumeric*.
+#   - This ensures a consistent and scalable approach for both the training and test datasets.
+
+# In[190]:
+
+
+# Define the columns to drop
+drop_columns = [
+    'Web developer', 'Mobile developer', 'DevOps specialist',
+    'Database administrator', 'Embedded applications/devices developer',
+    'Quality assurance engineer', 'Desktop applications developer',
+    'Machine learning specialist', 'Developer with a statistics or mathematics background',
+    'Other', 'Graphic designer', 'Systems administrator', 'Data scientist', 'Graphics programming',
+    'Web developer_YearsCoded', 'Mobile developer_YearsCoded', 'DevOps specialist_YearsCoded',
+    'Database administrator_YearsCoded', 'Embedded applications/devices developer_YearsCoded',
+    'Quality assurance engineer_YearsCoded', 'Desktop applications developer_YearsCoded',
+    'Machine learning specialist_YearsCoded', 'Developer with a statistics or mathematics background_YearsCoded',
+    'Other_YearsCoded', 'Graphic designer_YearsCoded', 'Systems administrator_YearsCoded',
+    'Data scientist_YearsCoded', 'Graphics programming_YearsCoded', 'RoleCount'
+]
+
+# Dynamically filter the columns to drop based on the current DataFrame columns
+valid_drop_columns = [col for col in drop_columns if col in X_train.columns]
+
+# Define a ColumnTransformer to drop the columns
+drop_transformer = ColumnTransformer(
+    transformers=[
+        ('drop_columns', 'drop', valid_drop_columns)  # Drop only valid columns
+    ],
+    remainder='passthrough'  # Pass through remaining columns
+)
+
+# Create the pipeline
+drop_pipeline = Pipeline([
+    ('column_transform', drop_transformer)  # Use the ColumnTransformer
+])
+
+# Apply the pipeline to X_train and X_test
+X_train_transformed = drop_pipeline.fit_transform(X_train)
+X_test_transformed = drop_pipeline.transform(X_test)
+
+# Extract the remaining column names
+remaining_columns = [col for col in X_train.columns if col not in drop_columns]
+
+# Convert back to DataFrame, matching transformed data to original indices and remaining columns
+X_train_transformed = pd.DataFrame(X_train_transformed, columns=remaining_columns, index=X_train.index)
+X_test_transformed = pd.DataFrame(X_test_transformed, columns=remaining_columns, index=X_test.index)
+
+# Verify the results
+print(f"Shape of training set after pipeline transformation: {X_train_transformed.shape}")
+print(f"Shape of test set after pipeline transformation: {X_test_transformed.shape}")
+display(list(X_train_transformed.columns))
+
+
+# **Check for features with missing values**
+
+# In[191]:
+
+
+# Analyze missing values in the transformed training dataset
+train_feature_summary = X_train_transformed.isna().sum().reset_index()
+train_feature_summary.columns = ['Feature', 'NaN_Count']
+train_feature_summary['Non-NaN_Count'] = X_train_transformed.shape[0] - train_feature_summary['NaN_Count']
+train_feature_summary['Total_Count'] = X_train_transformed.shape[0]
+train_feature_summary['NaN_Percentage'] = (train_feature_summary['NaN_Count'] / train_feature_summary['Total_Count']) * 100
+
+# Analyze missing values in the transformed testing dataset
+test_feature_summary = X_test_transformed.isna().sum().reset_index()
+test_feature_summary.columns = ['Feature', 'NaN_Count']
+test_feature_summary['Non-NaN_Count'] = X_test_transformed.shape[0] - test_feature_summary['NaN_Count']
+test_feature_summary['Total_Count'] = X_test_transformed.shape[0]
+test_feature_summary['NaN_Percentage'] = (test_feature_summary['NaN_Count'] / test_feature_summary['Total_Count']) * 100
+
+# Sort by the number of NaN values for clarity
+train_feature_summary = train_feature_summary.sort_values(by='NaN_Count', ascending=False).reset_index(drop=True)
+test_feature_summary = test_feature_summary.sort_values(by='NaN_Count', ascending=False).reset_index(drop=True)
+
+# Display the results
+print("Training Feature Summary:")
+print(train_feature_summary)
+
+print("\nTesting Feature Summary:")
+print(test_feature_summary)
+
+
+# In[ ]:
+
+
+# Define features requiring imputation
+num_features = ['YearsCodedJobNumeric']
+
+cat_features = ['EducationCategoryNumeric', 'Gender_Female', 'Gender_Male', 'HomeRemoteEncoded', 'CompanySizeEncoded', 'CompanyTypeEncoded']
+
+# Define the pipeline for numerical features
+num_pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='median'))  # Impute missing values with median
+])
+
+# Define the pipeline for categorical features
+cat_pipeline = Pipeline([
+  ('imputer', SimpleImputer(strategy='most_frequent')), # This would impute missing values with the most frequent, but there are no missing values
+])
+
+# Combine the numerical and categorica pipelines with passthrough for all remaining columns
+full_pipeline = ColumnTransformer([
+    ('num', num_pipeline, num_features),  # Apply numerical pipeline to numerical features
+    ('cat', cat_pipeline, cat_features)
+]) 
+
+# Apply the transformation to the pre-transformed datasets
+X_train_transformed = full_pipeline.fit_transform(X_train)
+X_test_transformed = full_pipeline.transform(X_test)
+
+# Retrieve updated column names
+transformed_columns = full_pipeline.get_feature_names_out()
+
+# Transform the numpy n-dimensional array into a pandas dataframe
+X_train_transformed = pd.DataFrame(X_train_transformed, columns=transformed_columns, index=X_train.index)
+X_test_transformed = pd.DataFrame(X_test_transformed, columns=transformed_columns, index=X_test.index)
+
+# Verify the transformed datasets
+print("Transformed Training Set:")
+display(X_train_transformed.head())
+
+print("\nTransformed Testing Set:")
+display(X_test_transformed.head())
+
+
+# In[193]:
+
+
+full_pipeline.get_feature_names_out()
+
+
+# In[194]:
+
+
+column_names = [ 
+  feature.replace('num__', '').replace('cat__', '') 
+  for feature in full_pipeline.get_feature_names_out()
+]
+column_names
+
+
+# In[195]:
+
+
+X_train_transformed.columns = column_names
+X_test_transformed.columns = column_names
+
+# Verify the updated column names
+print("Updated column names in the training set:")
+print(X_train_transformed.columns)
+
+print("\nUpdated column names in the testing set:")
+print(X_test_transformed.columns)
+
+
+# In[196]:
+
+
+print("Missing values in transformed training set:")
+display(X_train_transformed.isnull().sum())
+
+print("\nMissing values in transformed testing set:")
+display(X_test_transformed.isnull().sum())
+
+
+# ### Standardization of Numerical Features
+# - To ensure that all numerical features are on the same scale, the *YearsCodedJobNumeric* column was standardized using *StandardScaler*. Standardization is necessary because it prevents features with larger scales from disproportionately influencing the model.
+# 
+# - Encoding pipelines were also established for nominal and ordinal categorical features (*Gender_Female*, *Gender_Male*, *HomeRemoteEncoded*, *CompanySizeEncoded*, *CompanyTypeEncoded*, and *EducationCategoryNumeric*). However, these pipelines were not applied because these features did not contain any missing values requiring imputation.
+# 
+# - Verification was performed by checking the mean and standard deviation of the standardized column:
+#     - *Mean:* 0.0000000000  
+#     - *Standard Deviation:* 1.0000000000  
+# 
+# - These results confirm that the feature was scaled appropriately for use in machine learning models.
+
+# In[197]:
+
+
+# Define feature groups
+num_features = ['YearsCodedJobNumeric']
+ordinal_features = ['HomeRemoteEncoded', 'CompanySizeEncoded', 'CompanyTypeEncoded', 'EducationCategoryNumeric']
+nominal_features = ['Gender_Female', 'Gender_Male']
+
+# Numerical pipeline: Imputation + Scaling
+num_pipeline = Pipeline([
+    ('scaler', StandardScaler())  # Scaling only since no missing values remain
+])
+
+# Ordinal pipeline: Ordinal Encoding
+ordinal_pipeline = Pipeline([
+    ('encoder', OrdinalEncoder())
+])
+
+# Nominal pipeline: One-Hot Encoding
+nominal_pipeline = Pipeline([
+    ('encoder', OneHotEncoder(drop='first'))  # Drop one dummy variable to avoid redundancy
+])
+
+# Combine all pipelines
+full_pipeline = ColumnTransformer([
+    ('num', num_pipeline, num_features),
+    ('ordinal', ordinal_pipeline, ordinal_features),
+    ('nominal', nominal_pipeline, nominal_features)
+], remainder='passthrough')  # Ensure other columns are passed through unchanged
+
+# Apply the pipeline to pre-transformed datasets
+X_train_transformed = full_pipeline.fit_transform(X_train_transformed)
+X_test_transformed = full_pipeline.transform(X_test_transformed)
+
+# Get updated column names after transformation
+transformed_columns = full_pipeline.get_feature_names_out()
+
+# Clean up the column names for consistency
+cleaned_column_names = [
+    col.replace('num__', '').replace('ordinal__', '').replace('nominal__', '')
+    for col in transformed_columns
+]
+
+# Convert back to DataFrame with cleaned names
+X_train_transformed = pd.DataFrame(X_train_transformed, columns=cleaned_column_names, index=X_train.index)
+X_test_transformed = pd.DataFrame(X_test_transformed, columns=cleaned_column_names, index=X_test.index)
+
+# Verify the transformed datasets
+print("Transformed Training Set:")
+display(X_train_transformed.head())
+
+print("\nTransformed Testing Set:")
+display(X_test_transformed.head())
+
+
+# In[198]:
+
+
+# Get the mean and standard deviation of the transformed dataset
+mean = np.mean(X_train_transformed['YearsCodedJobNumeric'])
+std_dev = np.std(X_train_transformed['YearsCodedJobNumeric'])
+
+# Print the results with formatting
+print(f"Mean: {mean:.10f}")
+print(f"Standard Deviation: {std_dev:.10f}")
+
+
+# ### Handling Missing Salary Values
+# 
+# #### Rationale
+# Rather than imputing missing values in the *Salary* column with static measures such as the median or mean, I aim to build a predictive model to estimate these values. This approach ensures that relationships between features (e.g., *YearsCodedJobNumeric*, *EducationCategoryNumeric*) and the *Salary* target are preserved. By predicting missing values based on these relationships, the imputation process becomes both realistic and data-driven.
+# 
+# #### Benefits of This Approach
+# 1. **Preserving Relationships**: Static imputations can ignore interactions between variables, potentially introducing bias. A predictive model captures these interactions, leading to more accurate imputations.
+# 2. **Alignment with Assignment Goals**: This approach tests and evaluates multiple models, a requirement of the machine learning portion of the assignment, ensuring the best algorithm is selected for imputation and future predictions.
+# 3. **Avoiding Arbitrary Assumptions**: Static imputations assume uniformity in the data (e.g., all respondents with missing values have a similar salary), which is often unrealistic.
+# 
+# #### Process
+# 1. **Separate Data**: Rows with missing *Salary* values are separated from those with non-missing values.
+# 2. **Train Models**: Models are trained on the non-missing data to predict *Salary*.
+# 3. **Evaluate Models**: Multiple algorithms are tested to find the best-performing one based on metrics such as RMSE or MAE.
+# 4. **Predict Missing Values**: The best model can be used to estimate missing *Salary* values.
+# 
+# This approach ensures that the imputation process is both methodologically sound and aligned with the machine learning section's overall objective of accurately predicting salaries.
+
+# In[199]:
+
+
+display(list(cleaned_stack_overflow_df.columns))
+
+
+# In[200]:
+
+
+column_drop = [
+    'Web developer', 'Mobile developer', 'DevOps specialist',
+    'Database administrator', 'Embedded applications/devices developer',
+    'Quality assurance engineer', 'Desktop applications developer',
+    'Machine learning specialist', 'Developer with a statistics or mathematics background',
+    'Other', 'Graphic designer', 'Systems administrator', 'Data scientist', 'Graphics programming',
+    'Web developer_YearsCoded', 'Mobile developer_YearsCoded', 'DevOps specialist_YearsCoded',
+    'Database administrator_YearsCoded', 'Embedded applications/devices developer_YearsCoded',
+    'Quality assurance engineer_YearsCoded', 'Desktop applications developer_YearsCoded',
+    'Machine learning specialist_YearsCoded', 'Developer with a statistics or mathematics background_YearsCoded',
+    'Other_YearsCoded', 'Graphic designer_YearsCoded', 'Systems administrator_YearsCoded',
+    'Data scientist_YearsCoded', 'Graphics programming_YearsCoded', 'RoleCount'
+]
+
+revised_stack_overflow_df = cleaned_stack_overflow_df.drop(columns=column_drop, errors='ignore')
+
+display(list(revised_stack_overflow_df.columns))
+
+
+# In[201]:
+
+
+# Separate rows with missing and non-missing Salary values
+non_missing_data = revised_stack_overflow_df.dropna(subset=['Salary'])
+missing_data = revised_stack_overflow_df[cleaned_stack_overflow_df['Salary'].isna()]
+
+# Define features and target for non-missing data
+X_imputation = non_missing_data.drop(columns=['Salary'])
+y_imputation = non_missing_data['Salary']
+
+X_train_imputation, X_test_imputation, y_train_imputation, y_test_imputation = train_test_split(
+    X_imputation, y_imputation, 
+    test_size=0.2, 
+    random_state=42, 
+    stratify=non_missing_data['Gender_Female']  # Maintain balance across gender
+)
+
+# Verify the distribution of the new training and testing sets
+print("Training set shape:", X_train_imputation.shape)
+print("Testing set shape:", X_test_imputation.shape)
+
+
+# In[202]:
+
+
+# Verify the gender distribution in training and testing sets
+print("Training set Gender distribution:")
+print(y_train_imputation.groupby(X_train_imputation['Gender_Female']).count())
+
+print("\nTesting set Gender distribution:")
+print(y_test_imputation.groupby(X_test_imputation['Gender_Female']).count())
+
+
+# **Check for missing feature values**
+
+# In[203]:
+
+
+# Analyze missing values in the transformed training dataset
+train_feature_summary = X_train_imputation.isna().sum().reset_index()
+train_feature_summary.columns = ['Feature', 'NaN_Count']
+train_feature_summary['Non-NaN_Count'] = X_train_imputation.shape[0] - train_feature_summary['NaN_Count']
+train_feature_summary['Total_Count'] = X_train_imputation.shape[0]
+train_feature_summary['NaN_Percentage'] = (train_feature_summary['NaN_Count'] / train_feature_summary['Total_Count']) * 100
+
+# Analyze missing values in the transformed testing dataset
+test_feature_summary = X_test_imputation.isna().sum().reset_index()
+test_feature_summary.columns = ['Feature', 'NaN_Count']
+test_feature_summary['Non-NaN_Count'] = X_test_imputation.shape[0] - test_feature_summary['NaN_Count']
+test_feature_summary['Total_Count'] = X_test_imputation.shape[0]
+test_feature_summary['NaN_Percentage'] = (test_feature_summary['NaN_Count'] / test_feature_summary['Total_Count']) * 100
+
+# Sort by the number of NaN values for clarity
+train_feature_summary = train_feature_summary.sort_values(by='NaN_Count', ascending=False).reset_index(drop=True)
+test_feature_summary = test_feature_summary.sort_values(by='NaN_Count', ascending=False).reset_index(drop=True)
+
+# Display the results
+print("Training Feature Summary:")
+print(train_feature_summary)
+
+print("\nTesting Feature Summary:")
+print(test_feature_summary)
+
+
+# In[204]:
+
+
+# Define features requiring imputation
+num_features = ['YearsCodedJobNumeric']
+
+cat_features = ['EducationCategoryNumeric', 'Gender_Female', 'Gender_Male', 'HomeRemoteEncoded', 'CompanySizeEncoded', 'CompanyTypeEncoded']
+
+# Define the pipeline for numerical features
+num_pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='median'))  # Impute missing values with median
+])
+
+# Define the pipeline for categorical features
+cat_pipeline = Pipeline([
+  ('imputer', SimpleImputer(strategy='most_frequent')), # This would impute missing values with the most frequent, but there are no missing values
+])
+
+# Combine the numerical and categorica pipelines with passthrough for all remaining columns
+full_pipeline = ColumnTransformer([
+    ('num', num_pipeline, num_features),  # Apply numerical pipeline to numerical features
+    ('cat', cat_pipeline, cat_features)
+]) 
+
+# Apply the transformation to the imputation training and testing sets
+X_train_imputed_transformed = full_pipeline.fit_transform(X_train_imputation)
+X_test_imputed_transformed = full_pipeline.transform(X_test_imputation)
+
+# Retrieve updated column names
+imputed_transformed_columns = full_pipeline.get_feature_names_out()
+
+# Transform the numpy n-dimensional array into a pandas dataframe
+X_train_imputed_transformed = pd.DataFrame(X_train_imputed_transformed, columns=imputed_transformed_columns, index=X_train_imputation.index)
+X_test_imputed_transformed = pd.DataFrame(X_test_imputed_transformed, columns=imputed_transformed_columns, index=X_test_imputation.index)
+
+# Verify the transformed datasets
+print("Transformed Training Set (Imputed):")
+print(X_train_imputed_transformed.head())
+
+print("\nTransformed Testing Set (Imputed):")
+print(X_test_imputed_transformed.head())
+
+
+# In[205]:
+
+
+full_pipeline.get_feature_names_out()
+
+
+# In[206]:
+
+
+imputed_column_names = [ 
+  feature.replace('num__', '').replace('cat__', '') 
+  for feature in full_pipeline.get_feature_names_out()
+]
+imputed_column_names
+
+
+# In[207]:
+
+
+X_train_imputed_transformed.columns = imputed_column_names
+X_test_imputed_transformed.columns = imputed_column_names
+
+# Verify the updated column names
+print("Updated column names in the training set:")
+print(X_train_imputed_transformed.columns)
+
+print("\nUpdated column names in the testing set:")
+print(X_test_imputed_transformed.columns)
+
+
+# In[208]:
+
+
+print("Missing values in transformed training set:")
+display(X_train_imputed_transformed.isnull().sum())
+
+print("\nMissing values in transformed testing set:")
+display(X_test_imputed_transformed.isnull().sum())
+
+
+# ### Standardization of Numerical Features
+
+# In[209]:
+
+
+# Define feature groups
+num_features = ['YearsCodedJobNumeric']
+ordinal_features = ['HomeRemoteEncoded', 'CompanySizeEncoded', 'CompanyTypeEncoded', 'EducationCategoryNumeric']
+nominal_features = ['Gender_Female', 'Gender_Male']
+
+# Numerical pipeline: Imputation + Scaling
+num_pipeline = Pipeline([
+    ('scaler', StandardScaler())
+])
+
+# Ordinal pipeline: Ordinal Encoding
+ordinal_pipeline = Pipeline([
+    ('encoder', OrdinalEncoder())
+])
+
+# Nominal pipeline: One-Hot Encoding
+nominal_pipeline = Pipeline([
+    ('encoder', OneHotEncoder(drop='first'))  # Drop one dummy variable to avoid redundancy
+])
+
+# Combine all pipelines
+full_pipeline = ColumnTransformer([
+    ('num', num_pipeline, num_features),
+    ('ordinal', ordinal_pipeline, ordinal_features),
+    ('nominal', nominal_pipeline, nominal_features)
+], remainder='passthrough')  # Ensure other columns are passed through unchanged
+
+# Apply the pipeline to pre-transformed datasets
+X_train_imputed_transformed = full_pipeline.fit_transform(X_train_imputed_transformed)
+X_test_imputed_transformed = full_pipeline.transform(X_test_imputed_transformed)
+
+# Get updated column names after transformation
+imputed_transformed_columns = full_pipeline.get_feature_names_out()
+
+# Clean up the column names for consistency
+cleaned_column_names = [
+    col.replace('num__', '').replace('ordinal__', '').replace('nominal__', '')
+    for col in imputed_transformed_columns
+]
+
+# Convert back to DataFrame with cleaned names
+X_train_imputed_transformed = pd.DataFrame(X_train_imputed_transformed, columns=cleaned_column_names, index=X_train_imputation.index)
+X_test_imputed_transformed = pd.DataFrame(X_test_imputed_transformed, columns=cleaned_column_names, index=X_test_imputation.index)
+
+# Verify the transformed datasets
+print("Transformed Training Set:")
+display(X_train_imputed_transformed.head())
+
+print("\nTransformed Testing Set:")
+display(X_test_imputed_transformed.head())
+
+
+# In[210]:
+
+
+# Get the mean and standard deviation of the transformed dataset
+mean = np.mean(X_train_imputed_transformed['YearsCodedJobNumeric'])
+std_dev = np.std(X_train_imputed_transformed['YearsCodedJobNumeric'])
+
+# Print the results with formatting
+print(f"Mean: {mean:.10f}")
+print(f"Standard Deviation: {std_dev:.10f}")
+
+
+# ### Analyze the Data
+# 
+# #### Implement and Evaluate Models
+# - Objective: Begin the process of analyzing the dataset by implementing multiple models to predict *Salary* and evaluating their performance.
+#   
+# - Methodology:
+#     - A baseline model using the mean of the training target variable (*Salary*) has been implemented to establish a performance benchmark.
+#     - Advanced models will be tested and evaluated next to compare their effectiveness against the baseline.
+# 
+# - Justification for Baseline Model:
+#     - Provides a simple benchmark to assess whether more complex models significantly improve predictive performance.
+#     - Allows for comparison of RMSE, MAE, and R² metrics to evaluate the added value of advanced modeling techniques.
+# 
+# - Next Steps:
+#     - Test multiple algorithms, including linear regression, tree-based models, and regularized regression techniques.
+#     - Compare model performance on both the training and testing sets using appropriate metrics.
+
+# #### Baseline Model (Mean Prediction)
+# The Baseline Model predicts the mean *Salary* from the training set for all observations. 
+# 
+# Model Fit:
+# - The model performs similarly on the training and testing sets, with an RMSE of ~33,400 on the training set and ~34,000 on the testing set. 
+# - The near-zero \( R^2 \) on both sets indicates the model explains no variance in the data, consistent with its simplicity.
+# 
+# Purpose:
+# - This model serves as a reference point. Any improvement in RMSE, MAE, or \( R^2 \) by subsequent models reflects their ability to capture relationships between features and the target variable.
+
+# In[212]:
+
+
+# Calculate baseline predictions using the mean of the training target
+y_train_baseline_pred = [y_train_imputation.mean()] * len(y_train_imputation)
+y_test_baseline_pred = [y_train_imputation.mean()] * len(y_test_imputation)  # Use train mean for test predictions
+
+# Evaluate the baseline model using RMSE
+baseline_rmse_train = np.sqrt(mean_squared_error(y_train_imputation, y_train_baseline_pred))
+baseline_rmse_test = np.sqrt(mean_squared_error(y_test_imputation, y_test_baseline_pred))
+
+# Evaluate the baseline model using MAE
+baseline_mae_train = mean_absolute_error(y_train_imputation, y_train_baseline_pred)
+baseline_mae_test = mean_absolute_error(y_test_imputation, y_test_baseline_pred)
+
+# Calculate R² for baseline model
+baseline_r2_train = r2_score(y_train_imputation, y_train_baseline_pred)
+baseline_r2_test = r2_score(y_test_imputation, y_test_baseline_pred)
+
+# Display the results
+print(f"Baseline Model (Mean Prediction) - RMSE on Training Set: {baseline_rmse_train:.2f}")
+print(f"Baseline Model (Mean Prediction) - RMSE on Testing Set: {baseline_rmse_test:.2f}")
+print(f"Baseline Model (Mean Prediction) - MAE on Training Set: {baseline_mae_train:.2f}")
+print(f"Baseline Model (Mean Prediction) - MAE on Testing Set: {baseline_mae_test:.2f}")
+print(f"Baseline Model (Mean Prediction) - R² on Training Set: {baseline_r2_train:.4f}")
+print(f"Baseline Model (Mean Prediction) - R² on Testing Set: {baseline_r2_test:.4f}")
+
+
+# #### Linear Regression Model
+# The Linear Regression Model assumes linear relationships between the features and the *Salary*.
+# 
+# Model Fit:
+# - The Linear Regression Model performs slightly better on the training set than on the testing set. While the RMSE and MAE are lower on the training set, the testing set results are reasonably close, suggesting that the model is not severely overfit but could be slightly underfit, as it does not perfectly generalize to unseen data.
+# 
+# Comparison with the Baseline:
+# - The RMSE decreases from ~34,000 (Baseline) to ~28,000 on the testing set, indicating that the Linear Regression Model provides more accurate predictions compared to predicting the mean.
+# - The MAE drops significantly, from ~27,900 (Baseline) to ~21,600 on the testing set, showing that the model predicts salaries closer to their true values on average.
+# - The \( R^2 \) improves from ~0.0 (Baseline) to 0.3208, meaning that the model explains approximately 32% of the variance in *Salary*, a significant improvement over the Baseline, which explains none of the variance.
+# 
+# Insights:
+# - A higher \( R^2 \) value shows the Linear Regression Model captures meaningful relationships between features and the target variable, *Salary*.
+# - The reduction in RMSE and MAE demonstrates that the model consistently provides more accurate predictions than the Baseline Model.
+
+# In[213]:
+
+
+# Initialize and fit the linear regression model
+lin_reg = LinearRegression()
+lin_reg.fit(X_train_imputed_transformed, y_train_imputation)
+
+# Predict on the training and test sets
+y_train_pred = lin_reg.predict(X_train_imputed_transformed)
+y_test_pred = lin_reg.predict(X_test_imputed_transformed)
+
+# Evaluate the model
+lin_rmse_train = np.sqrt(mean_squared_error(y_train_imputation, y_train_pred))
+lin_rmse_test = np.sqrt(mean_squared_error(y_test_imputation, y_test_pred))
+
+lin_mae_train = mean_absolute_error(y_train_imputation, y_train_pred)
+lin_mae_test = mean_absolute_error(y_test_imputation, y_test_pred)
+
+lin_r2_train = r2_score(y_train_imputation, y_train_pred)
+lin_r2_test = r2_score(y_test_imputation, y_test_pred)
+
+# Display results
+print(f"Linear Regression Model - RMSE on Training Set: {lin_rmse_train:.2f}")
+print(f"Linear Regression Model - RMSE on Testing Set: {lin_rmse_test:.2f}")
+print(f"Linear Regression Model - MAE on Training Set: {lin_mae_train:.2f}")
+print(f"Linear Regression Model - MAE on Testing Set: {lin_mae_test:.2f}")
+print(f"Linear Regression Model - R² on Training Set: {lin_r2_train:.4f}")
+print(f"Linear Regression Model - R² on Testing Set: {lin_r2_test:.4f}")
+
+
+# #### Polynomial Regression Model (Degree 2)
+# The Polynomial Regression Model (Degree 2) introduces non-linear relationships between the features and the *Salary*, allowing it to capture more complex patterns in the data compared to Linear Regression.
+# 
+# Model Fit:
+# - The model performs better on the training set (RMSE = ~25,600, MAE = ~19,700) than on the testing set (RMSE = ~27,500, MAE = ~21,200). This suggests the model generalizes reasonably well but may slightly overfit the training data.
+# 
+# Comparison with the Baseline:
+# - RMSE improves from ~34,000 (Baseline) to ~27,500 on the testing set, a notable reduction in prediction error.
+# - MAE decreases from ~27,900 (Baseline) to ~21,200, showing the model predicts salaries closer to their true values on average.
+# - \( R^2 \) improves from ~0.0 (Baseline) to 0.3487, indicating the model explains approximately 35% of the variance in *Salary*, compared to the Baseline’s complete lack of explanatory power.
+# 
+# Insights:
+# - The higher \( R^2 \) demonstrates that the model captures non-linear relationships between features and *Salary* that Linear Regression may miss.
+# - The reduction in RMSE and MAE confirms that the model makes more accurate predictions than both the Baseline and Linear Regression models.
+# - The relatively small gap between training and testing performance suggests that the model balances complexity with generalizability.
+
+# In[215]:
+
+
+# Define the polynomial regression pipeline
+poly_reg = Pipeline([
+    ('poly_features', PolynomialFeatures(degree=2, include_bias=False)),  # Generate polynomial features
+    ('lin_reg', LinearRegression())  # Apply linear regression on the transformed features
+])
+
+# Train the model
+poly_reg.fit(X_train_imputed_transformed, y_train_imputation)
+
+# Predict on training and testing sets
+y_train_poly_pred = poly_reg.predict(X_train_imputed_transformed)
+y_test_poly_pred = poly_reg.predict(X_test_imputed_transformed)
+
+# Evaluate the Polynomial Regression model
+poly_rmse_train = np.sqrt(mean_squared_error(y_train_imputation, y_train_poly_pred))
+poly_rmse_test = np.sqrt(mean_squared_error(y_test_imputation, y_test_poly_pred))
+poly_mae_train = mean_absolute_error(y_train_imputation, y_train_poly_pred)
+poly_mae_test = mean_absolute_error(y_test_imputation, y_test_poly_pred)
+poly_r2_train = r2_score(y_train_imputation, y_train_poly_pred)
+poly_r2_test = r2_score(y_test_imputation, y_test_poly_pred)
+
+# Display the results
+print(f"Polynomial Regression Model (Degree 2) - RMSE on Training Set: {poly_rmse_train:.2f}")
+print(f"Polynomial Regression Model (Degree 2) - RMSE on Testing Set: {poly_rmse_test:.2f}")
+print(f"Polynomial Regression Model (Degree 2) - MAE on Training Set: {poly_mae_train:.2f}")
+print(f"Polynomial Regression Model (Degree 2) - MAE on Testing Set: {poly_mae_test:.2f}")
+print(f"Polynomial Regression Model (Degree 2) - R² on Training Set: {poly_r2_train:.4f}")
+print(f"Polynomial Regression Model (Degree 2) - R² on Testing Set: {poly_r2_test:.4f}")
+
+
+# #### Polynomial Regression Model (Degree 3)
+# The Polynomial Regression Model (Degree 3) builds on the previous models by capturing more detailed patterns between the features and *Salary*.
+# 
+# Model Fit:
+# - The model performs well on both the training set (RMSE = ~24,700, MAE = ~19,200) and the testing set (RMSE = ~27,600, MAE = ~20,700). The small difference between the two suggests the model handles new data effectively while slightly favoring the training data, indicating mild overfitting.
+# 
+# Comparison with the Baseline:
+# - RMSE improves from ~34,000 (Baseline) to ~27,600 on the testing set, reducing average error by a large margin.
+# - MAE decreases from ~27,900 (Baseline) to ~20,700, showing the model’s predictions are significantly closer to the actual salaries.
+# - \( R^2 \) improves from ~0.0 (Baseline) to 0.3433, meaning the model explains around 34% of the variation in *Salary*. This is a meaningful improvement over the Baseline’s inability to explain any variance.
+# 
+# Insights:
+# - The improved \( R^2 \) value and reduced RMSE and MAE suggest that the model captures more of the relationships in the data compared to the Baseline and simpler models.
+# - While there is a small gap between training and testing performance, the testing results indicate that the model can make accurate predictions on unseen data.
+
+# In[216]:
+
+
+# Define the polynomial regression pipeline for degree 3
+poly_reg_degree3 = Pipeline([
+    ('poly_features', PolynomialFeatures(degree=3, include_bias=False)),  # Generate polynomial features
+    ('lin_reg', LinearRegression())  # Apply linear regression on the transformed features
+])
+
+# Train the model
+poly_reg_degree3.fit(X_train_imputed_transformed, y_train_imputation)
+
+# Predict on training and testing sets
+y_train_poly3_pred = poly_reg_degree3.predict(X_train_imputed_transformed)
+y_test_poly3_pred = poly_reg_degree3.predict(X_test_imputed_transformed)
+
+# Evaluate the Polynomial Regression model (Degree 3)
+poly3_rmse_train = np.sqrt(mean_squared_error(y_train_imputation, y_train_poly3_pred))
+poly3_rmse_test = np.sqrt(mean_squared_error(y_test_imputation, y_test_poly3_pred))
+poly3_mae_train = mean_absolute_error(y_train_imputation, y_train_poly3_pred)
+poly3_mae_test = mean_absolute_error(y_test_imputation, y_test_poly3_pred)
+poly3_r2_train = r2_score(y_train_imputation, y_train_poly3_pred)
+poly3_r2_test = r2_score(y_test_imputation, y_test_poly3_pred)
+
+# Display the results
+print(f"Polynomial Regression Model (Degree 3) - RMSE on Training Set: {poly3_rmse_train:.2f}")
+print(f"Polynomial Regression Model (Degree 3) - RMSE on Testing Set: {poly3_rmse_test:.2f}")
+print(f"Polynomial Regression Model (Degree 3) - MAE on Training Set: {poly3_mae_train:.2f}")
+print(f"Polynomial Regression Model (Degree 3) - MAE on Testing Set: {poly3_mae_test:.2f}")
+print(f"Polynomial Regression Model (Degree 3) - R² on Training Set: {poly3_r2_train:.4f}")
+print(f"Polynomial Regression Model (Degree 3) - R² on Testing Set: {poly3_r2_test:.4f}")
+
+
+# #### Polynomial Regression Model (Degree 4)
+# The Polynomial Regression Model (Degree 4) aims to capture even more detailed relationships between the features and *Salary*.
+# 
+# Model Fit:
+# - The model performs very well on the training set (RMSE = ~23,800, MAE = ~18,300), but its performance drops noticeably on the testing set (RMSE = ~30,000, MAE = ~21,600). This significant gap indicates that the model is overfitting, fitting the training data too closely and struggling to generalize to unseen data.
+# 
+# Comparison with the Baseline:
+# - RMSE improves from ~34,000 (Baseline) to ~30,000 on the testing set, showing a reduction in average error, but the improvement is smaller compared to simpler models.
+# - MAE decreases from ~27,900 (Baseline) to ~21,600, indicating predictions are closer to actual salaries than the Baseline.
+# - \( R^2 \) improves from ~0.0 (Baseline) to 0.2216, meaning the model explains around 22% of the variation in *Salary*. However, this is a weaker performance compared to the Degree 2 and Degree 3 polynomial models.
+# 
+# Insights:
+# - While the Degree 4 model captures more complexity, it overfits the training data, leading to poorer generalization and reduced testing performance compared to simpler polynomial models.
+# - The decrease in \( R^2 \) and increase in RMSE on the testing set suggest that adding more complexity does not necessarily lead to better predictions.
+# - This model demonstrates the trade-off between capturing detailed patterns in training data and maintaining generalizability for new data.
+
+# In[217]:
+
+
+# Define the polynomial regression pipeline for degree 4
+poly_reg_degree4 = Pipeline([
+    ('poly_features', PolynomialFeatures(degree=4, include_bias=False)),  # Generate polynomial features
+    ('lin_reg', LinearRegression())  # Apply linear regression on the transformed features
+])
+
+# Train the model
+poly_reg_degree4.fit(X_train_imputed_transformed, y_train_imputation)
+
+# Predict on training and testing sets
+y_train_poly4_pred = poly_reg_degree4.predict(X_train_imputed_transformed)
+y_test_poly4_pred = poly_reg_degree4.predict(X_test_imputed_transformed)
+
+# Evaluate the Polynomial Regression model (degree 4)
+poly4_rmse_train = np.sqrt(mean_squared_error(y_train_imputation, y_train_poly4_pred))
+poly4_rmse_test = np.sqrt(mean_squared_error(y_test_imputation, y_test_poly4_pred))
+poly4_mae_train = mean_absolute_error(y_train_imputation, y_train_poly4_pred)
+poly4_mae_test = mean_absolute_error(y_test_imputation, y_test_poly4_pred)
+poly4_r2_train = r2_score(y_train_imputation, y_train_poly4_pred)
+poly4_r2_test = r2_score(y_test_imputation, y_test_poly4_pred)
+
+# Display the results
+print(f"Polynomial Regression Model (Degree 4) - RMSE on Training Set: {poly4_rmse_train:.2f}")
+print(f"Polynomial Regression Model (Degree 4) - RMSE on Testing Set: {poly4_rmse_test:.2f}")
+print(f"Polynomial Regression Model (Degree 4) - MAE on Training Set: {poly4_mae_train:.2f}")
+print(f"Polynomial Regression Model (Degree 4) - MAE on Testing Set: {poly4_mae_test:.2f}")
+print(f"Polynomial Regression Model (Degree 4) - R² on Training Set: {poly4_r2_train:.4f}")
+print(f"Polynomial Regression Model (Degree 4) - R² on Testing Set: {poly4_r2_test:.4f}")
+
+
+# #### Decision Tree Model
+# The Decision Tree Model attempts to create a series of decision rules based on the features to predict *Salary*.
+# 
+# Model Fit:
+# - The model performs exceptionally well on the training set (RMSE = ~13,350, MAE = ~6,800), but its performance on the testing set (RMSE = ~34,800, MAE = ~26,200) is significantly worse. This large gap indicates severe overfitting, where the model learns the training data too rigidly and fails to generalize to new data.
+# - Cross-validation results (mean RMSE = ~34,400, standard deviation = ~1,800) confirm the poor generalization, showing consistent testing errors across folds.
+# 
+# Comparison with the Baseline:
+# - RMSE on the testing set (34,800) is only marginally better than the Baseline (34,042), suggesting limited improvement in overall prediction accuracy.
+# - MAE improves slightly compared to the Baseline (27,900 to 26,200), meaning predictions are slightly closer to actual salaries on average.
+# - \( R^2 \) on the testing set drops to -0.0477, indicating that the model performs worse than simply predicting the mean salary for all data points.
+# 
+# Insights:
+# - The Decision Tree Model heavily overfits the training data, capturing too many specific details that do not generalize to new data.
+# - While the training metrics show excellent performance, the testing set and cross-validation results highlight the model's inability to generalize.
+# - This model demonstrates the importance of balancing training performance with testing set generalizability and underscores the need for hyperparameter tuning, such as setting a maximum depth or limiting the number of leaves.
+
+# In[222]:
+
+
+# Initialize and fit the decision tree regressor
+tree_reg = DecisionTreeRegressor(random_state=42)
+tree_reg.fit(X_train_imputed_transformed, y_train_imputation)
+
+# Predict on training and test sets
+y_train_tree_pred = tree_reg.predict(X_train_imputed_transformed)
+y_test_tree_pred = tree_reg.predict(X_test_imputed_transformed)
+
+# Evaluate the Decision Tree model
+tree_rmse_train = np.sqrt(mean_squared_error(y_train_imputation, y_train_tree_pred))
+tree_rmse_test = np.sqrt(mean_squared_error(y_test_imputation, y_test_tree_pred))
+
+tree_mae_train = mean_absolute_error(y_train_imputation, y_train_tree_pred)
+tree_mae_test = mean_absolute_error(y_test_imputation, y_test_tree_pred)
+
+tree_r2_train = r2_score(y_train_imputation, y_train_tree_pred)
+tree_r2_test = r2_score(y_test_imputation, y_test_tree_pred)
+
+# Display the results
+print(f"Decision Tree Model - RMSE on Training Set: {tree_rmse_train:.2f}")
+print(f"Decision Tree Model - RMSE on Testing Set: {tree_rmse_test:.2f}")
+print(f"Decision Tree Model - MAE on Training Set: {tree_mae_train:.2f}")
+print(f"Decision Tree Model - MAE on Testing Set: {tree_mae_test:.2f}")
+print(f"Decision Tree Model - R² on Training Set: {tree_r2_train:.4f}")
+print(f"Decision Tree Model - R² on Testing Set: {tree_r2_test:.4f}")
+
+# Perform cross-validation
+tree_cv_scores = cross_val_score(tree_reg, X_train_imputed_transformed, y_train_imputation, 
+                                 cv=10, scoring="neg_mean_squared_error")
+tree_cv_rmse = np.sqrt(-tree_cv_scores)
+
+print(f"\nDecision Tree Model - Cross-Validation RMSE (Mean): {tree_cv_rmse.mean():.2f}")
+print(f"Decision Tree Model - Cross-Validation RMSE (Std Dev): {tree_cv_rmse.std():.2f}")
+
+
+# #### Decision Tree Model with Max Depth (Depth 5)
+# This Decision Tree Model applies a maximum depth of 5 to limit the complexity of the decision tree and reduce overfitting.
+# 
+# Model Fit:
+# - The model demonstrates improved generalization compared to the unrestricted Decision Tree, with a smaller gap between training and testing RMSE values (~25,070 vs. ~27,730).
+# - Cross-validation results (mean RMSE = ~26,618, standard deviation = ~1,729) confirm more stable and reliable performance across folds.
+# 
+# Comparison with the Baseline:
+# - RMSE on the testing set (27,726) is significantly lower than the Baseline (34,042), showing an improvement in prediction accuracy.
+# - MAE decreases from ~27,900 (Baseline) to ~21,385, meaning predictions are closer to actual salaries on average.
+# - \( R^2 \) on the testing set increases to 0.3364, indicating that the model explains ~34% of the variance in *Salary*, compared to the Baseline's near-zero \( R^2 \).
+# 
+# Insights:
+# - Introducing a maximum depth effectively reduces overfitting, balancing training and testing performance.
+# - The improvement in metrics compared to the unrestricted Decision Tree Model demonstrates the importance of constraining model complexity to enhance generalizability.
+# - While this model does not outperform polynomial regression in testing \( R^2 \), it achieves relatively competitive performance with less risk of overfitting.
+
+# In[223]:
+
+
+# Initialize a Decision Tree Regressor with a max_depth constraint
+tree_reg_depth = DecisionTreeRegressor(max_depth=5, random_state=42)
+tree_reg_depth.fit(X_train_imputed_transformed, y_train_imputation)
+
+# Predict on training and testing sets
+y_train_tree_depth_pred = tree_reg_depth.predict(X_train_imputed_transformed)
+y_test_tree_depth_pred = tree_reg_depth.predict(X_test_imputed_transformed)
+
+# Evaluate the Decision Tree with max_depth on Training and Testing sets
+tree_depth_rmse_train = np.sqrt(mean_squared_error(y_train_imputation, y_train_tree_depth_pred))
+tree_depth_rmse_test = np.sqrt(mean_squared_error(y_test_imputation, y_test_tree_depth_pred))
+tree_depth_mae_train = mean_absolute_error(y_train_imputation, y_train_tree_depth_pred)
+tree_depth_mae_test = mean_absolute_error(y_test_imputation, y_test_tree_depth_pred)
+tree_depth_r2_train = r2_score(y_train_imputation, y_train_tree_depth_pred)
+tree_depth_r2_test = r2_score(y_test_imputation, y_test_tree_depth_pred)
+
+# Perform cross-validation
+tree_depth_cv_scores = cross_val_score(tree_reg_depth, X_train_imputed_transformed, y_train_imputation, 
+                                       scoring="neg_mean_squared_error", cv=10)
+tree_depth_cv_rmse_scores = np.sqrt(-tree_depth_cv_scores)
+
+# Display the results
+print(f"Decision Tree Model with Max Depth (Depth 5) - RMSE on Training Set: {tree_depth_rmse_train:.2f}")
+print(f"Decision Tree Model with Max Depth (Depth 5) - RMSE on Testing Set: {tree_depth_rmse_test:.2f}")
+print(f"Decision Tree Model with Max Depth (Depth 5) - MAE on Training Set: {tree_depth_mae_train:.2f}")
+print(f"Decision Tree Model with Max Depth (Depth 5) - MAE on Testing Set: {tree_depth_mae_test:.2f}")
+print(f"Decision Tree Model with Max Depth (Depth 5) - R² on Training Set: {tree_depth_r2_train:.4f}")
+print(f"Decision Tree Model with Max Depth (Depth 5) - R² on Testing Set: {tree_depth_r2_test:.4f}")
+print(f"Decision Tree Model with Max Depth (Depth 5) - Cross-Validation RMSE (Mean): {tree_depth_cv_rmse_scores.mean():.2f}")
+print(f"Decision Tree Model with Max Depth (Depth 5) - Cross-Validation RMSE (Std Dev): {tree_depth_cv_rmse_scores.std():.2f}")
+
+
+# ## Summary of Model Testing
+# Throughout the model testing process, various approaches were evaluated to predict *Salary*, each offering unique strengths and challenges:
+# 
+# 1. Baseline Model: The simplest approach, using the mean salary for predictions, provided a benchmark for comparison. Its inability to explain variance (\( R^2 \approx 0 \)) and high RMSE (~34,000) highlighted the need for more sophisticated models.
+# 
+# 2. Linear Regression: Showed a significant improvement over the Baseline, reducing RMSE and explaining ~32% of the variance in *Salary*. However, the relatively high testing RMSE (~28,000) indicates room for improvement.
+# 
+# 3. Polynomial Regression:
+#    - Degree 2 and Degree 3 models further reduced RMSE on the testing set, with Degree 3 providing a balanced improvement in \( R^2 \) (~34%) while maintaining generalizability.
+#    - Degree 4 introduced overfitting, with a sharp decline in testing \( R^2 \) (~22%) despite better training performance.
+# 
+# 4. Decision Tree Models:
+#    - An unrestricted Decision Tree severely overfit the training data (\( R^2 = 0.84 \)) and performed poorly on the testing set (\( R^2 = -0.05 \)).
+#    - Adding a maximum depth (Depth 5) significantly improved testing performance, matching Polynomial Regression (Degree 3) with an \( R^2 \) of ~34% and achieving stable results across cross-validation.
+# 
+# #### Best Performing Model: 
+# The Polynomial Regression Model (Degree 3) achieved the best balance of training and testing performance, with a testing \( R^2 \) of 0.3433 and an RMSE of ~27,580. It captures the complexity of the data without significant overfitting, making it the most effective model in this analysis.
+
+# ## Relating the Best-Performing Model to the Hypothesis
+# 
+# To connect our modeling process to the project hypothesis, we tested the best-performing model, the Polynomial Regression Model (Degree 3), to predict salaries for two hypothetical individuals. Both individuals were assigned identical values for all features (e.g., years of experience, company size, remote work arrangement, and education), except for gender. 
+# 
+# #### Results:
+# - **Predicted Salary (Female):** \$95,431.68  
+# - **Predicted Salary (Male):** \$100,799.36  
+# - **Salary Difference (Female - Male):** -\$5,367.68  
+# 
+# These results align with the hypothesis, suggesting that women in the tech industry may experience lower salaries compared to men with similar qualifications and job characteristics. While this analysis is based on modeled data and does not account for all potential factors, it provides evidence that supports the exploration of gender-based disparities in tech salaries.
+
+# In[247]:
+
+
+# Suppress specific UserWarning
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
+
+# Define the feature values for prediction
+person_features = {
+    'YearsCodedJobNumeric': 7,  
+    'EducationCategoryNumeric': 4,  
+    'Gender_Female': 1,  # Female
+    'Gender_Male': 0,    # Not Male
+    'HomeRemoteEncoded': 2,  
+    'CompanySizeEncoded': 3,  
+    'CompanyTypeEncoded': 3   
+}
+
+# Create a DataFrame for the features
+person_female_df = pd.DataFrame([person_features])
+
+# Modify for male prediction
+person_features['Gender_Female'] = 0
+person_features['Gender_Male'] = 1
+person_male_df = pd.DataFrame([person_features])
+
+# Apply the pipeline to transform the data
+person_female_transformed = full_pipeline.transform(person_female_df)
+person_male_transformed = full_pipeline.transform(person_male_df)
+
+# Predict salaries using the Polynomial Regression Model (Degree 3)
+predicted_salary_female = poly_reg.predict(person_female_transformed)[0]
+predicted_salary_male = poly_reg.predict(person_male_transformed)[0]
+
+# Calculate the difference
+salary_difference = predicted_salary_female - predicted_salary_male
+
+# Display results
+print(f"Predicted Salary (Female): {predicted_salary_female:.2f}")
+print(f"Predicted Salary (Male): {predicted_salary_male:.2f}")
+print(f"Salary Difference (Female - Male): {salary_difference:.2f}")
 
 
 # ## Resources and References
@@ -3869,8 +5237,9 @@ display(filtered_three_role_stats)
 # - ChatGPT to troubleshoot visualizations (such as legends not showing correctly, labels partially hidden, and correcting sort order of categorical data)
 # - https://stackoverflow.com/questions/1388450/giving-graphs-a-subtitle to learn how to add titles and subtitles to matplotlib visualizations
 # - https://matplotlib.org/stable/gallery/color/named_colors.html to choose consistent color palette for visualizations
+# - https://scikit-learn.org/dev/modules/generated/sklearn.compose.ColumnTransformer.html for issues with passthrough in pipeline
 
-# In[201]:
+# In[ ]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
