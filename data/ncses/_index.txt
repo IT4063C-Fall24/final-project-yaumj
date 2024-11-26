@@ -1,0 +1,37 @@
+Table SLBR-1 - Employed adults in STEM and non-STEM occupations, by broad and detailed occupation: 2019
+Table SLBR-2 - Employed adults in the United States, by workforce type: 2010–19
+Table SLBR-3 - Certification and licenses held by workers with a bachelor's degree or higher, by broad occupational group: 2019
+Table SLBR-4 - Scientists and engineers, by occupation and highest degree field: 2019
+Table SLBR-5 - Relationship of highest degree to job among S&E and S&E-related highest degree holders not working in their broad degree field, by degree level: 2019
+Table SLBR-6 - Unemployment rate, by selected groups: 1990–2019
+Table SLBR-7 - Unemployment rates of scientists and engineers, by level of highest degree and broad occupational category: Selected years, 2003–19
+Table SLBR-8 - S&E highest degree holders who are working involuntarily part time or out of field, by S&E degree field: Selected years, 2010–19
+Table SLBR-9 - Labor market indicators for recent S&E degree recipients up to 5 years after receiving degree, by level and field of highest degree: 2019
+Table SLBR-10 - Employment characteristics of recent SEH doctorate recipients up to 3 years after receiving doctorate, by field of degree: 2001–19
+Table SLBR-11 - Postgraduation plans of doctorate recipients with definite commitments, by broad field of study: Selected years, 1979–2019
+Table SLBR-12 - Employment sector of workers with a bachelor's degree or higher, by broad occupational category and degree field: 2019
+Table SLBR-13 - Employment sector of S&E highest degree holders and workers in S&E occupations: 1993, 2003, and 2019
+Table SLBR-14 - Self-employed scientists and engineers, by education, occupation, and type of business: 2019
+Table SLBR-15 - Employment sector of S&E highest degree holders, by level and field of highest degree: 2019
+Table SLBR-16 - Employment in major S&E occupational categories, by sector: 2019
+Table SLBR-17 - Metropolitan areas with the largest number of workers in S&E occupations: 2019
+Table SLBR-18 - Metropolitan areas with the largest number of workers in S&E occupations as a percentage of all occupations: 2019
+Table SLBR-19 - Employment in S&E occupations, by major industry: 2019
+Table SLBR-20 - Employment of the skilled technical workforce, by major industry: 2019
+Table SLBR-21 - S&E doctorate holders employed in academia, by type of position and degree field: 1973–2019
+Table SLBR-22 - S&E doctorate holders employed in academia, by research priority, type of position, and degree field: 1973–2019
+Table SLBR-23 - S&E doctorate holders employed in academia with federal support, by degree field, research activity, and type of position: 1973–2019
+Table SLBR-24 - Employed scientists and engineers, by sex and occupation: 2019
+Table SLBR-25 - Employed S&E highest degree holders, by sex and field of degree: 2019
+Table SLBR-26 - Science, engineering, and health doctorate holders employed in academia, by type of position, sex, and degree field: 1973–2019
+Table SLBR-27 - Employed scientists and engineers, by race or ethnicity and occupation: 2019
+Table SLBR-28 - Employed S&E highest degree holders, by race or ethnicity and field of degree: 2019
+Table SLBR-29 - S&E doctorate holders employed in academia, by type of position, race or ethnicity, and degree field: 1973–2019
+Table SLBR-30 - Number and median salary of full-time workers with highest degree in S&E field, by sex and occupation: 2019
+Table SLBR-31 - Number and median salary of full-time workers with highest degree in S&E field, by race or ethnicity and occupation: 2019
+Table SLBR-32 - Employed S&E highest degree holders, by sex, race or ethnicity, field of highest degree, and broad occupational category: 2019
+Table SLBR-33 - Employed women with their highest degree in an S&E field, by race or ethnicity and field of degree: 2019
+Table SLBR-34 - Employed S&E highest degree holders, by race or ethnicity, sex, and field of degree: 2019
+Table SLBR-35 - Race or ethnicity distribution of workers with a bachelor's degree or higher in broad occupational groups, by nativity: 2019
+Table SLBR-36 - S&E doctorate holders employed in academia, by type of position, degree field, and citizenship: 2019
+Table SLBR-37 - Plans of noncitizen recipients of U.S. doctorates to stay in the United States, by field of doctorate and place of citizenship: 2008–19
