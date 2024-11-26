@@ -5239,7 +5239,7 @@ print(f"Salary Difference (Female - Male): {salary_difference:.2f}")
 # - https://matplotlib.org/stable/gallery/color/named_colors.html to choose consistent color palette for visualizations
 # - https://scikit-learn.org/dev/modules/generated/sklearn.compose.ColumnTransformer.html for issues with passthrough in pipeline
 
-# In[ ]:
+# In[248]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
